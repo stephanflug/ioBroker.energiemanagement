@@ -1,0 +1,31 @@
+name: Fehler melden
+description: Einen Fehler oder unverständliche Messwerte beschreiben.
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Was ist passiert?
+      description: Beschreibe das erwartete und das tatsächliche Verhalten.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Wie lässt sich der Fehler auslösen?
+      description: Schritte, Menü und betroffener Bereich.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versionen
+      placeholder: Adapter, Node.js, js-controller, web-Adapter und Browser
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Log und Messdaten
+      description: Relevante Fehlermeldung, Zeitpunkt, Messart und Einheit. Zugangsdaten, genaue Standorte, private Adressen und persönliche Werte vor dem Senden entfernen. Keine Vollsicherung anhängen.
+      render: text

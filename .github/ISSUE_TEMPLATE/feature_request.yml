@@ -1,0 +1,16 @@
+name: Verbesserung vorschlagen
+description: Eine Funktion oder bessere Bedienung vorschlagen.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Was möchtest du erreichen?
+      description: Beschreibe den Anwendungsfall und den gewünschten Nutzen.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Vorschlag
+      description: Wie könnte die Funktion oder Darstellung helfen?

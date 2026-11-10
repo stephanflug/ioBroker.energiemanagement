@@ -1,0 +1,78 @@
+/* Calendar summary cards use the same navy surfaces and energy colors as Overview. */
+.energy-summary{margin:0 0 24px;min-width:0}
+.energy-summary-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin:0 0 17px}
+.energy-summary-heading h2{font-size:clamp(21px,2.1vw,27px);line-height:1.25;letter-spacing:-.035em;margin:4px 0 7px}
+.energy-summary-heading p{max-width:780px;font-size:12px;color:#98b1c6;line-height:1.65;margin:0}
+.energy-summary-status{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;padding:8px 11px;border-radius:30px;border:1px solid #2f6b57;background:#153b34;color:#a8e6cc;font-size:10px;line-height:1.3;margin-top:4px}
+.energy-summary-status:before{content:"";display:block;width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#71dbb0}
+.energy-summary-status.warn{border-color:#786238;background:#3a3324;color:#ead49e}.energy-summary-status.warn:before{background:#dfbc77}
+.energy-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+.energy-summary .energy-summary-panel{min-width:0;margin:0;padding:20px;border:1px solid #36546b;border-radius:16px;background:linear-gradient(150deg,#1b3349,#142a3c);box-shadow:0 9px 22px #03101b1c;overflow:hidden}
+.energy-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px;min-height:41px}
+.energy-panel-head h3{font-size:17px;line-height:1.3;letter-spacing:-.025em;margin:4px 0 0;color:#e0edf7;font-weight:650}
+.energy-eyebrow{color:#8eabc3;font-size:9px;letter-spacing:.12em;line-height:1.4;font-weight:700}
+.energy-calendar-label{flex-shrink:0;max-width:48%;border:1px solid #3c5b73;background:#ffffff05;border-radius:9px;padding:7px 9px;color:#bad0e1;font-size:10px;text-align:center;line-height:1.5;overflow-wrap:anywhere}
+.energy-tone-house{--energy-accent:#76ded1}.energy-tone-solar{--energy-accent:#ffd166}.energy-tone-import{--energy-accent:#91c7ff}.energy-tone-export{--energy-accent:#a3b9ff}.energy-tone-battery{--energy-accent:#83d9ac}
+.energy-period-values{display:flex;flex-direction:column;gap:14px}
+.energy-summary-metric{min-width:0}
+.energy-metric-line{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.energy-metric-line>span{display:flex;align-items:center;gap:8px;min-width:0;font-size:11px;line-height:1.4;color:#aac1d3}
+.energy-metric-line i{font-style:normal;color:var(--energy-accent);font-size:16px;line-height:1;width:18px;text-align:center;flex-shrink:0}
+.energy-metric-line strong{color:var(--energy-accent);font-size:17px;letter-spacing:-.03em;line-height:1.3;font-weight:650;white-space:nowrap;font-variant-numeric:tabular-nums}
+.energy-metric-track{height:4px;border-radius:5px;background:#0a1c2c;overflow:hidden;margin-top:7px}
+.energy-metric-track i{display:block;height:100%;width:0;max-width:100%;border-radius:5px;background:var(--energy-accent);transition:width .25s ease}
+.energy-metric-hero{padding:0 0 15px;border-bottom:1px solid #385268;margin:0 0 1px}
+.energy-metric-hero .energy-metric-line{align-items:flex-start;flex-direction:column;gap:5px}
+.energy-metric-hero .energy-metric-line>span{font-size:11px}
+.energy-metric-hero .energy-metric-line strong{font-size:clamp(25px,2.1vw,33px);line-height:1.25}
+.energy-metric-hero .energy-metric-track{display:none}
+.energy-summary-note{font-size:10px;line-height:1.65;color:#91adc3;margin:16px 0 0;overflow-wrap:anywhere}
+.energy-summary-partial:before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#d4bd7f;margin-right:6px;vertical-align:middle}
+.energy-panel-icon{display:grid;place-items:center;width:35px;height:35px;flex:0 0 35px;border-radius:10px;color:var(--energy-accent);background:#ffffff07;font-size:23px;line-height:1}
+.energy-summary .energy-pv-target{border-color:#62533a;background:linear-gradient(150deg,#332f28,#1a2b3b)}
+.energy-period-context{display:block;font-size:11px;color:#a0bacd;line-height:1.5;margin-top:-3px}
+.energy-goal-value{margin:14px 0 16px;min-width:0}
+.energy-goal-value>strong{display:block;color:var(--energy-accent);font-size:clamp(26px,2.2vw,34px);font-weight:650;letter-spacing:-.035em;line-height:1.25;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.energy-goal-value>span{display:block;font-size:11px;line-height:1.5;color:#b8bec0;margin-top:5px}
+.energy-goal-track{height:10px;border:1px solid #655a3d;border-radius:9px;background:#131f2b;overflow:hidden}
+.energy-goal-track i{display:block;height:100%;width:0;max-width:100%;border-radius:8px;background:linear-gradient(90deg,#cf9f43,#ffd166);transition:width .25s ease}
+.energy-goal-track.unset{border-style:dashed;border-color:#53616b}
+.energy-goal-caption{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-size:11px;color:#bcc9d1;line-height:1.5}
+.energy-goal-caption strong{color:#ffd166;font-size:18px;font-weight:650;letter-spacing:-.025em;flex-shrink:0}
+.energy-goal-caption span{text-align:right}
+.energy-goal-editor{border-top:1px solid #4b504c;margin:16px 0 0;padding-top:4px}
+.energy-goal-editor[hidden]{display:none!important}
+.energy-goal-editor>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;cursor:pointer;color:#c9d7df;font-size:11px;padding:6px 0}
+.energy-goal-editor>summary::-webkit-details-marker{display:none}
+.energy-goal-editor>summary:focus-visible{outline:2px solid #e8bf68;outline-offset:3px;border-radius:5px}
+.energy-goal-editor>summary span{font-size:19px}.energy-goal-editor[open]>summary span{transform:rotate(180deg)}
+.energy-goal-editor form{padding:7px 0 0;margin:0}.energy-goal-editor label{display:block;font-size:11px;color:#c4d5e1;margin-bottom:8px;line-height:1.5}
+.energy-goal-input-row{display:flex;align-items:center;gap:8px;min-width:0}
+.energy-goal-input-row input{min-width:0;width:100%;flex:1;min-height:44px;font-size:14px;padding:10px;border-radius:8px;border:1px solid #4c6575;background:#102438;color:#e3eff7}
+.energy-goal-input-row .button{flex-shrink:0;min-height:44px;font-size:11px;padding:9px 12px}
+.energy-goal-editor small{display:block;font-size:10px;color:#9db2c1;margin-top:8px;line-height:1.55}
+.energy-goal-editor-bottom{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:10px;line-height:1.5;color:#abc2d3}
+.energy-goal-editor-bottom .button{flex-shrink:0;min-height:44px;font-size:10px;padding:7px 11px}.energy-goal-editor-bottom .error{color:#ffb5aa}
+.energy-battery-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:17px 0}
+.energy-battery-value{padding:14px 10px;border:1px solid #365b5c;background:#18363266;border-radius:11px;min-width:0}
+.energy-battery-value>span{display:flex;align-items:center;gap:6px;color:#b8d7cf;font-size:11px;line-height:1.5}
+.energy-battery-value>span i{font-size:17px;color:var(--energy-accent);font-style:normal}
+.energy-battery-value>strong{display:block;color:var(--energy-accent);font-size:clamp(19px,1.65vw,25px);font-weight:650;letter-spacing:-.035em;margin-top:9px;line-height:1.3;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.energy-battery-value .energy-metric-track{margin-top:14px}
+.energy-battery-live{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;border-top:1px solid #385268;padding-top:14px;align-items:center;font-size:11px;line-height:1.5;color:#adc4d5}
+.energy-battery-live strong{color:#9de0bd;font-size:18px;line-height:1.3;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.energy-battery-live small{grid-column:1/-1;font-size:10px;color:#91b1c1}
+.energy-meter-powers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:17px}
+.energy-meter-powers span{display:block;font-size:10px;line-height:1.5;color:#acc2d2}
+.energy-meter-powers strong{display:block;font-size:clamp(24px,2vw,31px);color:var(--energy-accent);font-weight:650;letter-spacing:-.035em;line-height:1.3;margin-top:7px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.energy-meter-counters{display:flex;flex-direction:column;gap:12px;border-top:1px solid #385268;border-bottom:1px solid #385268;padding:14px 0;margin:0 0 15px}
+.energy-meter-counters>div{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:10px;line-height:1.5;color:#a2bccf}
+.energy-meter-counters strong{font-size:12px;color:#cbdfea;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.energy-meter-phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.energy-meter-phases>div{padding:9px 5px;text-align:center;border-radius:8px;background:#112638;border:1px solid #2d4d65;min-width:0}
+.energy-meter-phases small{display:block;color:#82a4be;font-size:9px;font-weight:650}
+.energy-meter-phases strong{display:block;color:#bbd8eb;font-size:11px;margin-top:4px;line-height:1.4;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+@media(max-width:1160px){.energy-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.energy-metric-hero .energy-metric-line strong{font-size:30px}.energy-goal-value>strong{font-size:31px}.energy-battery-value>strong{font-size:24px}.energy-meter-powers strong{font-size:29px}}
+@media(max-width:680px){.energy-summary-heading{flex-direction:column;gap:10px;margin-bottom:15px}.energy-summary-heading h2{font-size:23px}.energy-summary-heading p{font-size:11px}.energy-summary-status{margin-top:0}.energy-summary-grid{grid-template-columns:1fr;gap:14px}.energy-summary .energy-summary-panel{padding:18px;border-radius:14px}.energy-panel-head h3{font-size:17px}.energy-calendar-label{font-size:10px}.energy-metric-line>span{font-size:12px}.energy-metric-line strong{font-size:19px}.energy-metric-hero .energy-metric-line strong{font-size:32px}.energy-period-values{gap:15px}.energy-summary-note{font-size:11px}.energy-goal-value>strong{font-size:32px}.energy-battery-value>strong{font-size:27px}.energy-goal-editor>summary{font-size:12px}.energy-meter-powers strong{font-size:31px}.energy-meter-counters>div{font-size:11px}.energy-meter-counters strong{font-size:13px}.energy-meter-phases strong{font-size:12px}}
+@media(max-width:360px){.energy-summary .energy-summary-panel{padding:15px}.energy-metric-line strong{font-size:17px}.energy-metric-line>span{font-size:11px}.energy-metric-hero .energy-metric-line strong{font-size:29px}.energy-calendar-label{padding:6px 7px}.energy-goal-value>strong{font-size:29px}.energy-battery-value>strong{font-size:23px}.energy-battery-value{padding:12px 8px}.energy-goal-input-row{gap:6px}.energy-goal-input-row .button{padding:8px;font-size:10px}.energy-meter-powers strong{font-size:27px}.energy-meter-counters>div{align-items:flex-start;flex-direction:column;gap:3px}.energy-meter-counters strong{text-align:left}}
+@media(prefers-reduced-motion:reduce){.energy-summary *{transition:none!important}}

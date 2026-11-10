@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1e30">
+<meta name="description" content="Energiemanagement für ioBroker – Viertelstundenmonitoring und Lastmanagement">
+<title>Energiemanagement</title>
+<link rel="stylesheet" href="style.css?v=0.10.1">
+<script src="/lib/js/socket.io.js" defer></script><script src="app.js?v=0.10.1" defer></script><script src="analytics.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="insights.css?v=0.10.1">
+<script src="insights.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="forecast.css?v=0.10.1">
+<script src="forecast.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="dashboard.css?v=0.10.1">
+<script src="dashboard.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="navigation.css?v=0.10.1">
+<script src="navigation.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="heating.css?v=0.10.1">
+<script src="heating.js?v=0.10.1" defer></script>
+<script src="heating-trend.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="energy-summary.css?v=0.10.1">
+<script src="energy-summary.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="utilities.css?v=0.10.1">
+<script src="utilities.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="rainwater.css?v=0.10.1">
+<script src="rainwater.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="analysis-layout.css?v=0.10.1">
+<script src="analysis-layout.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="day-comparison.css?v=0.10.1">
+<script src="day-comparison.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="storage.css?v=0.10.1">
+<script src="storage.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="tank.css?v=0.10.1">
+<script src="tank.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="sources-manager.css?v=0.10.1">
+<script src="sources-manager.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="backup-ui.css?v=0.10.1">
+<script src="backup-ui.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="embed.css?v=0.10.1">
+<script src="embed.js?v=0.10.1" defer></script>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar" id="appSidebar" tabindex="-1">
+<button id="mobileMenuClose" class="mobile-menu-close" type="button" aria-label="Menü schließen">×</button>
+ <div class="brand"><span class="brand-icon">◈</span><div><strong>ENERGIEMANAGEMENT</strong><small>Power bye Ebner Stephan</small></div></div>
+ <div class="nav-caption">ÜBERSICHT</div>
+ <nav>
+  <button data-page="overview" class="active"><span>▦</span> Übersicht</button>
+  <button data-page="history"><span>▥</span> Viertelstunden / Verlauf</button>
+  <button data-page="analytics"><span>▤</span> Energieauswertung</button>
+  <button data-page="forecast"><span>☀</span> PV-Ertragsprognose</button>
+  <button data-page="water" hidden><span>◈</span> Wasser</button>
+  <button data-page="rainwater" hidden><span>☂</span> Regenwasser</button>
+  <button data-page="fuel" hidden><span>◉</span> Brennstoff</button>
+  <button data-page="heating" hidden><span>♨</span> Heizung & Gebäudepuffer</button>
+  <button data-page="reports"><span>▣</span> Berichte</button>
+ </nav>
+ <div class="nav-caption">KONFIGURATION</div>
+ <nav>
+  <button data-page="sources"><span>⌕</span> Datenquellen</button>
+  <button data-page="devices"><span>☷</span> Verbraucher & Prioritäten</button>
+  <button data-page="outputs"><span>⌁</span> Geräteausgänge</button>
+  <button data-page="settings"><span>⚙</span> Einstellungen</button>
+ </nav>
+ <div class="side-footer"><span id="navStatus" class="signal off"></span><span id="navStatusText">Verbindung prüfen</span><small>Geräteausgänge standardmäßig AUS</small></div>
+</aside>
+<button id="navScrim" class="nav-scrim" type="button" aria-label="Menü schließen" tabindex="-1" hidden></button>
+<div class="workspace">
+<header class="topbar"><button id="mobileMenuOpen" class="mobile-menu-open" type="button" aria-label="Hauptmenü öffnen" aria-controls="appSidebar" aria-expanded="false">☰</button><div class="heading"><h1 id="pageTitle" tabindex="-1">Übersicht</h1><span>PV-Erzeugung, Verbrauch, Lastspitzen und Berichte</span></div><div class="top-actions"><span id="lastUpdate">–</span><button id="autoRefresh" class="button ghost" type="button" aria-pressed="true" title="Nur Live-Messwerte und Diagramme automatisch aktualisieren">Live: EIN</button><button id="refresh" class="button ghost" type="button">Aktualisieren</button></div></header>
+<main>
+<div id="connectionBanner" class="connection-banner" hidden role="status"><span id="connectionMessage"></span><button id="connectionRetry" class="button ghost" type="button">Erneut verbinden</button></div>
+<div id="notice" class="notice hidden" role="status" aria-live="polite"><span id="noticeText" class="notice-text"></span><button id="noticeDismiss" class="notice-dismiss" type="button" aria-label="Meldung schließen" title="Meldung schließen">×</button></div>
+<section id="page-overview" class="page dashboard-overview">
+ <div class="dashboard-intro">
+  <div><div class="eyebrow">ENERGIE IM ÜBERBLICK</div><h2>Dein Haus auf einen Blick</h2><p>Aktuelle Leistung, wichtige Hinweise und dein Energieverbrauch.</p></div>
+  <div class="dashboard-status" id="dashboardQuality" role="status"><i aria-hidden="true"></i><span id="dashboardQualityText">Messwerte werden geladen</span></div>
+ </div>
+
+ <div class="dashboard-power-grid" aria-label="Aktuelle Leistung">
+  <article class="dashboard-power-card solar"><div class="dashboard-card-heading"><span>PV-Erzeugung</span><i aria-hidden="true">☀</i></div><strong id="dashboardPvValue">–</strong><span class="dashboard-card-detail" id="dashboardPvDetail">Leistung deiner Solaranlage</span></article>
+  <article class="dashboard-power-card house"><div class="dashboard-card-heading"><span>Hausverbrauch</span><i aria-hidden="true">⌂</i></div><strong id="dashboardHouseValue">–</strong><span class="dashboard-card-detail" id="dashboardHouseDetail">Gesamter Verbrauch im Haus</span></article>
+  <article class="dashboard-power-card grid"><div class="dashboard-card-heading"><span id="dashboardGridLabel">Stromnetz</span><i aria-hidden="true">↔</i></div><strong id="dashboardGridValue">–</strong><span class="dashboard-card-detail" id="dashboardGridDirection">Bezug und Einspeisung</span></article>
+  <article class="dashboard-power-card battery"><div class="dashboard-card-heading"><span>Batterie</span><i aria-hidden="true">▰</i></div><strong id="dashboardBatteryValue">–</strong><span class="dashboard-card-detail" id="dashboardBatteryDirection">Laden und Entladen</span></article>
+ </div>
+
+ <article class="panel flow-panel dashboard-flow" aria-label="Energiefluss und Verbraucher">
+  <div class="panel-head wrap"><div><div class="eyebrow">JETZT IM HAUS</div><h2>Energiefluss & Verbraucher</h2><p>Erzeugung, Netz und Speicher versorgen dein Haus.</p></div>
+   <div class="flow-head-actions"><span id="flowStatus" class="flow-status">Werte werden geladen …</span><button id="overviewAddDevice" type="button" class="button ghost" title="Neuen Verbraucher im Energiemanagement anlegen">+ Verbraucher</button></div></div>
+  <div class="flow-board">
+   <div class="flow-column flow-inputs">
+    <div class="flow-node flow-pv"><span class="flow-icon" aria-hidden="true">☀</span><div><small>PV-Erzeugung</small><strong id="flowPv">–</strong><em id="flowPvDetail">Alle PV-Quellen</em></div></div>
+    <div class="flow-node flow-gridnode"><span class="flow-icon" aria-hidden="true">⌁</span><div><small>Stromnetz</small><strong id="flowGrid">–</strong><em id="flowGridDetail">Bezug / Einspeisung</em></div></div>
+    <div class="flow-node flow-battery"><span class="flow-icon" aria-hidden="true">▣</span><div><small>Batterie</small><strong id="flowBattery">–</strong><em id="flowBatteryDetail">Laden / Entladen</em></div></div>
+   </div>
+   <div class="flow-connectors" aria-hidden="true"><span id="flowPvLine" class="flow-line"></span><span id="flowGridLine" class="flow-line"></span><span id="flowBatteryLine" class="flow-line"></span></div>
+   <div class="flow-hub"><span class="flow-hub-icon" aria-hidden="true">⌂</span><small>Hausverbrauch</small><strong id="flowHouse">–</strong><span id="flowHouseQuality">Berechnet / gemessen</span></div>
+   <div class="flow-output-connector" aria-hidden="true"><span class="flow-line active"></span></div>
+   <div class="flow-consumers"><div class="flow-consumers-title">Verbraucher <small id="flowDeviceCount">0</small></div><div id="flowConsumers" class="flow-consumers-list"><div class="flow-placeholder">Keine Verbraucher eingerichtet</div></div></div>
+  </div>
+  <p class="footnote" id="flowCaution">Verbraucher zeigen Istleistungen, sofern eine aktuelle Messung zugeordnet ist. Sollwerte und veraltete Werte sind gekennzeichnet.</p>
+ </article>
+
+ <div class="dashboard-guidance-grid">
+  <article class="panel dashboard-guidance"><div class="dashboard-section-heading"><span class="dashboard-section-icon green" aria-hidden="true">✦</span><div><div class="eyebrow">ENERGIE-ASSISTENT</div><h2>Was ist jetzt sinnvoll?</h2></div></div><p id="adviceOverview" role="status" aria-live="polite">Empfehlungen werden geladen …</p><button class="button ghost dashboard-link" data-goto="analytics">Empfehlungen ansehen <span aria-hidden="true">→</span></button></article>
+  <article class="panel dashboard-guidance dashboard-forecast"><div class="dashboard-section-heading"><span class="dashboard-section-icon yellow" aria-hidden="true">☀</span><div><div class="eyebrow">PV-ERTRAGSPROGNOSE</div><h2>Wie viel Solarstrom kommt?</h2></div></div><div class="forecast-kpis compact"><div class="forecast-kpi"><small>HEUTE ERWARTET</small><strong id="forecastOverviewToday">–</strong></div><div class="forecast-kpi"><small>MORGEN ERWARTET</small><strong id="forecastOverviewTomorrow">–</strong></div></div><p id="forecastOverviewStatus">PV-Prognose wird geladen …</p><button class="button ghost dashboard-link" data-goto="forecast">PV-Prognose öffnen <span aria-hidden="true">→</span></button></article>
+ </div>
+
+ <div class="dashboard-section-line"><div><div class="eyebrow">VERBRAUCH & LASTSPITZEN</div><h2>Heute und dieser Monat</h2></div><button class="button ghost" data-goto="history">Verlauf ansehen <span aria-hidden="true">→</span></button></div>
+ <div class="dashboard-period-grid">
+  <article class="dashboard-period-card"><small>NETZBEZUG HEUTE</small><strong id="dashboardTodayImport">–</strong><span>Erfasste Energie aus dem Netz</span></article>
+  <article class="dashboard-period-card"><small>NETZBEZUG DIESEN MONAT</small><strong id="kMonthEnergy">–</strong><span id="kDayEnergy">Heute: –</span></article>
+  <article class="dashboard-period-card"><small>15-MINUTEN-SPITZE HEUTE</small><strong id="kDayPeak">–</strong><span id="kDayTime">Noch keine gültige Viertelstunde</span></article>
+  <article class="dashboard-period-card"><small>15-MINUTEN-SPITZE IM MONAT</small><strong id="kMonthPeak">–</strong><span id="kMonthTime">Noch keine gültige Viertelstunde</span></article>
+ </div>
+
+ <details class="panel dashboard-details"><summary><span><strong>Energiebilanz im Detail</strong><small>Heute, Monat und Jahr · einschließlich einzelner Verbraucher</small></span><i aria-hidden="true">⌄</i></summary><div class="dashboard-details-body">
+  <div class="dashboard-detail-toolbar"><p>Geräteverbräuche sind Teil des Hausverbrauchs.</p><button class="button ghost" type="button" data-goto="analytics">Energieauswertung öffnen</button></div><div class="table-scroll"><table class="ana-table"><thead><tr><th>Energiequelle / Verbraucher</th><th class="right">Heute</th><th class="right">Monat</th><th class="right">Jahr</th></tr></thead><tbody id="overviewEnergyRows"><tr><td colspan="4">Energiewerte werden geladen …</td></tr></tbody></table></div><p id="overviewEnergyNote" class="footnote">Es werden ausschließlich erfasste Messwerte angezeigt.</p>
+ </div></details>
+
+ <details class="panel dashboard-details"><summary><span><strong>Lastspitzen & Leistungsbudget</strong><small>Viertelstundenverlauf und aktuelle Leistungsgrenzen</small></span><i aria-hidden="true">⌄</i></summary><div class="dashboard-details-body dashboard-technical-grid">
+  <article><div class="panel-head"><div><h2>15-Minuten-Netzbezug</h2><p id="graphSubtitle">Abgeschlossene Messintervalle</p></div><button class="button ghost" data-goto="history">Details</button></div><div id="overviewChart" class="chart-host"></div><div class="legend"><span class="dot green"></span> gültig <span class="dot gray"></span> lückenhaft <span class="line-dot"></span> Zielwert</div></article>
+  <article><div class="panel-head"><div><h2>Aktuelle Viertelstunde</h2><p id="slotRange">–</p></div></div><div class="progress-info"><span>Prognose am Intervallende</span><strong id="slotForecast">–</strong></div><div class="progress"><i id="slotProgress"></i></div><div class="metrics"><div><span>Leistungsziel</span><b id="slotTarget">–</b></div><div><span>Bisheriger Durchschnitt</span><b id="slotMean">–</b></div><div><span>Messabdeckung</span><b id="slotCoverage">–</b></div><div><span>Verfügbares Zusatzbudget</span><b id="slotBudget">–</b></div><div><span>Empfohlene Drosselung</span><b id="slotReduce">–</b></div></div><p class="footnote">Interne Messung, keine amtliche Abrechnung.</p></article>
+ </div></details>
+
+ <details class="panel dashboard-details"><summary><span><strong>Messwerte & Verbraucherfreigaben</strong><small>Alle Leistungswerte und die Freigabematrix</small></span><i aria-hidden="true">⌄</i></summary><div class="dashboard-details-body dashboard-technical-grid">
+  <article><h2>Aktuelle Messwerte</h2><div class="metrics"><div><span>PV-Erzeugung</span><b id="lPv">–</b></div><div><span>Hausverbrauch</span><b id="lHouse">–</b></div><div><span>Netzbezug</span><b id="lImport">–</b></div><div><span>Netzeinspeisung</span><b id="lExport">–</b></div><div><span>Netzbezug im Lastmanagement</span><b id="kGrid">–</b></div><div><span>Batterieleistung (+ Entladen)</span><b id="lBattery">–</b></div></div><p id="houseQuality" class="footnote">–</p></article>
+  <article><div class="panel-head"><div><h2>Verbraucherfreigaben</h2></div><button class="button ghost" data-goto="devices">Bearbeiten</button></div><div id="overviewDevices" class="list">Verbraucher werden geladen …</div><p class="footnote">Berechnete Freigaben und tatsächliche Hardwarebefehle sind getrennt.</p></article>
+ </div></details>
+</section>
+
+<section id="page-history" class="page hidden">
+ <article class="panel"><div class="panel-head wrap"><div><div class="eyebrow">HISTORIE</div><h2>Leistungsmittelwerte</h2><p>Nur vollständig genug erfasste Viertelstunden zählen für die Spitze.</p></div><div class="controls"><select id="chartRange"><option value="today">Heute</option><option value="yesterday">Gestern</option><option value="week">7 Tage</option><option value="month">Monat</option></select><button class="button" id="exportCsv">CSV exportieren</button></div></div>
+ <div id="historyChart" class="chart-host large"></div><p id="historyCount" class="footnote">–</p></article>
+ <article class="panel"><div class="panel-head"><div><div class="eyebrow">MESSWERTE</div><h2>Viertelstunden-Tabelle</h2></div></div><div class="scroll-table"><table><thead><tr><th>Beginn</th><th>Mittelwert</th><th>Netzbezug</th><th>Abdeckung</th><th>Bewertung</th></tr></thead><tbody id="historyRows"></tbody></table></div></article>
+ <article class="panel"><div class="panel-head"><div><div class="eyebrow">TAGESAUSWERTUNG</div><h2>Tagesmaxima</h2></div></div><div class="scroll-table"><table><thead><tr><th>Datum</th><th>15-Minuten-Spitze</th><th>Netzbezug</th><th>Gültige Intervalle</th></tr></thead><tbody id="dayRows"></tbody></table></div></article>
+</section>
+
+<section id="page-water" class="page hidden"><div class="intro"><h2>Wasser</h2><p>Durchfluss und Wasserverbrauch nach Tagen, Monaten und Jahren.</p></div><div id="waterContent"></div></section>
+<section id="page-rainwater" class="page hidden"><div class="intro"><h2>Regenwasser</h2><p>Durchfluss, Zählerstand und erfasster Regenwasserverbrauch.</p></div><div id="rainwaterContent"></div></section>
+<section id="page-fuel" class="page hidden"><div class="intro"><h2>Brennstoff</h2><p>Pellets, Öl oder Gas in der jeweils passenden Verbrauchseinheit erfassen.</p></div><div id="fuelContent"></div><div id="fuelTankContent"></div></section>
+<section id="page-heating" class="page hidden">
+ <div class="intro"><h2>Heizung & Gebäudepuffer</h2><p>Raumtemperaturen gemeinsam bewerten, Heizbedarf erkennen und PV-Energie als Wärme nutzen.</p></div>
+ <article class="panel heating-overview">
+  <div class="panel-head wrap"><div><div class="eyebrow">OPTIONALE HEIZUNGSOPTIMIERUNG</div><h2>Wie warm ist dein Haus?</h2></div><span id="heatingModeBadge" class="heating-badge">Noch nicht eingerichtet</span></div>
+  <div class="heating-kpis"><div><small>RAUMMITTELWERT</small><strong id="heatingMean">–</strong><span id="heatingCoverage">Noch keine Raumfühler</span></div><div><small>KÄLTESTER RAUM</small><strong id="heatingMin">–</strong><span id="heatingMinName">Komfortschutz je Raum</span></div><div><small>AUSSENTEMPERATUR</small><strong id="heatingOutdoor">–</strong><span id="heatingTarget">Gewichtetes Raumziel: –</span></div><div><small>ABENDS GESCHÄTZT</small><strong id="heatingEvening">–</strong><span id="heatingModelConfidence">Gebäudemodell lernt noch</span></div></div>
+  <p id="heatingReason" class="heating-reason" role="status" aria-live="polite">Raumfühler und Außenfühler unten zuordnen, dann die Beobachtung aktivieren.</p>
+  <div class="heating-summary"><div><small>Wärmepumpe</small><strong id="heatingPumpAdvice">Keine Anforderung</strong><span id="heatingPumpState">Betriebsrückmeldung nicht zugeordnet</span></div><div><small>PV-Wärmepuffer</small><strong id="heatingPvAdvice">Deaktiviert</strong><span id="heatingPvPower">Überschuss wird erst nach Einrichtung ausgewertet</span></div></div>
+  <p id="heatingHardwareStatus" class="footnote">Es werden keine Geräte angesteuert.</p><p id="heatingError" class="heating-error hidden" role="alert"></p><div id="heatingOutputDetails" class="heating-readings"></div>
+  <div id="heatingRoomReadings" class="heating-readings"></div>
+  <div id="heatingCircuitReadings" class="heating-readings"></div>
+  <p id="heatingUpdated" class="footnote"></p>
+ </article>
+ <article class="panel" id="heatingTrendPanel">
+  <div class="panel-head wrap"><div><div class="eyebrow">HEIZUNG & GEBÄUDEPUFFER</div><h2>Temperaturverlauf</h2><p>Räume und Messwerte einzeln auswählen. Berühren oder mit der Maus über die Grafik fahren, um Werte abzulesen.</p></div><div class="controls"><label>Zeitraum<select id="heatingTrendRange"><option value="1">1 Stunde</option><option value="6">6 Stunden</option><option value="24" selected>24 Stunden</option><option value="48">48 Stunden</option></select></label><button id="heatingTrendCsv" class="button ghost" type="button">CSV exportieren</button></div></div>
+  <div id="heatingTrendFilters" class="heating-trend-filters" aria-label="Temperaturkurven auswählen"></div>
+  <div id="heatingTrend" class="heating-trend"><div class="heating-empty">Die Aufzeichnung beginnt mit gültigen Raumwerten.</div></div>
+  <div id="heatingTrendReading" class="heating-trend-reading" role="status">Noch keine Messung ausgewählt.</div>
+  <p class="footnote">Bis zu 48 Stunden im Minutenraster. Einzelne Räume werden ab diesem Update aufgezeichnet. Messlücken, ungültige Werte und geänderte Fühlerzuordnungen bleiben als Unterbrechung sichtbar. Ein Estrichwert erscheint nur bei zugeordnetem Bodenfühler.</p>
+ </article>
+ <article class="panel" id="heatingConfiguration">
+  <div class="panel-head"><div><div class="eyebrow">EINRICHTUNG</div><h2>Betriebsart</h2><p>Mit der Beobachtung beginnen. Gerätesteuerung wird gesondert und je Ausgang freigegeben.</p></div></div>
+  <div class="heating-grid">
+   <label class="heating-check"><input id="heatingEnabled" type="checkbox" data-h-path="enabled"> Funktion aktivieren</label>
+   <label>Betriebsart<select id="heatingMode" data-h-path="mode"><option value="observe">Nur beobachten & empfehlen</option><option value="auto">Automatisch innerhalb der Grenzen regeln</option></select></label>
+   <label class="heating-check"><input id="heatingLearning" type="checkbox" data-h-path="learningEnabled"> Gebäudeverhalten mitlernen</label>
+  </div>
+  <label class="heating-check heating-hardware-check"><input id="heatingHardwareEnabled" type="checkbox" data-h-path="hardwareEnabled"> Echte Gerätesteuerung für diese Heizungsfunktion freigeben</label>
+  <p class="footnote">Beobachten verändert keine Geräte. Automatik benötigt zusätzlich die Freigabe jedes verwendeten Ausgangs. Die Wärmepumpe darf ausschließlich über eine geeignete Hersteller-Freigabe oder Heizsperre beeinflusst werden; keine Netz- oder Kompressorschaltung zuordnen.</p>
+ </article>
+ <article class="panel">
+  <div class="panel-head wrap"><div><div class="eyebrow">RAUMTEMPERATUREN</div><h2>Raumfühler</h2><p>Beschriftung, Zieltemperatur und Gewichtung je Raum. Ein zu kalter Raum kann eine Heizpause verhindern.</p></div><button id="heatingAddRoom" class="button ghost" type="button">+ Raumfühler</button></div>
+  <div id="heatingRooms" class="heating-editor-list"></div>
+  <p class="footnote">Gewichtung 1 zählt normal, Gewichtung 2 doppelt. Nur echte Raum-Isttemperaturen in °C zuordnen, keine Soll-, Geräte- oder Wassertemperaturen. Deaktivierte oder veraltete Fühler zählen nicht zum aktuellen Mittelwert. Ein Mindestanteil gültiger Fühler wird zusätzlich geprüft.</p>
+ </article>
+ <article class="panel">
+  <div class="panel-head"><div><div class="eyebrow">AUSSENFÜHLER</div><h2>Außentemperatur einbinden</h2><p>Für die Bewertung des Wärmeverlusts und den Frostschutz.</p></div></div>
+  <div id="heatingOutdoorField"></div>
+ </article>
+ <details class="panel heating-details"><summary><span><strong>Heizkreise & Live-Sollwerte</strong><small>Optional einen oder mehrere zentrale Raumsollwerte anpassen</small></span><span aria-hidden="true">⌄</span></summary><div class="heating-detail-body">
+  <p>Hier ausschließlich einen <strong>Regelungs-Raumsollwert</strong> in °C zuordnen. Vorlauf-, Kessel- oder Warmwassertemperaturen gehören nicht in diese Regelung. Änderungen bleiben zwischen dem eingestellten Minimum und Maximum und erfolgen in kleinen Schritten.</p>
+  <div id="heatingCircuits" class="heating-editor-list"></div><button id="heatingAddCircuit" class="button ghost" type="button">+ Heizkreis</button>
+ </div></details>
+ <details class="panel heating-details"><summary><span><strong>Wärmepumpe & Freigaben</strong><small>Optionale Heizsperre, echte Betriebsrückmeldung und Leistungsmessung</small></span><span aria-hidden="true">⌄</span></summary><div class="heating-detail-body">
+  <div id="heatingPumpLockField"></div>
+  <div class="heating-grid"><label>Wert für „Heizen gesperrt“<select id="heatingLockOn" data-h-path="pump.lockOn"><option value="true">true = gesperrt</option><option value="false">false = gesperrt</option></select></label><label class="heating-check"><input id="heatingPumpArmed" type="checkbox" data-h-path="pump.armed"> Automatische Heizsperre an diesem Ausgang freigeben</label></div>
+  <div id="heatingPumpStatusField"></div><div id="heatingPumpPowerField"></div>
+  <p class="footnote">Die Betriebsrückmeldung muss „true = Raumheizbetrieb aktiv“ bedeuten. Ohne zuverlässige Rückmeldung wird keine automatische Sperre erteilt. Warmwasserbereitung, Abtauen, Frostschutz und Herstellerschutzfunktionen müssen von der gewählten Heizfreigabe unabhängig bleiben.</p>
+ </div></details>
+ <details class="panel heating-details"><summary><span><strong>PV-Überschuss als Wärmepuffer</strong><small>Fußboden und Gebäude maßvoll vorwärmen, wenn Solarstrom verfügbar ist</small></span><span aria-hidden="true">⌄</span></summary><div class="heating-detail-body">
+  <label class="heating-check"><input id="heatingPvEnabled" type="checkbox" data-h-path="pv.enabled"> PV-Vorwärmung berücksichtigen</label>
+  <div class="heating-grid">
+   <label>Mindestens Einspeisung (W)<input type="number" data-h-path="pv.minExportW" min="0" max="50000" step="100"></label>
+   <label>Mindestens PV-Anteil (%)<input type="number" data-h-path="pv.minCoveragePct" min="1" max="100" step="1"></label>
+   <label>Zusätzliche Leistungsreserve (W)<input type="number" data-h-path="pv.reserveW" min="0" max="20000" step="100"></label>
+   <label>Erwartete elektrische WP-Leistung (W)<input type="number" data-h-path="pv.heatPumpPowerW" min="100" max="30000" step="100"></label>
+   <label>Zusätzliche Raumziel-Anhebung (°C)<input type="number" data-h-path="pv.boostC" min="0" max="3" step="0.1"></label>
+   <label>Maximale Raumtemperatur (°C)<input type="number" data-h-path="pv.maxRoomC" min="18" max="28" step="0.1"></label>
+   <label>Maximale Bodentemperatur (°C)<input type="number" data-h-path="pv.maxFloorC" min="20" max="35" step="0.5"></label>
+   <label>Überschuss stabil seit (Minuten)<input type="number" data-h-path="pv.stableMin" min="1" max="30" step="1"></label>
+   <label>Vorwärmen ab Stunde<input type="number" data-h-path="pv.startHour" min="0" max="23" step="1"></label>
+   <label>Vorwärmen bis Stunde<input type="number" data-h-path="pv.endHour" min="1" max="24" step="1"></label>
+   <label>Abendbewertung ab Stunde<input type="number" data-h-path="pv.eveningHour" min="0" max="23" step="1"></label>
+  </div>
+  <div id="heatingFloorField"></div>
+  <label class="heating-check"><input id="heatingEstimatedFloor" type="checkbox" data-h-path="pv.allowEstimatedFloor"> Vorwärmen ohne Bodenfühler ausdrücklich zulassen – nur über Raumtemperaturen begrenzt</label>
+  <p class="footnote">100 % PV-Anteil bedeutet volle Deckung der angenommenen Pumpenleistung; kleinere Werte erlauben einen begrenzten Netzanteil. Ohne Bodenfühler ist die tatsächliche Estrichtemperatur unbekannt. Wähle nur Temperaturen, die zu Fußboden, Belag und Heizungsanlage passen. Das Modell kann den Abendbedarf abschätzen, aber keinen heizfreien Abend garantieren.</p>
+ </div></details>
+ <details class="panel heating-details"><summary><span><strong>Komfort- und Laufzeitgrenzen</strong><small>Messabdeckung, Frostschutz, kalte Räume und Taktvermeidung</small></span><span aria-hidden="true">⌄</span></summary><div class="heating-detail-body">
+  <div class="heating-grid">
+   <label>Mindestens gültige Raumfühler<input type="number" data-h-path="minValidRooms" min="1" max="64" step="1"></label>
+   <label>Gültige Fühler-Gewichtung (%)<input type="number" data-h-path="minCoveragePct" min="1" max="100" step="1"></label>
+   <label>Raumfühler maximal alt (Sekunden)<input type="number" data-h-path="sensorMaxAgeSec" min="60" max="7200" step="60"></label>
+   <label>Außenfühler maximal alt (Sekunden)<input type="number" data-h-path="outdoorMaxAgeSec" min="60" max="14400" step="60"></label>
+   <label>Schaltabstand / Hysterese (°C)<input type="number" data-h-path="hysteresisC" min="0.1" max="2" step="0.1"></label>
+   <label>Toleranz für kältesten Raum (°C)<input type="number" data-h-path="coldRoomToleranceC" min="0.1" max="3" step="0.1"></label>
+   <label>Keine Heizsperre unter außen (°C)<input type="number" data-h-path="frostOutdoorC" min="-10" max="10" step="0.5"></label>
+   <label>Absolute Mindest-Raumtemperatur (°C)<input type="number" data-h-path="minRoomC" min="10" max="23" step="0.5"></label>
+   <label>Mindestlaufzeit (Minuten)<input type="number" data-h-path="minOnMin" min="5" max="180" step="1"></label>
+   <label>Mindestpause (Minuten)<input type="number" data-h-path="minOffMin" min="5" max="180" step="1"></label>
+   <label>Maximale Heizsperre (Minuten)<input type="number" data-h-path="maxLockMin" min="10" max="360" step="5"></label>
+  </div>
+ </div></details>
+ <article class="panel"><div class="panel-head wrap"><div><div class="eyebrow">GEBÄUDEMODELL</div><h2>Mit dem Haus lernen</h2><p>Das Modell beobachtet gültige Heiz- und Abkühlphasen mit Außenfühler und echter Betriebsrückmeldung.</p></div><button id="heatingResetLearning" class="button ghost" type="button">Lernwerte zurücksetzen</button></div>
+  <div id="heatingLearningStatus" class="heating-learning">Noch keine Beobachtungen vorhanden.</div>
+  <p class="footnote">Ein langsames Gebäude reagiert anders als ein schnell auskühlendes. Die Einschätzung wird mit geeigneten Messphasen besser. Auffällige Temperatursprünge oder vermutetes Lüften werden beim Lernen ausgeklammert. Vorhersagen bleiben Schätzungen.</p>
+ </article>
+ <article class="panel heating-save-panel"><p id="heatingConfigStatus" role="status" aria-live="polite">Neue Funktion ist zunächst ausgeschaltet. Ordne deine Fühler zu und beginne im Beobachtungsbetrieb.</p><div class="savebar"><span id="heatingDirty">Keine Änderungen</span><button id="heatingReset" class="button ghost" type="button">Verwerfen</button><button id="heatingSave" class="button primary" type="button">Heizungseinstellungen speichern</button></div></article>
+ <div id="heatingStatePicker" class="heating-picker hidden" role="dialog" aria-modal="true" aria-labelledby="heatingPickerTitle">
+  <div class="heating-picker-inner"><div class="panel-head"><div><div class="eyebrow">DATENPUNKT AUSWÄHLEN</div><h2 id="heatingPickerTitle">Passenden Datenpunkt suchen</h2></div><button id="heatingPickerClose" class="button ghost" type="button" aria-label="Datenpunktauswahl schließen">Schließen</button></div>
+   <div class="heating-picker-search"><label>Suchbegriff oder Datenpunkt-ID<input id="heatingPickerQuery" type="search" placeholder="z. B. Wohnzimmer Temperatur"></label><button id="heatingPickerSearch" class="button primary" type="button">Suchen</button></div><p id="heatingPickerInfo" role="status"></p><div id="heatingPickerResults" class="heating-picker-results"></div>
+  </div>
+ </div>
+</section>
+
+<section id="page-forecast" class="page hidden">
+ <div class="intro"><h2>PV-Ertragsprognose</h2><p>Erwarteter Solarertrag für heute und morgen. Standort und PV-Anlage lassen sich direkt auf dieser Seite einrichten.</p></div>
+ <article class="panel"><div class="panel-head wrap"><div><div class="eyebrow">PV-ERTRAGSPROGNOSE</div><h2>Erwarteter PV-Ertrag</h2><p>Wetterprognose von Open-Meteo oder alternativ lokale Sonnenstandsberechnung.</p></div><button id="forecastRefresh" class="button ghost" type="button">Prognose aktualisieren</button></div>
+  <p id="forecastStatus" role="status">PV-Prognose wird geladen …</p>
+  <div id="forecastSetupNotice" class="forecast-setup-notice" role="status"><strong id="forecastSetupTitle">Noch nicht eingerichtet</strong><p id="forecastSetupDescription">Für die Ertragsprognose fehlen noch Standort und PV-Anlagendaten.</p><button id="forecastSetup" class="button primary" type="button">Standort & PV-Anlage einrichten</button></div>
+  <div class="forecast-kpis"><div class="forecast-kpi"><small>HEUTE GESAMT</small><strong id="forecastToday">–</strong><span>Erwartete Tagesenergie</span></div><div class="forecast-kpi"><small>HEUTE NOCH ERWARTET</small><strong id="forecastRemaining">–</strong><span>Rest des Tages, anteilig ab jetzt</span></div><div class="forecast-kpi"><small>MORGEN GESAMT</small><strong id="forecastTomorrow">–</strong><span>Erwartete Tagesenergie</span></div></div>
+  <div id="forecastChart" class="forecast-chart"><div class="empty">Standort und Anlage auf dieser Seite einrichten.</div></div>
+  <p id="forecastClearSky" class="footnote"></p><p id="forecastFetched" class="footnote"></p>
+  <p id="forecastModelNote" class="footnote">Die PV-Ertragsprognose ist eine Schätzung und löst keine Schaltung aus.</p>
+  <p class="footnote">Wetterdienst: <a class="forecast-source" href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · <a class="forecast-source" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. Ortssuche: <a class="forecast-source" href="https://www.geonames.org/" target="_blank" rel="noopener noreferrer">GeoNames</a>. Für private Nutzung kostenlos, ohne API-Schlüssel oder Registrierung.</p>
+ </article>
+
+ <article id="forecastConfiguration" class="panel" aria-labelledby="forecastConfigurationTitle"><div class="panel-head"><div><div class="eyebrow">PV-ERTRAGSPROGNOSE</div><h2 id="forecastConfigurationTitle">Standort & PV-Anlage</h2><p>Ort auswählen oder Koordinaten eingeben. Mehrere Dachflächen mit unterschiedlicher Ausrichtung können gemeinsam berechnet werden.</p></div></div>
+  <label class="forecast-checkbox"><input id="forecastEnabled" type="checkbox"> PV-Ertragsprognose aktivieren</label>
+  <p class="footnote">Open-Meteo ist für private Nutzung kostenlos und benötigt keinen API-Schlüssel. Bei aktivierter Wetterprognose werden die gespeicherten Standortkoordinaten an Open-Meteo übertragen. Die Online-Ortssuche übermittelt den Suchtext erst beim Suchen. Die alternative lokale Berechnung verwendet keine Wetterabfrage.</p>
+  <div class="forecast-grid"><label>Berechnung<select id="forecastProvider"><option value="open-meteo">Open-Meteo – Wetterprognose ohne API-Schlüssel</option><option value="local">Lokales Sonnenstandsmodell – ohne Wetterdienst</option></select></label></div>
+  <div class="forecast-search"><label>Ort oder Postleitzahl<input id="forecastLocationSearch" type="search" maxlength="100" placeholder="z. B. Wien oder München"></label><button id="forecastSearchOnline" class="button ghost" type="button">Ort online suchen</button><button id="forecastSearch" class="button ghost" type="button">Lokale Ortsliste</button></div>
+  <div id="forecastSearchResults" class="forecast-search-results"></div>
+  <div class="forecast-grid"><label>Standortbezeichnung<input id="forecastLocationName" type="text" maxlength="120" placeholder="Mein Standort"></label><label>Breitengrad<input id="forecastLatitude" type="number" min="-90" max="90" step="any" placeholder="z. B. 48,2082"></label><label>Längengrad<input id="forecastLongitude" type="number" min="-180" max="180" step="any" placeholder="z. B. 16,3738"></label></div>
+  <div id="forecastLocalTimezone" class="forecast-grid hidden"><label>Standortzeitzone für lokales Modell (IANA)<input id="forecastTimezone" type="text" maxlength="80" value="Europe/Vienna" placeholder="z. B. Europe/Vienna"></label></div>
+  <div id="forecastArrays"></div>
+  <p class="footnote">Ausrichtung als Kompassrichtung: 0° = Nord, 90° = Ost, 180° = Süd, 270° = West. Dachneigung: 0° = flach, 90° = senkrecht. Nennleistung je Teilfläche laut Anlage in kWp.</p>
+  <button id="forecastAddArray" class="button ghost" type="button">+ PV-Teilfläche hinzufügen</button>
+  <div class="forecast-grid"><label>Anlagenfaktor (0,5–1)<input id="forecastPerformance" type="number" min="0.5" max="1" step="0.01" value="0.8"></label><label id="forecastWeatherFactorBox" class="hidden">Wetterfaktor lokales Modell (0,05–1)<input id="forecastWeatherFactor" type="number" min="0.05" max="1" step="0.05" value="0.7"></label></div>
+  <p class="footnote">Der Anlagenfaktor berücksichtigt pauschal Umwandlungs- und Betriebsverluste. Nur beim lokalen Modell skaliert ein fester Wetterfaktor den sonnigen Modelltag: 1 = sonniges Potenzial, 0,7 = 70 % davon. Nennleistung und Dachwerte müssen zur Anlage passen.</p>
+  <p id="forecastConfigStatus" role="status" aria-live="polite">Standort und PV-Daten eingeben und speichern.</p>
+  <div class="savebar"><span id="forecastDirty">Keine Änderungen</span><button id="forecastReset" class="button ghost" type="button">Verwerfen</button><button id="forecastSave" class="button primary" type="button">PV-Prognose speichern</button></div>
+ </article>
+</section>
+
+<section id="page-analytics" class="page hidden">
+ <div class="analysis-intro">
+  <div><div class="eyebrow">ENERGIEAUSWERTUNG</div><h2>Dein Verbrauch im Überblick</h2><p>Kalenderwerte, heutige Veränderungen und einzelne Verbraucher – hier findest du die passende Auswertung.</p></div>
+  <button type="button" class="button ghost" data-goto="reports">Berichte &amp; Export <span aria-hidden="true">↗</span></button>
+ </div>
+ <nav id="analysisNavigation" class="analysis-navigation" aria-label="Bereiche der Energieauswertung" data-embed-hide>
+  <button type="button" data-analysis-jump="energySummary" aria-current="location"><span aria-hidden="true">▦</span>Kalender</button>
+  <button type="button" data-analysis-jump="dayComparisonContent"><span aria-hidden="true">↗</span>Heute im Vergleich</button>
+  <button type="button" data-analysis-jump="analysisPowerPanel"><span aria-hidden="true">∿</span>Leistungsverlauf</button>
+  <button type="button" data-analysis-jump="analysisPeriods"><span aria-hidden="true">▤</span>Verbraucher &amp; Zeiträume</button>
+  <button type="button" data-analysis-jump="analysisAdvicePanel"><span aria-hidden="true">✦</span>Empfehlungen</button>
+  <button type="button" data-analysis-jump="analysisResources"><span aria-hidden="true">◉</span>Weitere Verbräuche</button>
+ </nav>
+ <div id="energySummary"></div>
+ <div id="utilitiesCalendar" hidden></div>
+ <div id="dayComparisonContent" class="analysis-anchor" tabindex="-1" aria-label="Heutigen Energieverbrauch mit den Vortagen vergleichen"></div>
+
+
+
+
+ <article id="analysisPowerPanel" class="panel analysis-anchor" aria-labelledby="analysisPowerTitle" tabindex="-1">
+  <div class="panel-head wrap"><div><div class="eyebrow">AKTUELLER LEISTUNGSVERLAUF</div><h2 id="analysisPowerTitle">Was läuft gerade?</h2><p>Leistung in Watt – Kurven einzeln ein- und ausblenden.</p></div>
+   <div class="controls"><select id="powerRange" aria-label="Zeitraum Leistungsverlauf"><option value="1">Letzte Stunde</option><option value="6" selected>Letzte 6 Stunden</option><option value="24">Letzte 24 Stunden</option><option value="48">Letzte 48 Stunden</option><option value="custom">Eigener Zeitraum</option></select><button id="powerCSV" class="button ghost">CSV exportieren</button></div></div>
+  <div id="powerCustom" class="controls hidden"><label>Von <input id="powerFrom" type="datetime-local"></label><label>Bis <input id="powerTo" type="datetime-local"></label></div>
+  <div id="powerSeries" class="power-series"></div>
+  <div class="controls"><button id="powerAll" class="button small ghost">Alle anzeigen</button><button id="powerNone" class="button small ghost">Alle ausblenden</button></div>
+  <div id="powerChart" class="power-chart"><div class="empty">Aufzeichnung wird geladen …</div></div>
+  <p id="powerHover" class="footnote">Zum Ablesen über die Grafik fahren oder tippen.</p>
+  <p id="powerInfo" class="footnote"></p>
+ </article>
+
+ <section id="analysisPeriods" class="analysis-section analysis-anchor" aria-labelledby="analysisPeriodsTitle" tabindex="-1">
+ <div class="analysis-section-heading"><div class="eyebrow">DETAILAUSWERTUNG</div><h2 id="analysisPeriodsTitle">Verbraucher und Zeiträume vergleichen</h2>
+  <p>Eine Kennzahl auswählen, einen Zeitraum festlegen und Verlauf oder Einzelwerte ansehen.</p></div>
+ <article class="panel">
+  <div class="panel-head wrap"><div><div class="eyebrow">ZEITRAUM & DATENREIHE</div><h2>Auswertung konfigurieren</h2>
+  <p>Nur aufgezeichnete Energie wird ausgewertet. Fehlende Tage und Monate werden nicht als Nullwerte gerechnet.</p></div>
+  <button id="anaRefresh" class="button ghost" type="button">Neu berechnen</button></div>
+  <div class="ana-filter-grid">
+   <label>Kennzahl<select id="anaMetric">
+    <option value="pvKWh">PV-Erzeugung (kWh)</option>
+    <option value="houseKWh">Hausverbrauch (kWh)</option>
+    <option value="importKWh">Netzbezug (kWh)</option>
+    <option value="exportKWh">Netzeinspeisung (kWh)</option>
+    <option value="device">Einzelner Verbraucher (kWh)</option>
+   </select></label>
+   <label>Auflösung<select id="anaPeriod">
+    <option value="day">Tage</option><option value="month" selected>Monate</option><option value="year">Jahre</option>
+   </select></label>
+   <label id="anaYearBox">Jahr<select id="anaYear"></select></label>
+   <label id="anaMonthBox">Monat<select id="anaMonth"></select></label>
+   <label id="anaDeviceBox" class="hidden">Verbraucher<select id="anaDevice"></select></label>
+   <label>Vergleich<select id="anaCompare">
+    <option value="none">Ohne Vergleich</option>
+    <option value="previous">Vorheriger Monat / Vorjahr</option>
+    <option value="yearbefore">Gleicher Zeitraum im Vorjahr</option>
+   </select></label>
+  </div>
+ </article>
+ <div class="ana-kpis">
+  <article class="ana-kpi"><small>ERFASSTER ZEITRAUM</small><strong id="anaCurrent">–</strong><span id="anaCurrentInfo">–</span></article>
+  <article class="ana-kpi"><small>VERGLEICHSZEITRAUM</small><strong id="anaPrevious">–</strong><span id="anaPreviousInfo">–</span></article>
+  <article class="ana-kpi"><small>VERÄNDERUNG</small><strong id="anaDifference">–</strong><span id="anaDifferenceInfo">–</span></article>
+  <article class="ana-kpi"><small>DATENABDECKUNG</small><strong id="anaCoverage">–</strong><span id="anaCoverageInfo">–</span></article>
+ </div>
+ <article class="panel">
+  <div class="panel-head wrap"><div><div class="eyebrow">ENERGIEVERLAUF</div><h2 id="anaChartTitle">Monatswerte</h2><p id="anaChartDescription">Aufgezeichnete Energie in kWh</p></div>
+   <div class="ana-actions"><button id="anaCSV" class="button ghost" type="button">CSV exportieren</button><button id="anaJSON" class="button ghost" type="button">JSON exportieren</button></div></div>
+  <div id="anaChart" class="ana-chart" role="img" aria-label="Energieverlauf"><div class="empty">Grafik wird geladen …</div></div>
+  <div class="ana-legend"><span><i class="ana-legend-current"></i> Ausgewählter Zeitraum</span><span><i class="ana-legend-compare"></i> Vergleichszeitraum</span><span>Fehlende Messdaten bleiben leer</span></div>
+  <p id="anaWarning" class="ana-warning"></p>
+ </article>
+ <details id="analysisValues" class="panel analysis-values"><summary><span><strong>Einzelwerte ansehen</strong><small>Aufgezeichnete Werte und Vergleiche als Tabelle.</small></span><span aria-hidden="true">⌄</span></summary>
+  <div class="table-scroll"><table class="ana-table"><thead><tr><th>Zeitraum</th><th>Aufzeichnung</th><th class="right">Wert (kWh)</th><th class="right">Vergleich (kWh)</th><th class="right">Abweichung</th></tr></thead><tbody id="anaRows"><tr><td colspan="5">Daten werden geladen …</td></tr></tbody></table></div>
+  <div id="anaTableInfo" class="table-bottom"></div>
+ </details>
+ </section>
+ <article id="analysisAdvicePanel" class="panel insight-advice analysis-anchor" aria-labelledby="analysisAdviceTitle" tabindex="-1">
+  <div class="panel-head"><div><div class="eyebrow">DYNAMISCHE EMPFEHLUNGEN</div><h2 id="analysisAdviceTitle">Wann lohnt sich der Start?</h2></div></div>
+  <p id="adviceSummary" role="status" aria-live="polite">Empfehlungen werden geladen …</p>
+  <p id="adviceQuality" class="footnote"></p>
+  <div class="scroll-table"><table><thead><tr><th>Verbraucher</th><th>Empfehlung</th><th>Istleistung</th><th>Begründung</th></tr></thead><tbody id="adviceRows"></tbody></table></div>
+  <p class="footnote">Automatische Analyse alle Messzyklen. Startempfehlungen benötigen fünf Minuten stabilen Überschuss nach Leistungsreserve. Empfehlungen schalten keine Geräte. Laufende Programme nicht wegen kurzer Wolken unterbrechen. Diese Startempfehlungen beruhen auf aktuellen Messwerten und garantieren keinen künftigen Überschuss.</p>
+ </article>
+
+ <article id="analysisResources" class="panel analysis-resources analysis-anchor" aria-labelledby="analysisResourcesTitle" tabindex="-1">
+  <div class="panel-head"><div><div class="eyebrow">WEITERE VERBRÄUCHE</div><h2 id="analysisResourcesTitle">Wasser, Wärme und Vorräte</h2><p id="analysisResourcesDescription">Freigeschaltete Bereiche und Berichte öffnen.</p></div></div>
+  <div id="analysisResourceCards" class="analysis-resource-grid"></div>
+  <div class="analysis-resources-footer"><p>Messquellen verwaltest du zentral unter Datenquellen. Im Bericht kannst du Zeiträume auswählen und die Daten exportieren.</p><button class="button ghost" type="button" data-goto="sources">Datenquellen öffnen</button></div>
+ </article>
+</section>
+
+<section id="page-reports" class="page hidden">
+ <div class="intro"><h2>Berichte</h2><p>Auswertungen mit frei wählbarem Zeitraum, Kennzahlen und exportierbaren Tabellen für Excel, Archivierung oder Weiterverarbeitung.</p></div>
+ <article class="panel">
+  <div class="panel-head"><div><div class="eyebrow">BERICHTSGENERATOR</div><h2>Bericht zusammenstellen</h2><p>Der Bericht wird aus vorhandenen Messdaten erstellt und kann als CSV, JSON oder Druckansicht ausgegeben werden.</p></div></div>
+  <div class="ana-filter-grid report-filters">
+   <label>Berichtsart<select id="reportType">
+    <option value="balance">Energiebilanz (PV, Haus, Netz)</option>
+    <option value="solar">PV-Erzeugungsbericht</option>
+    <option value="peaks">Netzbezug und Leistungsspitzen</option>
+    <option value="devices">Verbraucher- und Gerätebericht</option>
+    <option value="water">Wasserverbrauch</option>
+    <option value="rainwater">Regenwasserverbrauch</option>
+    <option value="fuel">Brennstoff, Vorrat und Betankungen</option>
+    <option value="resources">Wasser und Brennstoffe</option>
+   </select></label>
+   <label>Zeitraum auswählen<select id="reportPreset">
+    <option value="month">Dieser Monat</option><option value="lastmonth">Letzter Monat</option>
+    <option value="year">Dieses Jahr</option><option value="lastyear">Letztes Jahr</option>
+    <option value="all">Alle verfügbaren Daten</option><option value="custom">Benutzerdefiniert</option>
+   </select></label>
+   <label>Von<input id="reportFrom" type="date"></label><label>Bis<input id="reportTo" type="date"></label>
+   <label id="reportDeviceBox" class="hidden">Verbraucher<select id="reportDevice"></select></label>
+  </div>
+  <div class="savebar"><span id="reportPeriodStatus">Zeitraum prüfen</span><button id="reportGenerate" class="button primary" type="button">Bericht erstellen</button></div>
+ </article>
+ <article class="panel report-paper" id="reportPrint">
+  <div class="report-head"><div><div class="eyebrow">ENERGIEMANAGEMENT / BERICHT</div><h2 id="reportTitle">Energiebilanz</h2>
+    <p id="reportSubtitle">Zeitraum wird geladen</p></div>
+    <div class="report-brand">Power bye Ebner Stephan</div></div>
+  <div id="reportSummary" class="report-summary"></div>
+  <div class="table-scroll"><table class="ana-table"><thead id="reportTableHead"></thead><tbody id="reportRows"></tbody></table></div>
+  <div id="reportNotes" class="report-notes"></div>
+ </article>
+ <div class="report-download">
+  <button id="reportCSV" class="button primary" type="button">CSV herunterladen</button>
+  <button id="reportJSON" class="button ghost" type="button">JSON herunterladen</button>
+  <button id="reportPrintButton" class="button ghost" type="button">Drucken / als PDF speichern</button>
+ </div>
+</section>
+
+<section id="page-sources" class="page hidden">
+ <div class="intro"><h2>Messdaten zuordnen</h2><p>Alle Sensoren und Zähler zentral nach Bereich zuordnen. Mindestvoraussetzung für die Stromauswertung sind Netzbezugsleistung und Bezugszählerstand.</p></div>
+ <div id="sourceOverview"></div>
+ <article class="panel"><div class="panel-head"><div><div class="eyebrow">MESSDATEN</div><h2>Netzanschluss, Zähler und Batterie</h2></div></div><div id="sourceRows"></div>
+ <div class="advice">Beim Wechsel eines Bezugszählers wird der offene Viertelstundenblock verworfen. Bereits abgeschlossene Historien bleiben erhalten.</div></article>
+ <article class="panel"><div class="panel-head"><div><div class="eyebrow">PV-QUELLEN</div><h2>Wechselrichter / PV-Erzeuger</h2><p>Beliebig viele PV-Datenpunkte ohne Vorgabe eines Herstellers.</p></div><button id="addPv" class="button ghost">+ PV-Quelle</button></div><div id="pvRows"></div></article>
+ <div class="savebar"><span id="sourceDirty">Keine Änderungen</span><button id="resetSources" class="button ghost">Verwerfen</button><button id="saveSources" class="button primary">Datenquellen speichern</button></div>
+ <div id="sourceWater"></div><div id="sourceRainwater" class="source-category"></div><div id="sourceFuel"></div><div id="sourceHeating"></div><div id="sourceConsumers"></div>
+</section>
+<section id="page-devices" class="page hidden">
+ <div class="intro device-intro"><div><h2>Verbraucher & Prioritäten</h2><p>Verbraucher frei hinzufügen, Leistung festlegen und die Reihenfolge bestimmen. Die Ausgänge bleiben ohne Hardwarefreigabe virtuell.</p></div><button id="deviceIntroAdd" type="button" class="button primary">+ Neuen Verbraucher anlegen</button></div>
+ <article class="panel"><div class="settings-grid"><label class="checkbox-line"><input id="virtualMaster" type="checkbox"> Prioritätenmatrix aktivieren</label><label>Maximal gleichzeitig freigeben <input id="maxParallel" type="number" min="1" max="250" value="3"></label></div></article>
+ <article class="panel"><div class="panel-head"><div><div class="eyebrow">VERBRAUCHER</div><h2>Prioritätenmatrix</h2></div><button id="addDevice" type="button" class="button primary">+ Verbraucher hinzufügen</button></div><div id="consumerCards" class="consumer-list"></div></article>
+ <div class="savebar"><span id="consDirty">Keine Änderungen</span><button id="resetConsumers" class="button ghost">Verwerfen</button><button id="saveConsumers" class="button primary">Verbraucher speichern</button></div>
+</section>
+<section id="page-outputs" class="page hidden">
+ <div class="intro"><h2>Geräteausgänge</h2><p>Freigabe- und Sollwert-Datenpunkte zuordnen. Eine eigene Freigabe schützt vor unbeabsichtigtem Schalten.</p></div>
+ <article class="panel caution"><h2>Hardware-Master</h2><label class="checkbox-line"><input id="hardwareMaster" type="checkbox"><b>Physische Steuerung zulassen</b></label>
+  <p>Für jeden Verbraucher ist zusätzlich eine eigene Aktivierung, eine Istleistungsmessung und ein geeigneter Schreibdatenpunkt erforderlich. Bei Messausfall versucht der Adapter, von ihm eingeschaltete Ausgänge abzuschalten. Externe Schutzfunktionen und elektrische Grenzen sind unabhängig davon erforderlich.</p>
+  <div class="advice">Der Zugriff auf die Weboberfläche sollte nur mit Authentifizierung oder über ein geschütztes Heimnetz/VPN möglich sein.</div></article>
+ <div id="outputCards" class="consumer-list"></div>
+ <div class="savebar"><span id="outputDirty">Keine Änderungen</span><button id="resetOutputs" class="button ghost">Verwerfen</button><button id="saveOutputs" class="button primary">Ausgänge speichern</button></div>
+</section>
+<section id="page-settings" class="page hidden">
+ <div id="optionalFeaturesSettings"></div>
+ <div id="storageSettings"></div>
+ <div id="fullBackupSettings"></div>
+ <article class="panel"><div class="panel-head"><div><div class="eyebrow">PV-ERTRAGSPROGNOSE</div><h2>Standort & PV-Anlage</h2><p>Erwarteten Ertrag, Standortwahl und Dachflächen findest du im eigenen Menü „PV-Ertragsprognose“.</p></div></div><button class="button ghost" type="button" data-goto="forecast">PV-Ertragsprognose öffnen</button></article>
+
+ <div class="intro"><h2>Allgemeine Einstellungen</h2><p>Leistungsgrenzen einstellen. Die vollständige Datensicherung umfasst alle Einstellungen und gespeicherten Verläufe.</p></div>
+ <article class="panel"><div class="panel-head"><div><div class="eyebrow">NETZBEZUG</div><h2>Berechnungsparameter</h2></div></div><div class="settings-grid">
+ <label>15-Minuten-Leistungsziel (W) <input id="sTarget" type="number" min="500" max="100000" step="100"></label>
+ <label>Sicherheitsreserve (W) <input id="sReserve" type="number" min="0" max="20000" step="100"></label>
+ <label>Orientierungswert Tarifstufe (W) <input id="sTariff" type="number" min="0" max="100000" step="100"></label>
+ <label>Erforderliche Messabdeckung (%) <input id="sCoverage" type="number" min="50" max="100" step="1"></label></div>
+ <div class="savebar"><span>Tarifwerte hängen vom Netzbetreiber und den gültigen Regelungen ab.</span><button id="saveSettings" class="button primary">Einstellungen speichern</button></div></article>
+
+</section>
+</main>
+<footer>ENERGIEMANAGEMENT · v0.10.1 <span>Power bye Ebner Stephan</span><span>Lokale ioBroker-Integration · Keine eichrechtliche Abrechnung</span></footer>
+</div>
+</div>
+<nav class="mobile-tabbar" aria-label="Schnellnavigation">
+ <button type="button" data-page="overview" class="active"><span aria-hidden="true">⌂</span><span>Übersicht</span></button>
+ <button type="button" data-page="analytics"><span aria-hidden="true">▤</span><span>Auswertung</span></button>
+ <button type="button" data-page="forecast"><span aria-hidden="true">☀</span><span>PV-Prognose</span></button>
+ <button type="button" data-page="heating" hidden><span aria-hidden="true">♨</span><span>Heizung</span></button>
+ <button type="button" id="mobileMenuMore" aria-controls="appSidebar" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menü</span></button>
+</nav>
+<div id="picker" class="picker hidden" role="dialog" aria-modal="true"><div class="picker-inner"><div class="panel-head"><div><div class="eyebrow">IOBROKER</div><h2>Datenpunkt auswählen</h2><p id="pickerHint">–</p></div><button id="pickerClose" class="button ghost">Schließen</button></div>
+ <div class="picker-controls"><label>Adapter<select id="pickerAdapter"></select></label><label>Suche<input id="pickerSearch" type="search" placeholder="Name oder vollständige Datenpunkt-ID"></label></div>
+ <label class="picker-showall"><input id="pickerShowAll" type="checkbox"> Alle Datenpunkte anzeigen (einschließlich anderer Datentypen und schreibgeschützter Zustände)</label>
+ <p id="pickerCount" class="footnote">–</p><div id="pickerResults" class="picker-results"></div>
+ <div class="picker-more"><button id="pickerMore" type="button" class="button ghost hidden">Weitere Datenpunkte anzeigen</button></div>
+ <div class="savebar"><button id="pickerClear" class="button ghost">Zuordnung entfernen</button><span>Es werden nur kompatible Datenpunkte angezeigt.</span></div>
+</div></div>
+
+<div id="deviceDialog" class="picker hidden" role="dialog" aria-modal="true" aria-labelledby="deviceDialogTitle">
+ <div class="device-dialog">
+  <div class="panel-head wrap"><div><div class="eyebrow">ENERGIEMANAGEMENT / VERBRAUCHER</div><h2 id="deviceDialogTitle">Neuen Verbraucher hinzufügen</h2>
+   <p>Die Einrichtung erstellt eigene ioBroker-Datenpunkte. Schaltausgänge bleiben zunächst deaktiviert.</p></div>
+   <button id="deviceDialogCancelTop" class="button ghost" type="button">Schließen</button></div>
+  <form id="deviceForm" autocomplete="off">
+   <div class="device-dialog-grid">
+    <label class="name-field">Bezeichnung <input id="deviceNewName" type="text" maxlength="100" placeholder="z. B. Wallbox Garage, Heizstab, Wärmepumpe" required></label>
+    <label>Art des Verbrauchers <select id="deviceNewType"><option value="switch">Ein/Aus-Verbraucher</option><option value="variable">Regelbarer Verbraucher (z. B. Wallbox)</option></select></label>
+    <label>Maximalleistung (W) <input id="deviceNewMax" type="number" min="100" max="50000" step="100" value="1000" required></label>
+    <label id="deviceNewMinGroup" class="hidden">Mindestleistung (W) <input id="deviceNewMin" type="number" min="100" max="50000" step="100" value="1000"></label>
+    <label>Priorität (1 = zuerst) <input id="deviceNewPriority" type="number" min="1" max="99999" step="1" value="4" required></label>
+   </div>
+   <div id="deviceDialogError" class="notice hidden" role="alert"></div>
+   <p class="footnote">Nach dem Speichern erscheint der Verbraucher im Energieflussdiagramm. Die tatsächliche Leistungsaufnahme wird angezeigt, sobald du unter „Geräteausgänge“ einen Istleistungs-Datenpunkt zuordnest.</p>
+   <div class="savebar device-dialog-actions"><button id="deviceDialogCancel" class="button ghost" type="button">Abbrechen</button>
+    <button id="deviceCreate" class="button primary" type="submit">Verbraucher anlegen & speichern</button></div>
+  </form>
+ </div>
+</div>
+</body></html>

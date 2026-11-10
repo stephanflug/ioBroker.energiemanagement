@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Energiemanagement">
+  <rect width="128" height="128" rx="25" fill="#142b43"/>
+  <path d="M17 82h22l12-24 14 34 15-41 11 23h20" fill="none" stroke="#57d5ae" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"/>
+  <path d="M71 18 45 60h22l-6 35 27-47H68z" fill="#80bdff" stroke="#d6eeff" stroke-width="2"/>
+</svg>

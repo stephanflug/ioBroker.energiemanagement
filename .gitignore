@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.npmrc
+*.log
+.DS_Store
+coverage/
+playwright-report/
+test-results/
+.cache/
+iobroker-data/
+backups/
+data/
+Energiemanagement-Vollsicherung-*.json
+*.tgz
+!releases/*.tgz

@@ -1,0 +1,53 @@
+name: Installationspaket veröffentlichen
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Vorhandenes Versions-Tag, z. B. v0.10.1
+        required: true
+        type: string
+      prerelease:
+        description: Als Entwicklungsversion kennzeichnen
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+      PRERELEASE: ${{ inputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Version und Tag prüfen
+        run: |
+          node -e 'const v=require("./package.json").version;if(process.env.RELEASE_TAG!=="v"+v)throw Error("Tag passt nicht zur Paketversion")'
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - run: npm test
+      - name: Paket und Prüfsumme bauen
+        run: |
+          mkdir -p dist
+          npm pack --pack-destination dist
+          cd dist
+          sha256sum *.tgz > "$(basename *.tgz).sha256"
+      - name: GitHub-Veröffentlichung erstellen
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Version ist bereits veröffentlicht. Bestehende Installationsdateien bleiben erhalten."
+            exit 0
+          fi
+          args=(--verify-tag --title "$RELEASE_TAG" --generate-notes)
+          if [ "$PRERELEASE" = true ]; then args+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" dist/*.tgz dist/*.sha256 "${args[@]}"

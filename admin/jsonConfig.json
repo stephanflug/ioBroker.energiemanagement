@@ -1,0 +1,19 @@
+{
+  "i18n": true,
+  "type": "tabs",
+  "items": {
+    "general": {
+      "type": "panel",
+      "label": "Einstellungen",
+      "items": {
+        "description": {"type": "staticText", "text": "Die Messdaten, Verbraucher und Geräteausgänge werden über die eigene Weboberfläche unter /energiemanagement/index.html verwaltet. Die Hardwaresteuerung bleibt standardmäßig ausgeschaltet."},
+        "samplingSeconds": {"type": "number", "label": "Abtastintervall (Sekunden)", "min": 2, "max": 30},
+        "minCoveragePct": {"type": "number", "label": "Mindestabdeckung pro Viertelstunde (%)", "min": 50, "max": 100},
+        "targetW": {"type": "number", "label": "Standard-Leistungsziel (W)", "min": 500, "max": 30000},
+        "reserveW": {"type": "number", "label": "Standard-Sicherheitsreserve (W)", "min": 0, "max": 10000},
+        "tariffThresholdW": {"type": "number", "label": "Orientierungswert Tarifstufe (W)", "min": 0, "max": 100000},
+        "migrateLegacy": {"type": "checkbox", "label": "Bestehende Alt-Konfiguration einmalig übernehmen (falls vorhanden)"}
+      }
+    }
+  }
+}

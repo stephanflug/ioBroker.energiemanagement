@@ -1,0 +1,52 @@
+{
+  "name": "iobroker.energiemanagement",
+  "version": "0.10.1",
+  "description": "Vendor-neutral energy monitoring and priority-based load management for ioBroker",
+  "main": "main.js",
+  "type": "commonjs",
+  "author": "Energiemanagement contributors",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@iobroker/adapter-core": "^3.3.2"
+  },
+  "keywords": [
+    "iobroker",
+    "energy",
+    "power",
+    "loadmanagement",
+    "peak",
+    "smart-meter"
+  ],
+  "files": [
+    "main.js",
+    "lib/",
+    "admin/",
+    "www/",
+    "io-package.json",
+    "README.md",
+    "LICENSE",
+    "test/",
+    "CHANGELOG.md",
+    "docs/",
+    "tools/"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node -e \"const fs=require('node:fs'),cp=require('node:child_process');for(const file of ['main.js',...['lib','www'].flatMap(dir=>fs.readdirSync(dir).filter(name=>name.endsWith('.js')).map(name=>dir+'/'+name))]){const result=cp.spawnSync(process.execPath,['--check',file],{stdio:'inherit'});if(result.status!==0)process.exit(result.status||1)}\"",
+    "docs:screenshots": "node tools/create-publication-screenshots.cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stephanflug/ioBroker.energiemanagement.git"
+  },
+  "homepage": "https://github.com/stephanflug/ioBroker.energiemanagement#readme",
+  "bugs": {
+    "url": "https://github.com/stephanflug/ioBroker.energiemanagement/issues"
+  },
+  "devDependencies": {
+    "playwright": "1.65.0"
+  }
+}

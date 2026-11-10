@@ -1,0 +1,136 @@
+{
+  "common": {
+    "name": "energiemanagement",
+    "version": "0.10.1",
+    "title": "Energiemanagement",
+    "titleLang": {
+      "de": "Energiemanagement",
+      "en": "Energy Management"
+    },
+    "desc": {
+      "de": "Herstellerneutrale 15-Minuten-Leistungsüberwachung mit konfigurierbarer Verbraucher-Priorisierung und abgesicherter Geräteansteuerung.",
+      "en": "Vendor-neutral 15-minute demand monitoring, configurable load priorities and guarded device control."
+    },
+    "authors": [
+      "Energiemanagement contributors"
+    ],
+    "keywords": [
+      "energy",
+      "energy management",
+      "load control",
+      "demand",
+      "meter",
+      "priority"
+    ],
+    "license": "MIT",
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "enabled": true,
+    "compact": false,
+    "type": "energy",
+    "connectionType": "local",
+    "dataSource": "poll",
+    "tier": 3,
+    "adminUI": {
+      "config": "json"
+    },
+    "loglevel": "info",
+    "messagebox": true,
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.0.0"
+      }
+    ],
+    "news": {
+      "0.10.1": {
+        "de": "Komprimierte Datenbanksicherungen in kleinen Teilen, begrenzte Schreibpakete und Bestätigung erst nach geprüftem Zurücklesen; vorhandene Speicherwahl und interne Archive bleiben erhalten.",
+        "en": "Compressed database checkpoints in bounded chunks, small write batches and confirmation only after verified readback; preserve selected storage and local archives."
+      },
+      "0.5.0": {
+        "de": "Optionale Heizungsoptimierung mit Raumfühlern, Gebäudemodell, begrenzten Sollwertänderungen und PV-Gebäudepuffer.",
+        "en": "Optional heating optimization with room sensors, building learning, bounded setpoint control and PV thermal buffering."
+      },
+      "0.4.1": {
+        "de": "Startkachel in web.0 und direkter Öffnen-Link im Admin wiederhergestellt und dauerhaft im Paket hinterlegt.",
+        "en": "Restore web.0 start-page tile and Admin launch link in portable package metadata."
+      },
+      "0.4.0": {
+        "de": "Neu strukturierte Übersicht mit aktuellen Energiewerten und kompakteren Details; Handy-Navigation mit großer unterer Menüleiste und ausklappbarem Gesamtmenü.",
+        "en": "Redesigned overview with current energy values and compact details; mobile bottom navigation and accessible drawer menu."
+      },
+      "0.3.1": {
+        "de": "Eigener Menüreiter für PV-Ertragsprognose mit direkter Einrichtung und verständlichem Status bei fehlenden Anlagendaten.",
+        "en": "Dedicated PV yield forecast tab with direct setup and clear missing-configuration status."
+      },
+      "0.3.0": {
+        "de": "PV-Ertragsprognose mit freier Standortwahl, kostenlosem Wetterdienst ohne API-Schlüssel und optionaler lokaler Schätzung.",
+        "en": "PV yield forecast with selectable location, free keyless weather service and optional offline estimation."
+      },
+      "0.2.0": {
+        "de": "Filterbarer 48-Stunden-Leistungsverlauf, dynamische PV-Startempfehlungen und integriertes Geräteenergiearchiv.",
+        "en": "Filterable 48-hour power history, dynamic solar start recommendations and integrated consumer energy archive."
+      },
+      "0.1.0": {
+        "de": "Eigenständiger Energiemanagement-Adapter mit Migration, Dashboard und Prioritätensteuerung.",
+        "en": "Initial vendor-neutral adapter with migration, dashboard and priority management."
+      },
+      "0.6.0": {
+        "de": "Robuste mobile Wiederverbindung, direkter Heizungsreiter, Raumtemperatur-Trends und schreibgeschützte iframe-Ansichten.",
+        "en": "Mobile connection recovery, direct heating navigation, room temperature trends and read-only iframe views."
+      },
+      "0.6.1": {
+        "de": "Celsius-Schreibweisen wie Homematic ºC und Grad für Fühler und Heizkreis-Sollwerte einheitlich erkennen.",
+        "en": "Recognize Celsius labels such as Homematic ºC and Grad consistently for sensors and heating setpoints."
+      },
+      "0.7.0": {
+        "de": "Kalenderübersichten für Jahr, Monat und Tag, PV-Monatsziel, getrennte Batterieenergie und Smart-Meter-Karten mit automatischem Zeitraumwechsel.",
+        "en": "Calendar year/month/day cards, monthly PV target, battery energy and smart meter overview with automatic period rollover."
+      },
+      "0.8.0": {
+        "de": "Optionale Wasser- und Brennstoffbereiche, Durchfluss-/Zählerauswertung, Pellets/Öl/Gas und zusätzliche Kalenderkarten. Ausblenden der Heizung deaktiviert die Optimierung.",
+        "en": "Optional water and fuel views, flow/counter consumption, pellets/oil/gas and calendar cards. Hiding heating disables optimization."
+      },
+      "0.9.0": {
+        "de": "Zentrale Datenquellen, gleichzeitige Wasser-Durchfluss-/Zählerzuordnung, berechneter Pellets-/Ölvorrat mit Füllungen, erweiterte Berichte und Vollsicherung mit geprüfter Wiederherstellung.",
+        "en": "Central source configuration, simultaneous water flow/counter bindings, estimated pellet/oil inventory with refills, extended reports and validated full-adapter backup/restore."
+      },
+      "0.10.0": {
+        "de": "Optionales Regenwasser, übersichtliche Energieauswertung mit unveränderter Kalenderübersicht und gemessenem Tagesvergleich, wählbare Datenbankspeicherung und eine gemeinsame Vollsicherung.",
+        "en": "Optional rainwater, clearer energy analysis with unchanged calendar cards and measured day comparisons, selectable database storage and one full-adapter backup."
+      }
+    },
+    "icon": "energiemanagement.svg",
+    "localLinks": {
+      "_default": "%web_protocol%://%ip%:%web_port%/energiemanagement/index.html?instance=energiemanagement.%instance%"
+    },
+    "welcomeScreen": {
+      "link": "energiemanagement/index.html?instance=energiemanagement.%instance%",
+      "name": "Energiemanagement",
+      "img": "energiemanagement.svg",
+      "color": "#17334c",
+      "order": 2
+    },
+    "readme": "https://github.com/stephanflug/ioBroker.energiemanagement/blob/main/README.md",
+    "extIcon": "https://raw.githubusercontent.com/stephanflug/ioBroker.energiemanagement/main/admin/energiemanagement.svg"
+  },
+  "native": {
+    "samplingSeconds": 5,
+    "minCoveragePct": 85,
+    "targetW": 9500,
+    "reserveW": 500,
+    "tariffThresholdW": 10000,
+    "maxConsumers": 250,
+    "migrateLegacy": false
+  },
+  "objects": [],
+  "instanceObjects": []
+}
