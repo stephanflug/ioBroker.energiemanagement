@@ -24,17 +24,23 @@ Die Vollsicherung kann nur Daten enthalten, die bereits aufgezeichnet und noch g
 
 Die Datei enthält die Quellinstanz, Adapterversion, den Sicherungszeitpunkt und eine SHA-256-Prüfsumme. Verändere ihren Inhalt vor einer Wiederherstellung nicht. Die Sicherung enthält private Messwerte und Zuordnungen; lade sie nicht in ein öffentliches GitHub-Repository oder einen öffentlichen Fehlerbericht hoch.
 
+## Versionsanzeige ist kein Installationsauftrag
+
+Die Anzeige prüft öffentliche stabile Releases auf GitHub und verlinkt bei einem gefundenen Update dessen Details. Sie installiert keine Dateien. Die vorbereitete 0.10.2 wird als Entwicklungsversion erkannt; ein leeres Repository ohne stabiles Release führt zu einem neutralen Status. Die Anzeige und ihre Hintergrundprüfung setzen bestehende Formulare nicht zurück.
+
+Die Vorbereitung der ZIP-/TGZ-Dateien verändert eine produktive 0.10.1 nicht. Erst ein von dir ausgeführter normaler Installationsschritt spielt ein anderes Paket ein.
+
 ## Eine neue Version installieren
 
-Ein Update ersetzt das Programmpaket und die Weboberfläche. Die bestehende Instanz und ihre gespeicherten Daten werden weiterverwendet.
+**Vor einem Update auf 0.10.2 Node.js ab Version 22 prüfen.** Die Vorbereitung verändert eine laufende 0.10.1 nicht. Erst eine bewusst ausgeführte Installation ersetzt das Programmpaket und die Weboberfläche. Die bestehende Instanz und ihre gespeicherten Daten werden weiterverwendet.
 
 1. Erstelle zunächst eine Vollsicherung mit der oben beschriebenen Funktion.
-2. Lade das gewünschte `.tgz`-Paket aus [GitHub-Veröffentlichungen](https://github.com/stephanflug/ioBroker.energiemanagement/releases) herunter und kopiere es auf den ioBroker-Host beziehungsweise in den ioBroker-Container.
-3. Installiere das Paket mit der ioBroker-CLI. Für Version 0.10.1:
+2. Verwende das separat bereitgestellte `.tgz`-Paket der vorbereiteten Version und kopiere es auf den ioBroker-Host beziehungsweise in den ioBroker-Container. Ein GitHub-Release steht erst nach einer gesonderten Veröffentlichung zur Verfügung.
+3. Installiere das Paket mit der ioBroker-CLI. Für Version 0.10.2:
 
    ```bash
    cd /opt/iobroker
-   iobroker url /tmp/iobroker.energiemanagement-0.10.1.tgz
+   iobroker url /tmp/iobroker.energiemanagement-0.10.2.tgz
    ```
 
    Verwende den für deine Installation vorgesehenen ioBroker-Benutzer. Beispiele für SSH, Docker und Portainer stehen in der [Installationsanleitung](installation.md).

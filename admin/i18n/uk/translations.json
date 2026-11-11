@@ -1,0 +1,10 @@
+{
+  "Settings": "Налаштування",
+  "Configure measurements, consumers and device outputs in the web interface. Hardware control is disabled by default.": "Налаштуйте вимірювання, споживачів і виходи у вебінтерфейсі. Керування обладнанням типово вимкнено.",
+  "Sampling interval (seconds)": "Інтервал вимірювання (секунди)",
+  "Minimum coverage per quarter-hour (%)": "Мінімальне покриття за чверть години (%)",
+  "Default power target (W)": "Типова цільова потужність (Вт)",
+  "Default safety reserve (W)": "Типовий резерв безпеки (Вт)",
+  "Tariff orientation threshold (W)": "Орієнтовний тарифний поріг (Вт)",
+  "Import existing legacy configuration once (if available)": "Одноразово імпортувати попередню конфігурацію (якщо є)"
+}

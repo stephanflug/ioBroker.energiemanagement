@@ -4,15 +4,81 @@
   "items": {
     "general": {
       "type": "panel",
-      "label": "Einstellungen",
+      "label": "Settings",
       "items": {
-        "description": {"type": "staticText", "text": "Die Messdaten, Verbraucher und Geräteausgänge werden über die eigene Weboberfläche unter /energiemanagement/index.html verwaltet. Die Hardwaresteuerung bleibt standardmäßig ausgeschaltet."},
-        "samplingSeconds": {"type": "number", "label": "Abtastintervall (Sekunden)", "min": 2, "max": 30},
-        "minCoveragePct": {"type": "number", "label": "Mindestabdeckung pro Viertelstunde (%)", "min": 50, "max": 100},
-        "targetW": {"type": "number", "label": "Standard-Leistungsziel (W)", "min": 500, "max": 30000},
-        "reserveW": {"type": "number", "label": "Standard-Sicherheitsreserve (W)", "min": 0, "max": 10000},
-        "tariffThresholdW": {"type": "number", "label": "Orientierungswert Tarifstufe (W)", "min": 0, "max": 100000},
-        "migrateLegacy": {"type": "checkbox", "label": "Bestehende Alt-Konfiguration einmalig übernehmen (falls vorhanden)"}
+        "description": {
+          "type": "staticText",
+          "text": "Configure measurements, consumers and device outputs in the web interface. Hardware control is disabled by default.",
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "samplingSeconds": {
+          "type": "number",
+          "label": "Sampling interval (seconds)",
+          "min": 2,
+          "max": 30,
+          "xs": 12,
+          "sm": 12,
+          "md": 6,
+          "lg": 6,
+          "xl": 6
+        },
+        "minCoveragePct": {
+          "type": "number",
+          "label": "Minimum coverage per quarter-hour (%)",
+          "min": 50,
+          "max": 100,
+          "xs": 12,
+          "sm": 12,
+          "md": 6,
+          "lg": 6,
+          "xl": 6
+        },
+        "targetW": {
+          "type": "number",
+          "label": "Default power target (W)",
+          "min": 500,
+          "max": 30000,
+          "xs": 12,
+          "sm": 12,
+          "md": 6,
+          "lg": 6,
+          "xl": 6
+        },
+        "reserveW": {
+          "type": "number",
+          "label": "Default safety reserve (W)",
+          "min": 0,
+          "max": 10000,
+          "xs": 12,
+          "sm": 12,
+          "md": 6,
+          "lg": 6,
+          "xl": 6
+        },
+        "tariffThresholdW": {
+          "type": "number",
+          "label": "Tariff orientation threshold (W)",
+          "min": 0,
+          "max": 100000,
+          "xs": 12,
+          "sm": 12,
+          "md": 6,
+          "lg": 6,
+          "xl": 6
+        },
+        "migrateLegacy": {
+          "type": "checkbox",
+          "label": "Import existing legacy configuration once (if available)",
+          "xs": 12,
+          "sm": 12,
+          "md": 6,
+          "lg": 6,
+          "xl": 6
+        }
       }
     }
   }

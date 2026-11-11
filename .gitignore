@@ -15,3 +15,4 @@ data/
 Energiemanagement-Vollsicherung-*.json
 *.tgz
 !releases/*.tgz
+.commitinfo

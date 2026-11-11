@@ -1,18 +1,24 @@
 {
   "name": "iobroker.energiemanagement",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Vendor-neutral energy monitoring and priority-based load management for ioBroker",
   "main": "main.js",
   "type": "commonjs",
-  "author": "Energiemanagement contributors",
+  "author": {
+    "name": "Stephan Ebner",
+    "email": "steuerung@gmx.at",
+    "url": "https://github.com/stephanflug"
+  },
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.3.2"
+    "@iobroker/adapter-core": "^3.4.3",
+    "semver": "^7.7.3"
   },
   "keywords": [
+    "ioBroker",
     "iobroker",
     "energy",
     "power",
@@ -31,12 +37,16 @@
     "test/",
     "CHANGELOG.md",
     "docs/",
-    "tools/"
+    "tools/",
+    "THIRD_PARTY_NOTICES.md",
+    "README.en.md",
+    "README.de.md"
   ],
   "scripts": {
     "test": "node --test test/*.test.js",
     "check": "node -e \"const fs=require('node:fs'),cp=require('node:child_process');for(const file of ['main.js',...['lib','www'].flatMap(dir=>fs.readdirSync(dir).filter(name=>name.endsWith('.js')).map(name=>dir+'/'+name))]){const result=cp.spawnSync(process.execPath,['--check',file],{stdio:'inherit'});if(result.status!==0)process.exit(result.status||1)}\"",
-    "docs:screenshots": "node tools/create-publication-screenshots.cjs"
+    "docs:screenshots": "node tools/create-publication-screenshots.cjs",
+    "test:integration": "mocha --exit test/integration.js"
   },
   "repository": {
     "type": "git",
@@ -47,6 +57,7 @@
     "url": "https://github.com/stephanflug/ioBroker.energiemanagement/issues"
   },
   "devDependencies": {
-    "playwright": "1.65.0"
+    "playwright": "^1.65.0",
+    "@iobroker/testing": "^6.3.0"
   }
 }

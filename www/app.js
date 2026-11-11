@@ -11,7 +11,7 @@
  const percent=x=>n(x)===null?'–':format(x,1)+' %';
  const date=ts=>ts?new Date(ts).toLocaleString('de-AT',{timeZone:'Europe/Vienna',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'–';
  const dayKey=ts=>new Date(ts).toLocaleDateString('sv-SE',{timeZone:'Europe/Vienna'});
- const hashToPage={'#overview':'overview','#history':'history','#analytics':'analytics','#forecast':'forecast','#heating':'heating','#water':'water','#rainwater':'rainwater','#fuel':'fuel','#reports':'reports','#sources':'sources','#devices':'devices','#outputs':'outputs','#settings':'settings'};
+ const hashToPage={'#overview':'overview','#history':'history','#analytics':'analytics','#forecast':'forecast','#heating':'heating','#water':'water','#rainwater':'rainwater','#fuel':'fuel','#reports':'reports','#sources':'sources','#devices':'devices','#outputs':'outputs','#settings':'settings','#about':'about'};
  const saveJSON=val=>JSON.stringify(val);
  const copy=x=>JSON.parse(JSON.stringify(x));
  let io,connected=false,states={},page='overview',adapterNames=[],objectCache=new Map(),picker=null,pickerLimit=150,pickerLoading=false;
@@ -75,7 +75,7 @@
   if(window.EnergyHeatingUI)window.EnergyHeatingUI.render(page);
   for(const section of document.querySelectorAll('.page'))section.classList.toggle('hidden',section.id!=='page-'+page);
   for(const btn of document.querySelectorAll('[data-page]')){const active=btn.dataset.page===page;btn.classList.toggle('active',active);if(active)btn.setAttribute('aria-current','page');else btn.removeAttribute('aria-current');}
-  const titles={overview:'Übersicht',history:'Viertelstunden / Verlauf',analytics:'Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',water:'Wasserverbrauch',rainwater:'Regenwasserverbrauch',fuel:'Brennstoffverbrauch',reports:'Berichte',sources:'Datenquellen',devices:'Verbraucher & Prioritäten',outputs:'Geräteausgänge',settings:'Einstellungen'};
+  const titles={overview:'Übersicht',history:'Viertelstunden / Verlauf',analytics:'Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',water:'Wasserverbrauch',rainwater:'Regenwasserverbrauch',fuel:'Brennstoffverbrauch',reports:'Berichte',sources:'Datenquellen',devices:'Verbraucher & Prioritäten',outputs:'Geräteausgänge',settings:'Einstellungen',about:'Über & Lizenzen'};
   $('pageTitle').textContent=titles[page]||'Energiemanagement';
   if(page==='overview'){renderOverview();if(window.EnergyAnalytics)window.EnergyAnalytics.render('overview')};if(page==='history')renderHistory();
   if(page==='sources')renderSources();if(page==='devices')renderConsumers();if(page==='outputs')renderOutputs();if(page==='settings')renderSettings();
@@ -89,6 +89,8 @@
   window.EnergyTankUI?.render(page);
   window.EnergySourcesUI?.render(page);
   window.EnergyBackupUI?.render(page);
+  window.EnergyAboutUI?.render(page);
+  window.EnergyVersionUI?.render(page);
   window.EnergyEmbed?.render(page);
  }
  function state(id,def=null){const s=states[N+'.'+id];return s&&s.val!==undefined?s.val:def;}
@@ -136,7 +138,7 @@
   });
  }
  function rpc(name,...args){return request(name,args,{write:name==='setState'})}
- function forecastSend(command,payload){return request('sendTo',[N,command,payload],{write:!['forecastGeocode','heatingObjects','utilityObjects','sourceObjects','backupExport','backupPreview','storageInstances','storageTest'].includes(command),singleReply:true,label:'Adapteranfrage',timeoutMs:command.startsWith('backup')?120000:20000})}
+ function forecastSend(command,payload){return request('sendTo',[N,command,payload],{write:!['forecastGeocode','heatingObjects','utilityObjects','sourceObjects','backupExport','backupPreview','storageInstances','storageTest','versionCheck'].includes(command),singleReply:true,label:'Adapteranfrage',timeoutMs:command.startsWith('backup')?120000:20000})}
  const setVal=(id,val)=>rpc('setState',N+'.'+id,{val,ack:false});
  const readVal=id=>rpc('getState',N+'.'+id);
  const readObj=id=>rpc('getObject',id);
@@ -169,6 +171,8 @@
    window.EnergyTankUI?.update(states,N,page,{send:forecastSend});
    window.EnergySourcesUI?.update(states,N,page,{send:forecastSend});
    window.EnergyBackupUI?.update(states,N,page,{send:forecastSend});
+   window.EnergyAboutUI?.update(states,N,page);
+   window.EnergyVersionUI?.update(states,N,page,{send:forecastSend});
    if(window.EnergyInsightsUI)window.EnergyInsightsUI.update(states,forms,N,page);
    if(window.EnergyDashboard)window.EnergyDashboard.update(states,forms,N,page);
    if(window.EnergyForecastUI)window.EnergyForecastUI.update(states,forms,N,page,{setVal,readVal,send:forecastSend});

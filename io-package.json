@@ -1,18 +1,35 @@
 {
   "common": {
     "name": "energiemanagement",
-    "version": "0.10.1",
-    "title": "Energiemanagement",
+    "version": "0.10.2",
     "titleLang": {
       "de": "Energiemanagement",
-      "en": "Energy Management"
+      "en": "Energy Management",
+      "ru": "Управление энергией",
+      "pt": "Gestão de energia",
+      "nl": "Energiebeheer",
+      "fr": "Gestion de l’énergie",
+      "it": "Gestione dell’energia",
+      "es": "Gestión de energía",
+      "pl": "Zarządzanie energią",
+      "uk": "Керування енергією",
+      "zh-cn": "能源管理"
     },
     "desc": {
       "de": "Herstellerneutrale 15-Minuten-Leistungsüberwachung mit konfigurierbarer Verbraucher-Priorisierung und abgesicherter Geräteansteuerung.",
-      "en": "Vendor-neutral 15-minute demand monitoring, configurable load priorities and guarded device control."
+      "en": "Vendor-neutral 15-minute demand monitoring, configurable load priorities and guarded device control.",
+      "ru": "Мониторинг 15-минутной мощности, настраиваемые приоритеты потребителей и управление устройствами через ioBroker.",
+      "pt": "Monitorização de potência de 15 minutos, prioridades de consumo configuráveis e controlo de dispositivos através do ioBroker.",
+      "nl": "Bewaking van het vermogen per 15 minuten, configureerbare verbruikersprioriteiten en apparaataansturing via ioBroker.",
+      "fr": "Suivi de puissance sur 15 minutes, priorités de consommation configurables et commande d’appareils via ioBroker.",
+      "it": "Monitoraggio della potenza su 15 minuti, priorità dei consumatori configurabili e controllo dei dispositivi tramite ioBroker.",
+      "es": "Supervisión de potencia de 15 minutos, prioridades de consumo configurables y control de dispositivos mediante ioBroker.",
+      "pl": "Monitorowanie mocy w okresach 15 minut, konfigurowalne priorytety odbiorników i sterowanie urządzeniami przez ioBroker.",
+      "uk": "Контроль потужності за 15 хвилин, налаштовувані пріоритети споживачів і керування пристроями через ioBroker.",
+      "zh-cn": "通过 ioBroker 监测 15 分钟功率、配置用电设备优先级并控制设备。"
     },
     "authors": [
-      "Energiemanagement contributors"
+      "Stephan Ebner <steuerung@gmx.at>"
     ],
     "keywords": [
       "energy",
@@ -22,7 +39,6 @@
       "meter",
       "priority"
     ],
-    "license": "MIT",
     "licenseInformation": {
       "type": "free",
       "license": "MIT"
@@ -47,78 +63,115 @@
     ],
     "globalDependencies": [
       {
-        "admin": ">=7.0.0"
+        "admin": ">=7.6.20"
       }
     ],
     "news": {
+      "0.10.2": {
+        "de": "Über & Lizenzen, kompakte Versionsanzeige und serverseitige GitHub-Prüfung ohne automatische Installation; Veröffentlichungsvorbereitung und Dokumentation.",
+        "en": "About & licenses, compact version display and server-side GitHub checks without automatic installation; release preparation and documentation.",
+        "ru": "Информация и лицензии, отображение версии и серверная проверка GitHub без автоматической установки.",
+        "pt": "Informações e licenças, indicação de versão e verificação GitHub no servidor sem instalação automática.",
+        "nl": "Informatie en licenties, versieaanduiding en GitHub-controle op de server zonder automatische installatie.",
+        "fr": "Informations et licences, affichage de version et vérification GitHub côté serveur sans installation automatique.",
+        "it": "Informazioni e licenze, indicatore di versione e verifica GitHub lato server senza installazione automatica.",
+        "es": "Información y licencias, indicador de versión y comprobación de GitHub en el servidor sin instalación automática.",
+        "pl": "Informacje i licencje, wyświetlanie wersji oraz sprawdzanie GitHub na serwerze bez automatycznej instalacji.",
+        "uk": "Інформація та ліцензії, показ версії й перевірка GitHub на сервері без автоматичного встановлення.",
+        "zh-cn": "新增关于与许可证、版本显示和服务器端 GitHub 检查，不会自动安装更新。"
+      },
       "0.10.1": {
         "de": "Komprimierte Datenbanksicherungen in kleinen Teilen, begrenzte Schreibpakete und Bestätigung erst nach geprüftem Zurücklesen; vorhandene Speicherwahl und interne Archive bleiben erhalten.",
-        "en": "Compressed database checkpoints in bounded chunks, small write batches and confirmation only after verified readback; preserve selected storage and local archives."
-      },
-      "0.5.0": {
-        "de": "Optionale Heizungsoptimierung mit Raumfühlern, Gebäudemodell, begrenzten Sollwertänderungen und PV-Gebäudepuffer.",
-        "en": "Optional heating optimization with room sensors, building learning, bounded setpoint control and PV thermal buffering."
-      },
-      "0.4.1": {
-        "de": "Startkachel in web.0 und direkter Öffnen-Link im Admin wiederhergestellt und dauerhaft im Paket hinterlegt.",
-        "en": "Restore web.0 start-page tile and Admin launch link in portable package metadata."
-      },
-      "0.4.0": {
-        "de": "Neu strukturierte Übersicht mit aktuellen Energiewerten und kompakteren Details; Handy-Navigation mit großer unterer Menüleiste und ausklappbarem Gesamtmenü.",
-        "en": "Redesigned overview with current energy values and compact details; mobile bottom navigation and accessible drawer menu."
-      },
-      "0.3.1": {
-        "de": "Eigener Menüreiter für PV-Ertragsprognose mit direkter Einrichtung und verständlichem Status bei fehlenden Anlagendaten.",
-        "en": "Dedicated PV yield forecast tab with direct setup and clear missing-configuration status."
-      },
-      "0.3.0": {
-        "de": "PV-Ertragsprognose mit freier Standortwahl, kostenlosem Wetterdienst ohne API-Schlüssel und optionaler lokaler Schätzung.",
-        "en": "PV yield forecast with selectable location, free keyless weather service and optional offline estimation."
-      },
-      "0.2.0": {
-        "de": "Filterbarer 48-Stunden-Leistungsverlauf, dynamische PV-Startempfehlungen und integriertes Geräteenergiearchiv.",
-        "en": "Filterable 48-hour power history, dynamic solar start recommendations and integrated consumer energy archive."
-      },
-      "0.1.0": {
-        "de": "Eigenständiger Energiemanagement-Adapter mit Migration, Dashboard und Prioritätensteuerung.",
-        "en": "Initial vendor-neutral adapter with migration, dashboard and priority management."
-      },
-      "0.6.0": {
-        "de": "Robuste mobile Wiederverbindung, direkter Heizungsreiter, Raumtemperatur-Trends und schreibgeschützte iframe-Ansichten.",
-        "en": "Mobile connection recovery, direct heating navigation, room temperature trends and read-only iframe views."
-      },
-      "0.6.1": {
-        "de": "Celsius-Schreibweisen wie Homematic ºC und Grad für Fühler und Heizkreis-Sollwerte einheitlich erkennen.",
-        "en": "Recognize Celsius labels such as Homematic ºC and Grad consistently for sensors and heating setpoints."
-      },
-      "0.7.0": {
-        "de": "Kalenderübersichten für Jahr, Monat und Tag, PV-Monatsziel, getrennte Batterieenergie und Smart-Meter-Karten mit automatischem Zeitraumwechsel.",
-        "en": "Calendar year/month/day cards, monthly PV target, battery energy and smart meter overview with automatic period rollover."
-      },
-      "0.8.0": {
-        "de": "Optionale Wasser- und Brennstoffbereiche, Durchfluss-/Zählerauswertung, Pellets/Öl/Gas und zusätzliche Kalenderkarten. Ausblenden der Heizung deaktiviert die Optimierung.",
-        "en": "Optional water and fuel views, flow/counter consumption, pellets/oil/gas and calendar cards. Hiding heating disables optimization."
-      },
-      "0.9.0": {
-        "de": "Zentrale Datenquellen, gleichzeitige Wasser-Durchfluss-/Zählerzuordnung, berechneter Pellets-/Ölvorrat mit Füllungen, erweiterte Berichte und Vollsicherung mit geprüfter Wiederherstellung.",
-        "en": "Central source configuration, simultaneous water flow/counter bindings, estimated pellet/oil inventory with refills, extended reports and validated full-adapter backup/restore."
+        "en": "Compressed database checkpoints in bounded chunks, small write batches and confirmation only after verified readback; preserve selected storage and local archives.",
+        "ru": "Сжатые резервные копии базы данных небольшими частями, ограниченные пакеты записи и подтверждение только после проверенного обратного чтения; выбор хранилища и локальные архивы сохраняются.",
+        "pt": "Cópias da base de dados comprimidas em partes pequenas, lotes de escrita limitados e confirmação só após releitura verificada; são preservados o armazenamento selecionado e os arquivos locais.",
+        "nl": "Gecomprimeerde databaseback-ups in kleine delen, begrensde schrijfpakketten en bevestiging pas na gecontroleerd teruglezen; de gekozen opslag en lokale archieven blijven behouden.",
+        "fr": "Sauvegardes de base compressées en petits blocs, écritures limitées et confirmation uniquement après relecture vérifiée ; le stockage choisi et les archives locales sont conservés.",
+        "it": "Backup del database compressi in piccole parti, pacchetti di scrittura limitati e conferma solo dopo rilettura verificata; scelta dello spazio di archiviazione e archivi locali preservati.",
+        "es": "Copias de base comprimidas en bloques pequeños, paquetes de escritura limitados y confirmación solo tras lectura verificada; se conservan el almacenamiento elegido y los archivos locales.",
+        "pl": "Skompresowane kopie bazy w małych częściach, ograniczone pakiety zapisu i potwierdzenie dopiero po sprawdzonym odczycie; zachowano wybrany magazyn danych i lokalne archiwa.",
+        "uk": "Стиснені резервні копії бази невеликими частинами, обмежені пакети запису й підтвердження лише після перевіреного читання; вибране сховище та локальні архіви зберігаються.",
+        "zh-cn": "数据库备份压缩为小块，并在回读验证后确认。"
       },
       "0.10.0": {
         "de": "Optionales Regenwasser, übersichtliche Energieauswertung mit unveränderter Kalenderübersicht und gemessenem Tagesvergleich, wählbare Datenbankspeicherung und eine gemeinsame Vollsicherung.",
-        "en": "Optional rainwater, clearer energy analysis with unchanged calendar cards and measured day comparisons, selectable database storage and one full-adapter backup."
+        "en": "Optional rainwater, clearer energy analysis with unchanged calendar cards and measured day comparisons, selectable database storage and one full-adapter backup.",
+        "ru": "Необязательный учёт дождевой воды, упорядоченный анализ с неизменными календарными карточками и измеренным сравнением дней, выбор базы данных и одна полная резервная копия.",
+        "pt": "Água da chuva opcional, análise mais clara com cartões de calendário inalterados e comparação diária medida, armazenamento em base de dados selecionável e uma cópia completa.",
+        "nl": "Optionele regenwaterregistratie, duidelijke energieanalyse met ongewijzigde kalenderkaarten en gemeten dagvergelijking, selecteerbare databaseopslag en één volledige back-up.",
+        "fr": "Eau de pluie optionnelle, analyse plus claire avec calendrier inchangé et comparaison quotidienne mesurée, stockage en base sélectionnable et sauvegarde complète unique.",
+        "it": "Acqua piovana opzionale, analisi più chiara con calendario invariato e confronto giornaliero misurato, database selezionabile e un unico backup completo dei dati.",
+        "es": "Agua de lluvia opcional, análisis claro con calendario sin cambios y comparación diaria medida, almacenamiento en base de datos seleccionable y una única copia completa.",
+        "pl": "Opcjonalna deszczówka, czytelna analiza energii z niezmienionym kalendarzem i porównaniem zmierzonych dni, wybór bazy danych oraz jedna pełna kopia zapasowa.",
+        "uk": "Необов’язковий облік дощової води, зрозумілий аналіз із незмінними календарними картками та виміряним порівнянням днів, вибір бази й одна повна резервна копія.",
+        "zh-cn": "可选雨水统计、清晰的能源分析、每日比较和统一完整备份。"
+      },
+      "0.9.0": {
+        "de": "Zentrale Datenquellen, gleichzeitige Wasser-Durchfluss-/Zählerzuordnung, berechneter Pellets-/Ölvorrat mit Füllungen, erweiterte Berichte und Vollsicherung mit geprüfter Wiederherstellung.",
+        "en": "Central source configuration, simultaneous water flow/counter bindings, estimated pellet/oil inventory with refills, extended reports and validated full-adapter backup/restore.",
+        "ru": "Центральная настройка источников, одновременные расход и счётчик воды, расчёт остатка пеллет/масла с заправками, расширенные отчёты и полная резервная копия с проверкой восстановления.",
+        "pt": "Fontes centrais, caudal e contador de água em simultâneo, reserva estimada de pellets/óleo com abastecimentos, relatórios alargados e cópia completa com restauro validado.",
+        "nl": "Centrale gegevensbronnen, gelijktijdige waterstroom en meterstand, berekende pellet-/olievoorraad met bijvullen, uitgebreidere rapporten en volledige back-up met gecontroleerd herstel.",
+        "fr": "Sources centralisées, débit et compteur d’eau simultanés, stock estimé de granulés/fioul avec remplissages, rapports étendus et sauvegarde complète avec restauration vérifiée.",
+        "it": "Fonti centrali, portata e contatore acqua simultanei, scorta stimata di pellet/olio con rifornimenti, rapporti estesi e backup completo con ripristino controllato.",
+        "es": "Fuentes centrales, caudal y contador simultáneos, existencias estimadas de pellets/aceite con repostajes, informes ampliados y copia completa con restauración validada.",
+        "pl": "Centralne źródła danych, jednoczesny przepływ i licznik wody, obliczony zapas pelletu/oleju z napełnieniami, rozszerzone raporty i pełna kopia ze sprawdzonym przywracaniem.",
+        "uk": "Центральні джерела, одночасні витрата й лічильник води, розрахований запас пелет/оливи із заправками, розширені звіти та повна копія з перевіреним відновленням.",
+        "zh-cn": "集中管理数据源，同时配置水流量和水表读数，显示燃料余量并提供完整备份。"
+      },
+      "0.8.0": {
+        "de": "Optionale Wasser- und Brennstoffbereiche, Durchfluss-/Zählerauswertung, Pellets/Öl/Gas und zusätzliche Kalenderkarten. Ausblenden der Heizung deaktiviert die Optimierung.",
+        "en": "Optional water and fuel views, flow/counter consumption, pellets/oil/gas and calendar cards. Hiding heating disables optimization.",
+        "ru": "Необязательные разделы воды и топлива, расход по потоку/счётчику, пеллеты/масло/газ и календарные карточки. Скрытие отопления отключает оптимизацию.",
+        "pt": "Secções opcionais de água e combustível, consumo por caudal/contador, pellets/óleo/gás e cartões de calendário. Ocultar aquecimento desativa a otimização.",
+        "nl": "Optionele water- en brandstofweergave, verbruik via stroom/meter, pellets/olie/gas en kalenderkaarten. Verwarming verbergen schakelt optimalisatie uit.",
+        "fr": "Vues eau et combustible optionnelles, consommation par débit/compteur, granulés/fioul/gaz et calendrier. Masquer le chauffage désactive l’optimisation.",
+        "it": "Viste opzionali acqua e combustibile, consumo da portata/contatore, pellet/olio/gas e calendario. Nascondere il riscaldamento disattiva l’ottimizzazione.",
+        "es": "Vistas opcionales de agua y combustible, consumo por caudal/contador, pellets/aceite/gas y calendario. Ocultar calefacción desactiva la optimización.",
+        "pl": "Opcjonalne widoki wody i paliwa, zużycie z przepływu/licznika, pellet/olej/gaz i karty kalendarza. Ukrycie ogrzewania wyłącza optymalizację.",
+        "uk": "Необов’язкові розділи води й палива, облік за витратою/лічильником, пелети/олива/газ і календар. Приховування опалення вимикає оптимізацію.",
+        "zh-cn": "可选水和燃料页面；隐藏供暖时同时停用供暖优化。"
+      },
+      "0.7.0": {
+        "de": "Kalenderübersichten für Jahr, Monat und Tag, PV-Monatsziel, getrennte Batterieenergie und Smart-Meter-Karten mit automatischem Zeitraumwechsel.",
+        "en": "Calendar year/month/day cards, monthly PV target, battery energy and smart meter overview with automatic period rollover.",
+        "ru": "Годовые, месячные и суточные карточки, цель PV, энергия батареи и данные интеллектуального счётчика.",
+        "pt": "Visões anuais, mensais e diárias, objetivo solar, energia da bateria e contador inteligente.",
+        "nl": "Kalenderkaarten voor jaar, maand en dag, PV-maanddoel, afzonderlijke batterij-energie en een overzicht van de slimme meter met automatische periodewisseling.",
+        "fr": "Vues annuelles, mensuelles et quotidiennes, objectif PV, énergie batterie et compteur intelligent.",
+        "it": "Viste annuali, mensili e giornaliere, obiettivo FV, energia della batteria e contatore intelligente.",
+        "es": "Vistas anuales, mensuales y diarias, objetivo FV, energía de batería y contador inteligente.",
+        "pl": "Karty roku, miesiąca i dnia, cel PV, energia akumulatora i licznik inteligentny.",
+        "uk": "Річні, місячні й добові картки, ціль PV, енергія батареї та розумний лічильник.",
+        "zh-cn": "年度、月度和每日统计卡片，光伏目标、电池能量及智能电表信息。"
+      },
+      "0.6.1": {
+        "de": "Celsius-Schreibweisen wie Homematic ºC und Grad für Fühler und Heizkreis-Sollwerte einheitlich erkennen.",
+        "en": "Recognize Celsius labels such as Homematic ºC and Grad consistently for sensors and heating setpoints.",
+        "ru": "Единое распознавание обозначений градусов Цельсия для датчиков и заданий отопления.",
+        "pt": "Reconhecimento uniforme das unidades Celsius para sensores e valores do aquecimento.",
+        "nl": "Eenduidige herkenning van Celsius-eenheden voor sensoren en verwarmingsinstellingen.",
+        "fr": "Reconnaissance cohérente des unités Celsius des sondes et consignes de chauffage.",
+        "it": "Riconoscimento uniforme delle unità Celsius per sensori e regolazioni del riscaldamento.",
+        "es": "Reconocimiento uniforme de unidades Celsius para sensores y consignas de calefacción.",
+        "pl": "Jednolite rozpoznawanie jednostek Celsjusza dla czujników i nastaw ogrzewania.",
+        "uk": "Узгоджене розпізнавання позначень Цельсія для датчиків і заданих температур опалення.",
+        "zh-cn": "统一识别传感器和供暖设定值中的摄氏温度单位。"
       }
     },
     "icon": "energiemanagement.svg",
     "localLinks": {
       "_default": "%web_protocol%://%ip%:%web_port%/energiemanagement/index.html?instance=energiemanagement.%instance%"
     },
-    "welcomeScreen": {
-      "link": "energiemanagement/index.html?instance=energiemanagement.%instance%",
-      "name": "Energiemanagement",
-      "img": "energiemanagement.svg",
-      "color": "#17334c",
-      "order": 2
-    },
+    "welcomeScreen": [
+      {
+        "link": "energiemanagement/index.html?instance=energiemanagement.%instance%",
+        "name": "Energiemanagement",
+        "img": "energiemanagement.svg",
+        "color": "#17334c",
+        "order": 2
+      }
+    ],
     "readme": "https://github.com/stephanflug/ioBroker.energiemanagement/blob/main/README.md",
     "extIcon": "https://raw.githubusercontent.com/stephanflug/ioBroker.energiemanagement/main/admin/energiemanagement.svg"
   },

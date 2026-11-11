@@ -1,0 +1,10 @@
+{
+  "Settings": "设置",
+  "Configure measurements, consumers and device outputs in the web interface. Hardware control is disabled by default.": "在网页界面中配置测量值、用电设备和设备输出。硬件控制默认关闭。",
+  "Sampling interval (seconds)": "采样间隔（秒）",
+  "Minimum coverage per quarter-hour (%)": "每刻钟最低测量覆盖率（%）",
+  "Default power target (W)": "默认目标功率（W）",
+  "Default safety reserve (W)": "默认安全余量（W）",
+  "Tariff orientation threshold (W)": "电价参考阈值（W）",
+  "Import existing legacy configuration once (if available)": "一次性导入旧配置（如有）"
+}

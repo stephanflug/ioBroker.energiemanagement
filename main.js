@@ -15,6 +15,8 @@ const {UtilitiesService,defaultFeatures,normalizeFeatures,defaultStoredUtilities
 const {BackupService}=require('./lib/backup-service');
 const {DayComparison}=require('./lib/day-comparison');
 const {StorageService,defaultStorageConfig}=require('./lib/storage-service');
+const {VersionCheck}=require('./lib/version-check');
+const buildInfo=require('./lib/build-info.json');
 const {ConsumerSourceConfig}=require('./lib/source-config');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const asJSON=(data,def)=>{try{return JSON.parse(String(data))}catch{return def}};
@@ -29,6 +31,7 @@ class Energiemanagement extends utils.Adapter {
     this.on('unload',this.onUnload.bind(this));
     this.on('message',this.onMessage.bind(this));
     this.stopping=false;this.dataBusy=false;this.configActive=0;this.restoreHold=false;this.backup=new BackupService(this);
+    this.versionCheck=null;this.versionTimer=null;this.versionCheckOptions=options.versionCheckOptions||{};
     this.running=false;this.timer=null;this.engine=null;this.sources=defaultSources();
     this.consumers=defaultConsumers();this.settings={targetW:9500,reserveW:500,tariffThresholdW:10000,minCoveragePct:85};
     this.hardwareMaster=false;this.activeHardware={};this.lastOff={};this.lastSave=0;this.lastStatus={};
@@ -84,6 +87,7 @@ class Energiemanagement extends utils.Adapter {
       try{this.storage=new StorageService(this,asJSON(await this.read('config.storage_JSON','{}'),defaultStorageConfig()),asJSON(await this.read('internal.storage','{}'),{}));}
       catch(error){this.log.warn('Speicherauswahl zurückgesetzt: '+error.message);this.storage=new StorageService(this,defaultStorageConfig(),{});}
       await this.set('config.storage_JSON',this.storage.config,true);
+      await this.initializeVersionCheck();
       if(!this.utilities.features.heating)await this.utilities.disableHiddenHeating();
       if(this.config.migrateLegacy===true && !await this.read('migration.done',false)){
         await importLegacy(this);
@@ -97,12 +101,15 @@ class Energiemanagement extends utils.Adapter {
       this.log.info('Energiemanagement '+pkg.version+' gestartet – Hardwaresteuerung: '+(this.hardwareMaster?'freigegeben':'AUS'));
       await this.tick();
       this.timer=setInterval(()=>this.tick().catch(err=>this.log.error('Messung: '+err.stack)),clamp(Number(this.config.samplingSeconds)||5,2,30)*1000);
+      if(!this.stopping)this.versionTimer=this.setInterval(()=>this.runVersionCheck(),60000);
     }catch(e){this.log.error('Startfehler: '+e.stack);await this.set('status.running',false).catch(()=>{});}
   }
   async createStates(){
-    const channels={config:'Einstellungen',status:'Systemstatus',live:'Livewerte',interval:'15-Minuten-Auswertung',day:'Tageswerte',month:'Monatswerte',control:'Leistungsbudget',history:'Historie',consumers:'Verbraucher',internal:'Interner Speicher',migration:'Migration',commands:'Aktionen',insights:'Dynamische Empfehlungen',analytics:'Geräte-Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',utilities:'Wasser und Brennstoff',storage:'Datenspeicherung'};
+    const channels={config:'Einstellungen',status:'Systemstatus',live:'Livewerte',interval:'15-Minuten-Auswertung',day:'Tageswerte',month:'Monatswerte',control:'Leistungsbudget',history:'Historie',consumers:'Verbraucher',internal:'Interner Speicher',migration:'Migration',commands:'Aktionen',insights:'Dynamische Empfehlungen',analytics:'Geräte-Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',utilities:'Wasser und Brennstoff',storage:'Datenspeicherung',update:'Versionsinformationen'};
     for(const [key,label]of Object.entries(channels))await this.channel(key,label);
     const defs=[
+      ['update.status_JSON','Installierte Version und öffentliche GitHub-Releases (JSON)','string','{}'],
+      ['internal.versionCheck_JSON','Cache und letzte erfolgreiche Versionsprüfung (JSON)','string','{}'],
       ['config.features_JSON','Optionale Bereiche anzeigen (JSON)','string',JSON.stringify(defaultFeatures()),true],
       ['config.utilities_JSON','Wasser- und Brennstoffzuordnungen (JSON)','string',JSON.stringify(defaultStoredUtilities()),true],
       ['analytics.utilities_JSON','Wasser- und Brennstoffverbrauch nach Kalenderperioden (JSON)','string','{}'],
@@ -203,6 +210,22 @@ class Energiemanagement extends utils.Adapter {
     await this.set('forecast.status',result.status);
     await this.set('forecast.error',result.error);
   }
+  async initializeVersionCheck(){
+    if(this.versionCheck)await this.versionCheck.close();
+    try{
+      this.versionCheck=new VersionCheck(this,{installedVersion:pkg.version,releaseChannel:buildInfo.releaseChannel||'stable'},asJSON(await this.read('internal.versionCheck_JSON','{}'),{}),this.versionCheckOptions);
+      await this.versionCheck.persist();this.runVersionCheck();
+    }catch(error){
+      this.versionCheck=null;this.log.warn('Versionsinformationen: '+String(error.message||error));
+      await this.set('update.status_JSON',{version:1,status:'unavailable',installedVersion:pkg.version,releaseChannel:buildInfo.releaseChannel||'stable',isPrerelease:buildInfo.releaseChannel==='development',message:'Versionsprüfung derzeit nicht möglich.',error:String(error.message||error).slice(0,250)},true).catch(()=>{});
+    }
+  }
+  runVersionCheck(){
+    if(this.stopping||!this.versionCheck)return;
+    // Informational background work must never enter the measurement/control error handler.
+    try{Promise.resolve(this.versionCheck.tick()).catch(error=>this.log.warn('Versionsprüfung: '+String(error.message||error)));}
+    catch(error){this.log.warn('Versionsprüfung: '+String(error.message||error));}
+  }
   async onMessage(message){
     if(!message?.callback)return;
     let response,mutating=false,tracked=false;
@@ -211,9 +234,11 @@ class Energiemanagement extends utils.Adapter {
         response=message.command==='backupExport'?await this.backup.export():message.command==='backupPreview'?this.backup.preview(message.message):await this.backup.restore(message.message);
         if(!this.stopping)this.sendTo(message.from,message.command,response,message.callback);return;
       }
-      mutating=!['utilityObjects','sourceObjects','heatingObjects','forecastGeocode','storageInstances','storageTest'].includes(message.command);
+      mutating=!['utilityObjects','sourceObjects','heatingObjects','forecastGeocode','storageInstances','storageTest','versionCheck'].includes(message.command);
       if(mutating){if(this.dataBusy)throw Error('Sicherung oder Wiederherstellung läuft. Bitte danach erneut speichern.');if(this.restoreHold)throw Error('Die Rücknahme vorheriger Gerätebefehle ist noch unbestätigt. Wiederherstellung erneut versuchen.');this.configActive++;tracked=true;}
-      if(message.command==='storageInstances'){
+      if(message.command==='versionCheck'){
+        if(!this.versionCheck)throw Error('Versionsprüfung noch nicht bereit.');response={ok:true,status:await this.versionCheck.refresh(true)};
+      }else if(message.command==='storageInstances'){
         if(!this.storage)throw Error('Datenspeicherung noch nicht bereit.');response={ok:true,instances:await this.storage.instances()};
       }else if(message.command==='storageTest'){
         if(!this.storage)throw Error('Datenspeicherung noch nicht bereit.');response={ok:true,...await this.storage.test(message.message)};
@@ -283,6 +308,7 @@ class Energiemanagement extends utils.Adapter {
     this.heating=new HeatingService(this,asJSON(await this.read('config.heating','{}'),defaultHeating()),asJSON(await this.read('internal.heatingLearning','{}'),{}),{},asJSON(await this.read('heating.history','[]'),[]));
     this.utilities=new UtilitiesService(this,asJSON(await this.read('config.utilities_JSON','{}'),defaultStoredUtilities()),normalizeFeatures(asJSON(await this.read('config.features_JSON','{}'),{})),asJSON(await this.read('internal.utilities','{}'),{}),asJSON(await this.read('internal.fuelInventory','{}'),{}));
     this.storage=new StorageService(this,asJSON(await this.read('config.storage_JSON','{}'),defaultStorageConfig()),asJSON(await this.read('internal.storage','{}'),{}));
+    await this.initializeVersionCheck();
     // A restored stock is an estimate; measurements during downtime are unavailable.
     for(const type of ['pellets','oil'])this.utilities.inventory.observe(Date.now(),type,this.utilities.core.totals[type],{partial:true});
     await this.utilities.persist();await this.createConsumers();this.lastSave=0;await this.set('internal.restoreHold',false,true);this.restoreHold=false;
@@ -627,6 +653,8 @@ class Energiemanagement extends utils.Adapter {
   async onUnload(callback){
     try{
       this.stopping=true;
+      if(this.versionTimer)this.clearInterval(this.versionTimer);
+      if(this.versionCheck)await this.versionCheck.close();
       if(this.storage)await this.storage.close();
       this.forecast?.close();
       if(this.heating)await this.heating.close();

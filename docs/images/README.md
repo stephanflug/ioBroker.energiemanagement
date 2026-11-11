@@ -1,8 +1,10 @@
 # Screenshots mit Beispieldaten
 
-Alle Bilder zeigen die tatsächliche Weboberfläche von Version **0.10.1** mit vollständig **synthetischen Beispieldaten**. Es wurden keine Hauskonfigurationen, privaten Sensor-IDs, Messhistorien, Zugangsdaten oder Netzwerkadressen einer realen Anlage verwendet.
+Alle Bilder zeigen die tatsächliche Weboberfläche von Version **0.10.2** mit vollständig **synthetischen Beispieldaten**. Es wurden keine Hauskonfigurationen, privaten Sensor-IDs, Messhistorien, Zugangsdaten oder Netzwerkadressen einer realen Anlage verwendet.
 
 Die Beispiele aktivieren die optionalen Bereiche, damit deren Darstellung sichtbar ist. Bei einer Neuinstallation sind diese Bereiche zunächst ausgeblendet; Geräteausgänge und Heizungssteuerung werden nicht automatisch freigegeben.
+
+Die kompakte Versionsanzeige ist auch auf Smartphones sichtbar. In der Demo zeigt sie den neutralen Zustand ohne veröffentlichtes stabiles GitHub-Release. Die dargestellte Version 0.10.2 ist als Entwicklungsstand gekennzeichnet.
 
 Die sichtbaren Leistungen, Zählerstände, Raumtemperaturen, Tankbestände, Prognosen und Vergleichswerte dienen ausschließlich der Veranschaulichung. Die Uhr der Demo ist für diese Aufnahmen auf den 10. November 2026, 13:45 Uhr gestellt. Der Standort heißt „Beispielstandort · Demo“; der Prognose-Screenshot zeigt keine Standortkoordinaten.
 
@@ -20,6 +22,7 @@ Die sichtbaren Leistungen, Zählerstände, Raumtemperaturen, Tankbestände, Prog
 | Brennstoff & Vorrat | [fuel-desktop.png](fuel-desktop.png) | Pelletsverbrauch, geschätzter Restbestand und Nachfüllhistorie. |
 | Einstellungen | [settings-desktop.png](settings-desktop.png) | Optionale Bereiche, Speicherwahl und die gemeinsame Vollsicherung. |
 | Verbraucher | [devices-desktop.png](devices-desktop.png) | Dynamische Verbraucherliste und Prioritäten. |
+| Über & Lizenzen | [about-desktop.png](about-desktop.png) | Projektinformationen, installierte Version und vollständige MIT-Lizenz. |
 | Berichte | [reports-desktop.png](reports-desktop.png) | Berichtsgenerator und exportierbare Energiebilanz. |
 
 ## Handy
@@ -28,6 +31,7 @@ Die sichtbaren Leistungen, Zählerstände, Raumtemperaturen, Tankbestände, Prog
 | --- | --- |
 | Übersicht mit 390 Pixeln Breite | [overview-mobile.png](overview-mobile.png) |
 | Energieauswertung mit 390 Pixeln Breite | [analytics-mobile.png](analytics-mobile.png) |
+| Über & Lizenzen mit 390 Pixeln Breite | [about-mobile.png](about-mobile.png) |
 
 Die Bilder zeigen vollständige Seiten. Bei langen Ansichten kann das Originalbild im Browser geöffnet und vergrößert werden.
 

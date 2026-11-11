@@ -1,3 +1,13 @@
+# 0.10.2 (2026-11-10, prepared development version)
+
+- Add an About & Licenses page with the developer name, installed version, project/documentation/issue links and full MIT and third-party notices.
+- Add a compact persistent version indicator for desktop and mobile, including checking, current, update available, unavailable, development and no-release states.
+- Check public stable GitHub releases on the server at startup and approximately every twelve hours, using semantic version comparison, rate-limit handling and a persistent successful-check timestamp.
+- Keep update checking informational: no software installation, page reload, form reset or device-control change.
+- Replace the old development credit with “Entwicklung: Stephan Ebner” and retain the existing layout and calendar views.
+- Expand German and English user/installation documentation and prepare metadata, licensing and the checklist for a later public release and official ioBroker submission.
+- Prepare separate TGZ/ZIP artifacts without publishing, modifying the productive 0.10.1 installation or replacing its package.
+
 # 0.10.1 (2026-11-10)
 
 - Replace oversized single-field database checkpoints with gzip/Base64 chunks carrying snapshot identity, timestamps and integrity hashes; publish the manifest only after all chunks have been read back and validated.

@@ -1,0 +1,10 @@
+{
+  "Settings": "Settings",
+  "Configure measurements, consumers and device outputs in the web interface. Hardware control is disabled by default.": "Configure measurements, consumers and device outputs in the web interface. Hardware control is disabled by default.",
+  "Sampling interval (seconds)": "Sampling interval (seconds)",
+  "Minimum coverage per quarter-hour (%)": "Minimum coverage per quarter-hour (%)",
+  "Default power target (W)": "Default power target (W)",
+  "Default safety reserve (W)": "Default safety reserve (W)",
+  "Tariff orientation threshold (W)": "Tariff orientation threshold (W)",
+  "Import existing legacy configuration once (if available)": "Import existing legacy configuration once (if available)"
+}

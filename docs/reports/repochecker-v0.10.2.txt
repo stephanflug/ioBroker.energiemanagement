@@ -1,0 +1,107 @@
+[INFO] info messages have been enabled
+[INFO] running in LOCAL mode
+[INFO] Checking repository https://github.com/stephanflug/ioBroker.energiemanagement (branch null)
+
+[init] initializing configuration
+[init] getting commit infos
+[init] getting package.json
+[init] getting io-package.json
+
+[init] checking npm
+[init] getting latest repository info
+[init] updating configuration
+
+[INFO] Environment
+[INFO]    repository stephanflug/ioBroker.energiemanagement
+[INFO]    checking mode is LOCAL
+[INFO]    retrieving data from local storage
+[INFO]    working directors is /workspace/work/adapter-v0.10.2
+[INFO]  
+[INFO] Configuration flags set:
+[INFO]     hasJsonConfig: true
+[INFO]     npmExists: false
+[INFO]     onlyWWW: false
+[INFO]     usesJson5: false
+[INFO]     usesReact: false
+[INFO]     isNewAdapter: true
+[INFO]     strict: false
+[INFO]  
+[INFO] Statistics:
+[INFO]     cached filenames: 163
+
+[E0001 - E0999] checking package.json
+
+[E1000 - E1999] checking io-package.json
+
+[E2000 - E2999] checkNpm
+
+[E4000 - E4999] checking repository
+
+[E5000 - E5999] checkCode
+
+[E3000 - E3999] checking tests
+
+[E8000 - E8999] checkGithubRepo
+
+[E8900 - E8999] checking dependabot
+
+[E6000 - E6999] checkReadme
+[INFO] years detected: README 2026 / Current 2026 / Last commit 2026 / NPM 0
+
+[E7000 - E7999] checkLicenseFile
+[INFO] years detected: LICENSE 2026 / Current 2026 / Last commit 2026 / NPM 0
+
+[E9500 - E9998] checkNpmIgnore
+
+[E9000 - E9499] checkGitIgnore
+
+[postprocessing] running postprocessing tasks
+
+[INFO] Summary of successful checks skipped, use --success to enable output
+
+FINAL status 'OK'
+
+
+########## SUMMARY of ISSUES ##########
+
+
+Errors:
+[E2000] Package iobroker.energiemanagement not found on npm. Please publish
+[E3012] "test-and-release.yml": job "deploy" is not defined. Consider adding it for automated releases.
+[E5004] Plain setInterval() found in source files (main.js). Please use this.setInterval() or adapter.setInterval() instead.
+[E5005] Plain setTimeout() found in source files (lib/backup-service.js, lib/migration.js, ...). Please use this.setTimeout() or adapter.setTimeout() instead.
+[E8001] No repository about text found. Please go to "https://github.com/stephanflug/ioBroker.energiemanagement", press the settings button beside the about title and add the description.
+[E8002] No topics found in the repository. Please go to "https://github.com/stephanflug/ioBroker.energiemanagement", press the settings button beside the about title and add some topics.
+
+Warnings:
+[W0062] Consider adding and using package "@alcalzone/release-script".
+[W0062] Consider adding and using package "@iobroker/adapter-dev".
+[W0062] Consider adding and using package "@iobroker/eslint-config".
+[W0074] No "lint" script found in package.json. Please add one.
+[W3013] "test-and-release.yml": job "check-and-lint" should contain a step using "ioBroker/testing-action-check@v2".
+[W3015] "test-and-release.yml": job "adapter-tests" should contain a step using "ioBroker/testing-action-adapter@v1".
+[W3039] Could not retrieve workflow run data for "test-and-release.yml": Request failed with status code 404
+[W4001] Cannot find "energiemanagement" in latest repository. Please ignore if PR to add adapter to repositories already exists.
+[W5051] Custom sleep/wait function(s) found in source files (lib/backup-service.js, main.js). Consider using the built-in "this.delay()" method provided by the ioBroker adapter base class instead.
+[W6020] Consider adding a CHANGELOG_OLD.md file to store older changelog entries. This is supported by @alcalzone/releasescript.
+[W6032] Changelog section in README.md appears to use a fixed link to CHANGELOG.md. Keep changelog entries directly in README.md.
+
+Suggestionss:
+[S0065] No devDependency for "@types/node" found. Consider adding "@types/node":">=22" to devDependencies at package.json.
+[S0071] No devDependency for "@iobroker/eslint-config" found. Consider migrating to the shared ESLint config.
+[S0085] No devDependency "@tsconfig/nodeXX" found. Consider adding one for proper type checking (see ioBroker.examples for examples).
+[S0087] Missing "/tsconfig.json". Consider adding it for proper type checking (see ioBroker.examples for examples).
+[S1039] Please evaluate whether adapter can be modified to support compact mode.
+[S4036] Consider adding .vscode/settings.json file with JSON schema definitions for better development experience with Visual Studio Code.
+[S4054] Email address "steuerung@gmx.at" (at package.json, io-package.json, README.md, LICENSE) could not be validated - no MX record found for domain "gmx.at".
+[S5601] i18n directory "admin/i18n" uses long format ({lang}/translations.json). Consider migrating to short format ({lang}.json) using "npm run translate convert".
+[S8005] No GitHub release found. Please use GitHub releases for easier identification of the current release and consider using "@iobroker/action-deploy".
+[S8901] Dependabot configuration file ".github/dependabot.yml" not found. Consider adding dependabot to keep dependencies up to date.
+
+created by repochecker 5.24.0 based on commit bb893d7a1230fb090859ed34c3448f668890754d
+
+----------------------------------------------------------
+This check has been run using --local mode.
+Please note that local mode is experimental state only and
+may report false positive findings and miss real issues.
+----------------------------------------------------------

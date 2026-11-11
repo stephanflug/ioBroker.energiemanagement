@@ -5,45 +5,49 @@
 <meta name="theme-color" content="#0f1e30">
 <meta name="description" content="Energiemanagement für ioBroker – Viertelstundenmonitoring und Lastmanagement">
 <title>Energiemanagement</title>
-<link rel="stylesheet" href="style.css?v=0.10.1">
-<script src="/lib/js/socket.io.js" defer></script><script src="app.js?v=0.10.1" defer></script><script src="analytics.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="insights.css?v=0.10.1">
-<script src="insights.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="forecast.css?v=0.10.1">
-<script src="forecast.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="dashboard.css?v=0.10.1">
-<script src="dashboard.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="navigation.css?v=0.10.1">
-<script src="navigation.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="heating.css?v=0.10.1">
-<script src="heating.js?v=0.10.1" defer></script>
-<script src="heating-trend.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="energy-summary.css?v=0.10.1">
-<script src="energy-summary.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="utilities.css?v=0.10.1">
-<script src="utilities.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="rainwater.css?v=0.10.1">
-<script src="rainwater.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="analysis-layout.css?v=0.10.1">
-<script src="analysis-layout.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="day-comparison.css?v=0.10.1">
-<script src="day-comparison.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="storage.css?v=0.10.1">
-<script src="storage.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="tank.css?v=0.10.1">
-<script src="tank.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="sources-manager.css?v=0.10.1">
-<script src="sources-manager.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="backup-ui.css?v=0.10.1">
-<script src="backup-ui.js?v=0.10.1" defer></script>
-<link rel="stylesheet" href="embed.css?v=0.10.1">
-<script src="embed.js?v=0.10.1" defer></script>
+<link rel="stylesheet" href="style.css?v=0.10.2">
+<script src="/lib/js/socket.io.js" defer></script><script src="app.js?v=0.10.2" defer></script><script src="analytics.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="insights.css?v=0.10.2">
+<script src="insights.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="forecast.css?v=0.10.2">
+<script src="forecast.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="dashboard.css?v=0.10.2">
+<script src="dashboard.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="navigation.css?v=0.10.2">
+<script src="navigation.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="heating.css?v=0.10.2">
+<script src="heating.js?v=0.10.2" defer></script>
+<script src="heating-trend.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="energy-summary.css?v=0.10.2">
+<script src="energy-summary.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="utilities.css?v=0.10.2">
+<script src="utilities.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="rainwater.css?v=0.10.2">
+<script src="rainwater.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="analysis-layout.css?v=0.10.2">
+<script src="analysis-layout.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="day-comparison.css?v=0.10.2">
+<script src="day-comparison.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="storage.css?v=0.10.2">
+<script src="storage.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="tank.css?v=0.10.2">
+<script src="tank.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="sources-manager.css?v=0.10.2">
+<script src="sources-manager.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="backup-ui.css?v=0.10.2">
+<script src="backup-ui.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="about.css?v=0.10.2">
+<script src="about.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="version-ui.css?v=0.10.2">
+<script src="version-ui.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="embed.css?v=0.10.2">
+<script src="embed.js?v=0.10.2" defer></script>
 </head>
 <body>
 <div class="shell">
 <aside class="sidebar" id="appSidebar" tabindex="-1">
 <button id="mobileMenuClose" class="mobile-menu-close" type="button" aria-label="Menü schließen">×</button>
- <div class="brand"><span class="brand-icon">◈</span><div><strong>ENERGIEMANAGEMENT</strong><small>Power bye Ebner Stephan</small></div></div>
+ <div class="brand"><span class="brand-icon">◈</span><div><strong>ENERGIEMANAGEMENT</strong><small>Entwicklung: Stephan Ebner</small></div></div>
  <div class="nav-caption">ÜBERSICHT</div>
  <nav>
   <button data-page="overview" class="active"><span>▦</span> Übersicht</button>
@@ -62,12 +66,13 @@
   <button data-page="devices"><span>☷</span> Verbraucher & Prioritäten</button>
   <button data-page="outputs"><span>⌁</span> Geräteausgänge</button>
   <button data-page="settings"><span>⚙</span> Einstellungen</button>
+  <button data-page="about"><span aria-hidden="true">ⓘ</span> Über &amp; Lizenzen</button>
  </nav>
  <div class="side-footer"><span id="navStatus" class="signal off"></span><span id="navStatusText">Verbindung prüfen</span><small>Geräteausgänge standardmäßig AUS</small></div>
 </aside>
 <button id="navScrim" class="nav-scrim" type="button" aria-label="Menü schließen" tabindex="-1" hidden></button>
 <div class="workspace">
-<header class="topbar"><button id="mobileMenuOpen" class="mobile-menu-open" type="button" aria-label="Hauptmenü öffnen" aria-controls="appSidebar" aria-expanded="false">☰</button><div class="heading"><h1 id="pageTitle" tabindex="-1">Übersicht</h1><span>PV-Erzeugung, Verbrauch, Lastspitzen und Berichte</span></div><div class="top-actions"><span id="lastUpdate">–</span><button id="autoRefresh" class="button ghost" type="button" aria-pressed="true" title="Nur Live-Messwerte und Diagramme automatisch aktualisieren">Live: EIN</button><button id="refresh" class="button ghost" type="button">Aktualisieren</button></div></header>
+<header class="topbar"><button id="mobileMenuOpen" class="mobile-menu-open" type="button" aria-label="Hauptmenü öffnen" aria-controls="appSidebar" aria-expanded="false">☰</button><div class="heading"><h1 id="pageTitle" tabindex="-1">Übersicht</h1><span>PV-Erzeugung, Verbrauch, Lastspitzen und Berichte</span></div><div class="top-actions"><div class="version-widget" id="appVersion" data-build-version="0.10.2" data-release-channel="development"><details id="versionDetails"><summary id="versionIndicator" aria-label="Adapterversion und Versionsprüfung"><i class="version-state-dot" aria-hidden="true"></i><strong id="versionInstalled">v0.10.2</strong><span id="versionLabel">Prüfung läuft</span><small id="versionChannel">Vorabversion</small><span class="version-chevron" aria-hidden="true">⌄</span></summary><section id="versionPopover" class="version-popover" aria-label="Versionsinformationen"><div class="eyebrow">VERSION &amp; VERÖFFENTLICHUNGEN</div><h2>Dein Energiemanagement</h2><p id="versionMessage" role="status" aria-live="polite">Die serverseitige Versionsprüfung wird vorbereitet.</p><dl class="version-metadata"><div><dt>Installiert</dt><dd id="versionInstalledDetail">0.10.2</dd></div><div><dt>Stabiles GitHub-Release</dt><dd id="versionLatest">Noch nicht geprüft</dd></div><div><dt>Veröffentlicht</dt><dd id="versionPublished">–</dd></div><div><dt>Zuletzt erfolgreich geprüft</dt><dd id="versionLastSuccess">Noch nicht geprüft</dd></div></dl><div id="versionReleaseInfo" hidden><h3>Änderungen im Release</h3><p id="versionNotes" class="version-notes"></p><a id="versionReleaseLink" class="button ghost" target="_blank" rel="noopener noreferrer">GitHub-Release ansehen ↗</a></div><div class="version-actions"><button id="versionCheck" class="button ghost" type="button">Jetzt prüfen</button><button id="versionAbout" class="button ghost" type="button" data-goto="about">Über &amp; Lizenzen</button></div><p id="versionCheckFeedback" class="version-feedback" role="status" aria-live="polite"></p><p class="version-note">Neue Versionen werden ausschließlich über die ioBroker-Adapterverwaltung installiert. Diese Anzeige installiert nichts automatisch.</p></section></details></div><span id="lastUpdate">–</span><button id="autoRefresh" class="button ghost" type="button" aria-pressed="true" title="Nur Live-Messwerte und Diagramme automatisch aktualisieren">Live: EIN</button><button id="refresh" class="button ghost" type="button">Aktualisieren</button></div></header>
 <main>
 <div id="connectionBanner" class="connection-banner" hidden role="status"><span id="connectionMessage"></span><button id="connectionRetry" class="button ghost" type="button">Erneut verbinden</button></div>
 <div id="notice" class="notice hidden" role="status" aria-live="polite"><span id="noticeText" class="notice-text"></span><button id="noticeDismiss" class="notice-dismiss" type="button" aria-label="Meldung schließen" title="Meldung schließen">×</button></div>
@@ -383,7 +388,7 @@
  <article class="panel report-paper" id="reportPrint">
   <div class="report-head"><div><div class="eyebrow">ENERGIEMANAGEMENT / BERICHT</div><h2 id="reportTitle">Energiebilanz</h2>
     <p id="reportSubtitle">Zeitraum wird geladen</p></div>
-    <div class="report-brand">Power bye Ebner Stephan</div></div>
+    <div class="report-brand">Entwicklung: Stephan Ebner</div></div>
   <div id="reportSummary" class="report-summary"></div>
   <div class="table-scroll"><table class="ana-table"><thead id="reportTableHead"></thead><tbody id="reportRows"></tbody></table></div>
   <div id="reportNotes" class="report-notes"></div>
@@ -433,8 +438,9 @@
  <div class="savebar"><span>Tarifwerte hängen vom Netzbetreiber und den gültigen Regelungen ab.</span><button id="saveSettings" class="button primary">Einstellungen speichern</button></div></article>
 
 </section>
+<section id="page-about" class="page hidden"><div id="aboutContent"></div></section>
 </main>
-<footer>ENERGIEMANAGEMENT · v0.10.1 <span>Power bye Ebner Stephan</span><span>Lokale ioBroker-Integration · Keine eichrechtliche Abrechnung</span></footer>
+<footer>ENERGIEMANAGEMENT · <span id="footerVersion">v0.10.2</span> <span>Entwicklung: Stephan Ebner</span><span>Lokale ioBroker-Integration · Keine eichrechtliche Abrechnung</span></footer>
 </div>
 </div>
 <nav class="mobile-tabbar" aria-label="Schnellnavigation">

@@ -1,0 +1,10 @@
+{
+  "Settings": "Instellingen",
+  "Configure measurements, consumers and device outputs in the web interface. Hardware control is disabled by default.": "Configureer metingen, verbruikers en apparaatuitgangen in de webinterface. Hardwarebesturing is standaard uitgeschakeld.",
+  "Sampling interval (seconds)": "Meetinterval (seconden)",
+  "Minimum coverage per quarter-hour (%)": "Minimale dekking per kwartier (%)",
+  "Default power target (W)": "Standaard vermogensdoel (W)",
+  "Default safety reserve (W)": "Standaard veiligheidsreserve (W)",
+  "Tariff orientation threshold (W)": "Oriëntatiewaarde voor tariefgrens (W)",
+  "Import existing legacy configuration once (if available)": "Bestaande oude configuratie eenmalig importeren (indien beschikbaar)"
+}

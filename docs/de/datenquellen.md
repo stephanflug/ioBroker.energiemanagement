@@ -122,3 +122,7 @@ Geeignete Schnittstellen sind etwa eine dokumentierte Hersteller-Heizfreigabe od
 - **Nach Quellenwechsel fehlen neue Vergleichswerte:** Es wird eine neue Referenz beziehungsweise ein passendes Profil gesammelt.
 
 Weitere Hinweise stehen in der [Fehlerbehebung](fehlerbehebung.md).
+
+## Versionsinformationen sind keine Messquelle
+
+Die Anzeige oben und **Über & Lizenzen** verwenden den eigenen Versions-/Prüfstatus des Adapters. Dafür wird unter **Datenquellen** kein Sensor ausgewählt. Die GitHub-Prüfung greift nicht in bestehende Quellzuordnungen, Zählerstände oder Geräteausgänge ein.

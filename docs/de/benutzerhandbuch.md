@@ -2,7 +2,7 @@
 
 [Zur Startseite](../../README.md) · [Installation](installation.md) · [Datenquellen](datenquellen.md) · [Fehlerhilfe](fehlerbehebung.md)
 
-Diese Anleitung beschreibt Version 0.10.1. Die Oberfläche arbeitet mit den Datenpunkten der ausgewählten Adapterinstanz, standardmäßig `energiemanagement.0`.
+Diese Anleitung beschreibt die vorbereitete Version 0.10.2. Die produktive Version 0.10.1 bleibt durch die Vorbereitung unverändert. Die Oberfläche arbeitet mit den Datenpunkten der ausgewählten Adapterinstanz, standardmäßig `energiemanagement.0`.
 
 ## Die Oberfläche öffnen
 
@@ -29,6 +29,34 @@ Host, Port, HTTP/HTTPS und Instanz an deine Installation anpassen. Auf dem Handy
 | Verbraucher & Prioritäten | Welche Geräte sind eingerichtet und welche haben Vorrang? |
 | Geräteausgänge | Welche tatsächlich schreibbaren Geräteschnittstellen dürfen verwendet werden? |
 | Einstellungen | Welche Bereiche sind aktiv, wo liegen die Daten und wie sichere ich alles? |
+| Über & Lizenzen | Welche Version läuft, wer entwickelt die Anwendung und welche Lizenzen gelten? |
+
+## Versionsanzeige und Updatehinweise
+
+Die kompakte Versionsanzeige im oberen Bereich bleibt auf allen Seiten sichtbar. Auf dem Smartphone ist sie ebenfalls erreichbar; die vollständige Navigation öffnest du über die Menütaste. Die Anzeige ist eine Information und kein Schalter für ein automatisches Update.
+
+| Anzeige | Bedeutung |
+| --- | --- |
+| **Aktuell** | Die installierte stabile Version entspricht dem neuesten gefundenen stabilen GitHub-Release. |
+| **Update verfügbar** | Ein neueres stabiles Release wurde gefunden. Die Details zeigen installierte und verfügbare Version, Veröffentlichungsdatum, kurze Änderungen und einen Link zum Release. |
+| **Prüfung läuft** | Der Server wartet auf die aktuelle Antwort von GitHub. |
+| **Prüfung nicht möglich** | GitHub konnte nicht erreicht werden, hat die Abfrage begrenzt oder keine verwertbare Antwort geliefert. Ein älteres Ergebnis wird nicht als neue erfolgreiche Prüfung ausgegeben. |
+| **Vorabversion** | Die installierte Version ist als Entwicklungsversion gekennzeichnet oder enthält eine semantische Vorabkennung. Auch eine stabile installierte Version vor dem öffentlichen Release-Stand wird nicht fälschlich als normales aktuelles Release behandelt. |
+| **Noch kein stabiles Release** | Repository oder stabiles Release ist noch nicht öffentlich verfügbar. Bei der Vorbereitung dieses Projekts ist das ein neutraler Zustand. |
+
+Die Prüfung läuft serverseitig beim Adapterstart und danach ungefähr alle zwölf Stunden. Ein manuell angeforderter Neuabruf verwendet dieselbe Serverfunktion und respektiert die GitHub-Limits; wiederholte Prüfungen können deshalb warten müssen. Es sind kein GitHub-Konto, Token oder API-Schlüssel für die öffentlichen Release-Metadaten nötig.
+
+Entwürfe und von GitHub als Vorabversion markierte Releases werden nicht als stabile Updateziele angeboten. Versionsnummern werden semantisch verglichen: beispielsweise ist `0.10.10` neuer als `0.10.2`. Die vorbereitete 0.10.2 ist ausdrücklich als Entwicklungsversion markiert. Wenn ein neueres stabiles Release gefunden wird, kann auch bei einer installierten Entwicklungsversion **Update verfügbar** erscheinen; die installierte Entwicklungseigenschaft bleibt erkennbar.
+
+Die Weboberfläche aktualisiert diese Information an Ort und Stelle. Dafür gibt es keinen Seiten-Reload und keinen Grund, geöffnete Formulare oder Menüs zurückzusetzen. Zeitpunkte und der letzte erfolgreiche Abruf werden gespeichert. Bei einem Fehler werden Messwerterfassung und Gerätesteuerung nicht von der Versionsprüfung verändert.
+
+Neue Software installierst du bewusst über die normale ioBroker-Adapterverwaltung beziehungsweise die [manuelle Update-Anleitung](updates-und-sicherung.md). Ein Release-Link öffnet nur die Projektveröffentlichung.
+
+## Über & Lizenzen
+
+Der eigene Menüpunkt **Über & Lizenzen** ist auch im Handy-Menü erreichbar. Er erklärt den Einsatzzweck des Energiemanagements und zeigt **Entwicklung: Stephan Ebner**, die installierte Adapterversion sowie die Links zu GitHub, Dokumentation und Fehlerberichten.
+
+Die Seite enthält den vollständigen Text der MIT-Lizenz und die Hinweise zu verwendeten Drittanbieterbibliotheken und Datenquellen. Die Dateien [LICENSE](../../LICENSE) und [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) liegen ebenfalls im Projekt beziehungsweise Installationspaket. Die Hinweise zu Open-Meteo und GeoNames beziehen sich auf Wetter-/Ortsdaten; Prognosewerte bleiben daraus abgeleitete Schätzungen.
 
 ## Die erste Einrichtung
 

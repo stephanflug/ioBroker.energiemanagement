@@ -140,3 +140,15 @@ Für einen [Fehlerbericht](https://github.com/stephanflug/ioBroker.energiemanage
 - gekürzter relevanter Logauszug und gegebenenfalls ein anonymisiertes Bild.
 
 Keine Passwörter, API-Tokens, privaten Standortdaten oder vollständigen Haus-Sicherungen öffentlich anhängen. Die Vollsicherung kann Zuordnungen, Standort, Raumbezeichnungen und Verbrauchshistorien enthalten.
+
+## Versionsprüfung nicht möglich
+
+Diese Meldung betrifft die Abfrage öffentlicher GitHub-Releases. Messwerterfassung, interne Archive und bestehende Gerätefreigaben werden dadurch nicht geändert.
+
+- Prüfe, ob der ioBroker-Host GitHub über HTTPS erreichen kann und die Systemzeit stimmt.
+- Bei einem GitHub-API-Limit warte bis zum nächsten vorgesehenen Versuch. Häufiges manuelles Prüfen kann die Wartezeit nicht aufheben.
+- Ein gespeicherter letzter erfolgreicher Prüfzeitpunkt erklärt, wann zuvor eine verwertbare Antwort vorlag. Ein aktueller Fehler bedeutet keine neue Bestätigung.
+- **Noch kein stabiles Release** ist bei einem neuen/leeren Repository oder ausschließlich vorhandenen Vorab-Releases ein neutraler Zustand.
+- **Vorabversion** ist bei der vorbereiteten 0.10.2 vorgesehen. Eine Entwicklungsversion ist keine Aussage über einen Fehler der Messwerte.
+
+Ein Updatehinweis installiert keine Software. Verwende bei einer bewusst gewählten neuen Version die [Update-Anleitung](updates-und-sicherung.md). Formulare müssen für das Aktualisieren der Versionsinformation nicht neu geladen werden.

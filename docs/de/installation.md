@@ -1,6 +1,8 @@
 # Manuelle Installation auf ioBroker
 
-Diese Anleitung beschreibt die erste Installation von **Energiemanagement 0.10.1** und das Einspielen eines neuen Pakets. Der Adapter wird direkt aus diesem GitHub-Projekt installiert. Eine Installation aus dem offiziellen ioBroker-Adapterkatalog oder von npm wird hier nicht vorausgesetzt.
+Diese Anleitung gehört zur **vorbereiteten Entwicklungsversion 0.10.2**. Es werden ein vollständiger Projektordner als ZIP und das installierbare Paket `iobroker.energiemanagement-0.10.2.tgz` bereitgestellt. GitHub- und npm-Veröffentlichung sind getrennte, noch freizugebende Schritte. Deshalb setzt diese Anleitung keinen bereits vorhandenen GitHub-Release-Download voraus.
+
+**Die Vorbereitung installiert nichts auf einer laufenden Anlage.** Eine produktive 0.10.1 wird erst verändert, wenn ihr Betreiber die neue Version bewusst installiert. Für die erste Prüfung ist eine getrennte Testinstanz beziehungsweise ein Testsystem sinnvoll.
 
 **Bereits installiert?** Verwende die [Update-Anleitung](updates-und-sicherung.md#eine-neue-version-installieren). Beim Update wird keine zusätzliche Instanz angelegt.
 
@@ -9,93 +11,53 @@ Diese Anleitung beschreibt die erste Installation von **Energiemanagement 0.10.1
 | Voraussetzung | Benötigt für |
 | --- | --- |
 | Eine laufende ioBroker-Installation | Betrieb des Adapters |
-| Node.js ab Version 20 | Ausführung des Pakets; verwende eine für deine ioBroker-Version unterstützte Node.js-Version |
-| ioBroker js-controller ab 6.0.11 | Adapterbetrieb |
-| ioBroker Admin ab Version 7 | Instanzverwaltung |
+| Node.js ab Version 22 | Ausführung von v0.10.2; verwende eine für deine ioBroker-Version unterstützte LTS-Version |
+| ioBroker js-controller ab 6.0.11 | Adapterbetrieb gemäß Metadaten |
+| ioBroker Admin ab Version 7.6.20 | Instanzverwaltung |
 | Eine eingerichtete, laufende `web`-Instanz, beispielsweise `web.0` | Weboberfläche und Verbindung zu den Datenpunkten |
 | Bereits vorhandene Messdatenpunkte in ioBroker | Zuordnung von Smart Meter, PV-Anlage und weiteren Messwerten |
 
+Die frühere 0.10.1 hatte noch Node.js ab Version 20 in ihren Paketmetadaten. Für das vorbereitete Paket 0.10.2 gilt Node.js ab Version 22. Prüfe dies auch auf einem zweiten ioBroker-System vor einem Update.
+
 Es werden kein bestimmter Smart Meter, Wechselrichter oder Heizungshersteller und keine externe Datenbank vorausgesetzt. Wasser, Regenwasser, Brennstoff und Heizung lassen sich später unter **Einstellungen** freischalten.
 
-Falls noch keine `web`-Instanz vorhanden ist, installiere in ioBroker Admin den Adapter **Webserver / web**, lege eine Instanz an und richte deren Port und Anmeldung ein. Die Adresse der Admin-Oberfläche allein ist noch nicht die Adresse der Energiemanagement-Weboberfläche.
+Falls noch keine `web`-Instanz vorhanden ist, installiere in ioBroker Admin den Adapter **Webserver / web**, lege eine Instanz an und richte Port und Anmeldung ein. Die Adresse der Admin-Oberfläche allein ist noch nicht die Adresse der Energiemanagement-Weboberfläche.
 
-## 1. Installationsdatei auswählen
+## 1. Installationsdatei und Prüfsumme
 
-Lade das vollständige Paket aus dem Verzeichnis [GitHub-Veröffentlichungen](https://github.com/stephanflug/ioBroker.energiemanagement/releases) herunter:
+Verwende die separat bereitgestellte Datei **`iobroker.energiemanagement-0.10.2.tgz`** und die zugehörige `.sha256`-Datei. Das TGZ ist bereits ein installierbares npm-Paket und muss vor der Installation nicht entpackt werden. Es enthält Adapter, Weboberfläche, Lizenztexte und Dokumentation, aber keine persönliche Hauskonfiguration oder Messhistorie.
 
-- [iobroker.energiemanagement-0.10.1.tgz](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.1/iobroker.energiemanagement-0.10.1.tgz)
-- [SHA-256-Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.1/iobroker.energiemanagement-0.10.1.tgz.sha256)
+Der Projekt-ZIP dient zur Prüfung, Weiterentwicklung und späteren GitHub-Veröffentlichung. Für eine normale Installation ist das TGZ der direkte Weg.
 
-Die `.tgz`-Datei ist bereits ein installierbares npm-Paket. Du musst sie für die Paketinstallation nicht entpacken. Sie enthält den Adapter und seine Oberfläche; persönliche Messwerte und Hauskonfigurationen werden damit nicht übertragen.
-
-Die Downloadadressen gehören zur festen GitHub-Veröffentlichung `v0.10.1`. Wenn du später eine andere Version installierst, verwende deren Paketdatei und die dazugehörige Prüfsumme.
-
-Wähle anschließend **einen** der folgenden Installationswege.
-
-## Weg A: Installation über ioBroker Admin
-
-Dieser Weg eignet sich, wenn dein ioBroker-Host GitHub erreichen kann.
-
-1. Öffne ioBroker Admin und anschließend **Adapter**.
-2. Aktiviere den **Expertenmodus**, falls die Installation aus einer eigenen URL noch nicht angeboten wird.
-3. Öffne **Aus eigener URL installieren**. Die genaue Bezeichnung und Position des Schalters unterscheiden sich zwischen Admin-Versionen.
-4. Trage diese Paketadresse ein:
-
-   ```text
-   https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.1/iobroker.energiemanagement-0.10.1.tgz
-   ```
-
-5. Starte die Installation und warte auf die Abschlussmeldung im Installationsprotokoll.
-6. Prüfe unter **Instanzen**, ob `energiemanagement.0` bereits angelegt wurde. Falls noch keine Instanz existiert, füge beim Adapter **Energiemanagement** eine Instanz hinzu und starte sie.
-7. Fahre mit [Weboberfläche öffnen](#3-weboberfläche-öffnen) fort.
-
-Falls deine Admin-Version diesen Installationsweg nicht anbietet, verwende Weg B oder C.
-
-## Weg B: Linux-Host über SSH
-
-Ersetze in den Beispielen `BENUTZER` und `IOBROKER-IP` durch den SSH-Benutzer und die Adresse deines Systems. Die Befehle sind für einen bereits eingerichteten ioBroker-Host gedacht.
-
-### Paket auf den Host übertragen
-
-Wenn die Datei auf deinem Computer liegt, kopiere sie von dort aus auf den Host:
+Unter Linux lässt sich die Prüfsumme im Downloadordner kontrollieren:
 
 ```bash
-scp iobroker.energiemanagement-0.10.1.tgz BENUTZER@IOBROKER-IP:/tmp/
+sha256sum -c iobroker.energiemanagement-0.10.2.tgz.sha256
 ```
 
-Alternativ kannst du das Paket nach der SSH-Anmeldung direkt auf den Host laden:
+Erwartet wird `iobroker.energiemanagement-0.10.2.tgz: OK`. Die Prüfsumme muss zu genau diesem bereitgestellten Paket gehören.
+
+## Weg A: Linux-Host über SSH
+
+Ersetze `BENUTZER` und `IOBROKER-IP` durch die Angaben deines Systems. Kopiere das heruntergeladene Paket von deinem Computer auf den Host:
 
 ```bash
-curl -fL --output /tmp/iobroker.energiemanagement-0.10.1.tgz \
-  https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.1/iobroker.energiemanagement-0.10.1.tgz
+scp iobroker.energiemanagement-0.10.2.tgz BENUTZER@IOBROKER-IP:/tmp/
 ```
-
-Optional kannst du vor der Installation die Datei gegen die veröffentlichte Prüfsumme kontrollieren:
-
-```bash
-curl -fL --output /tmp/iobroker.energiemanagement-0.10.1.tgz.sha256 \
-  https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.1/iobroker.energiemanagement-0.10.1.tgz.sha256
-cd /tmp
-sha256sum -c iobroker.energiemanagement-0.10.1.tgz.sha256
-```
-
-Die Prüfung sollte `iobroker.energiemanagement-0.10.1.tgz: OK` melden.
-
-### Adapter installieren
 
 Melde dich per SSH an und verwende die ioBroker-CLI mit dem für deine Installation vorgesehenen Benutzer. Bei einer üblichen Linux-Installation ist dies der Benutzer `iobroker`:
 
 ```bash
 ssh BENUTZER@IOBROKER-IP
-chmod 644 /tmp/iobroker.energiemanagement-0.10.1.tgz
+chmod 644 /tmp/iobroker.energiemanagement-0.10.2.tgz
 sudo -u iobroker -H bash
 cd /opt/iobroker
-iobroker url /tmp/iobroker.energiemanagement-0.10.1.tgz
+iobroker url /tmp/iobroker.energiemanagement-0.10.2.tgz
 ```
 
-Der lokale Pfad `/tmp/...tgz` wird vom ioBroker-CLI als Installationsquelle verwendet. Die Installation lädt die Adapterdateien und die Weboberfläche hoch. Warte, bis der Befehl abgeschlossen ist.
+Das Leserecht betrifft das öffentliche Installationspaket. Warte auf den Abschluss des CLI-Befehls. Die Paketinstallation lädt normalerweise auch die Webdateien hoch.
 
-Prüfe anschließend, ob bereits eine Instanz existiert:
+Prüfe anschließend die Instanzen:
 
 ```bash
 iobroker list instances
@@ -108,30 +70,28 @@ iobroker add energiemanagement
 iobroker start energiemanagement.0
 ```
 
-Existiert `energiemanagement.0` bereits, verwende stattdessen die [Update-Anleitung](updates-und-sicherung.md#eine-neue-version-installieren). Ein erneutes `add` würde eine weitere Instanz anlegen.
+Existiert `energiemanagement.0` bereits, gilt die [Update-Anleitung](updates-und-sicherung.md#eine-neue-version-installieren). Ein erneutes `add` kann eine zusätzliche Instanz erzeugen.
 
-## Weg C: Docker oder Portainer
+## Weg B: Docker oder Portainer
 
-Die Installation erfolgt **im ioBroker-Container**. Im Beispiel heißt dieser Container `iobroker`; ersetze den Namen, falls dein Container anders heißt.
+Die Installation erfolgt **im ioBroker-Container**. Im Beispiel heißt dieser Container `iobroker`; ersetze den Namen bei Bedarf.
 
 ### Über eine Shell auf dem Docker-Host
 
-Kopiere das heruntergeladene Paket in den Container:
+Kopiere das Paket in den Container:
 
 ```bash
-chmod 644 iobroker.energiemanagement-0.10.1.tgz
-docker cp iobroker.energiemanagement-0.10.1.tgz \
-  iobroker:/tmp/iobroker.energiemanagement-0.10.1.tgz
+chmod 644 iobroker.energiemanagement-0.10.2.tgz
+docker cp iobroker.energiemanagement-0.10.2.tgz \
+  iobroker:/tmp/iobroker.energiemanagement-0.10.2.tgz
 ```
 
-Das Leserecht bezieht sich auf das öffentliche Installationspaket. Damit kann der ioBroker-Benutzer die in den Container kopierte Datei lesen.
-
-Öffne dort eine Shell als ioBroker-Benutzer:
+Öffne dort eine Shell mit dem für das Container-Image vorgesehenen ioBroker-Benutzer:
 
 ```bash
 docker exec -it --user iobroker iobroker bash
 cd /opt/iobroker
-iobroker url /tmp/iobroker.energiemanagement-0.10.1.tgz
+iobroker url /tmp/iobroker.energiemanagement-0.10.2.tgz
 iobroker list instances
 ```
 
@@ -144,21 +104,25 @@ iobroker start energiemanagement.0
 
 ### Über Portainer
 
-1. Öffne den **ioBroker-Container** und dessen **Konsole / Console**.
-2. Wähle `/bin/bash` und den Benutzer `iobroker`, soweit dein Container diesen Benutzer bereitstellt.
-3. Lade das Paket in der Container-Konsole herunter und installiere es:
+1. Übertrage das TGZ zunächst mit `docker cp` in den ioBroker-Container, wie oben beschrieben.
+2. Öffne in Portainer den **ioBroker-Container** und dessen **Konsole / Console**.
+3. Wähle `/bin/bash` und den Benutzer `iobroker`, soweit das Container-Image diesen Benutzer bereitstellt.
+4. Führe in `/opt/iobroker` den Befehl `iobroker url /tmp/iobroker.energiemanagement-0.10.2.tgz` aus.
+5. Prüfe anschließend mit `iobroker list instances`, ob eine Instanz angelegt werden muss.
 
-   ```bash
-   cd /opt/iobroker
-   curl -fL --output /tmp/iobroker.energiemanagement-0.10.1.tgz \
-     https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.1/iobroker.energiemanagement-0.10.1.tgz
-   iobroker url /tmp/iobroker.energiemanagement-0.10.1.tgz
-   iobroker list instances
-   ```
+Die Anleitung setzt voraus, dass ioBroker seine üblichen Schreibrechte auf die eigene Installation hat. Passe Benutzer und Pfade an ein abweichendes Container-Image an.
 
-4. Lege die erste Instanz bei Bedarf in ioBroker Admin an oder verwende die beiden `add`-/`start`-Befehle aus dem Docker-Beispiel.
+## Weg C: ioBroker Admin mit eigener URL
 
-Passe den Benutzer an dein Container-Image an, falls es eine andere Benutzerverwaltung verwendet. Die Anleitung setzt voraus, dass ioBroker mit seinen üblichen Schreibrechten auf die eigene Installation läuft.
+Diese Möglichkeit kann nach einer später freigegebenen Veröffentlichung verwendet werden, wenn der ioBroker-Host eine tatsächlich erreichbare Paket-URL besitzt.
+
+1. Öffne ioBroker Admin und **Adapter**.
+2. Aktiviere gegebenenfalls den **Expertenmodus**.
+3. Öffne **Aus eigener URL installieren**; die genaue Bezeichnung hängt von der Admin-Version ab.
+4. Verwende ausschließlich die echte TGZ-Downloadadresse des freigegebenen Pakets.
+5. Warte auf die Abschlussmeldung und prüfe unter **Instanzen**, ob `energiemanagement.0` bereits vorhanden ist.
+
+Das Projekt-Repository ist unter `stephanflug/ioBroker.energiemanagement` vorgesehen. Solange dort noch kein Release veröffentlicht ist, gibt es für 0.10.2 keine zugesicherte Release-Paketadresse. Eine fehlende GitHub-Veröffentlichung hindert die lokale TGZ-Installation über Weg A oder B nicht.
 
 ## 2. Installation kontrollieren
 
@@ -166,51 +130,46 @@ Passe den Benutzer an dein Container-Image an, falls es eine andere Benutzerverw
 
 | Datenpunkt | Erwarteter Zustand |
 | --- | --- |
-| `status.version` | `0.10.1` |
+| `status.version` | `0.10.2` |
 | `status.running` | `true` |
 | `status.lastSample` | Wird bei laufender Erfassung aktualisiert |
 | `status.lastError` | Kein aktueller Start- oder Auswertungsfehler |
 | `config.hardwareMaster` | Bei einer neuen Installation `false` |
+| `update.status_JSON` | Informationsstatus der serverseitigen Versionsprüfung |
 
-`status.dataOk` muss ohne zugeordnete Messdaten noch nicht `true` sein. Zuerst werden die Datenquellen eingerichtet. Eine Hardwarefreigabe ist für die Anzeige und Auswertung nicht erforderlich.
+`status.dataOk` muss ohne zugeordnete Messdaten noch nicht `true` sein. Eine Hardwarefreigabe ist für Anzeige, Auswertung und Versionsinformationen nicht erforderlich.
 
 ## 3. Weboberfläche öffnen
 
-Öffne Energiemanagement über den Öffnen-Link im Admin oder über die Kachel auf der Startseite der `web`-Instanz. Alternativ verwende den direkten Link:
+Öffne die Anwendung über den Öffnen-Link im Admin oder über die Kachel auf der Startseite der `web`-Instanz. Alternativ:
 
 ```text
 http://IOBROKER-IP:8082/energiemanagement/index.html?instance=energiemanagement.0
 ```
 
-`8082` ist ein häufig verwendeter Web-Port. Verwende den tatsächlichen Port und gegebenenfalls `https` deiner `web`-Instanz. Die bestehende Web-Anmeldung gilt auch für Energiemanagement. Bei Docker muss der verwendete Web-Port für deinen Browser erreichbar sein.
+`8082` ist ein häufig verwendeter Web-Port. Verwende den tatsächlichen Port und gegebenenfalls `https` deiner `web`-Instanz. Die bestehende Web-Anmeldung gilt auch für Energiemanagement. Bei Docker muss dieser Port für den Browser erreichbar sein.
 
-Für eine weitere Energiemanagement-Instanz ändere den Parameter, beispielsweise zu `?instance=energiemanagement.1`. Die Web-Dateien werden gemeinsam verwendet; die gewählte Instanz bestimmt die angezeigten Daten und Einstellungen.
+Für eine weitere Instanz ändere den Parameter, beispielsweise zu `?instance=energiemanagement.1`. Webdateien werden gemeinsam verwendet; der Parameter wählt die Daten und Einstellungen der Instanz.
 
 ### Oberfläche leer oder ältere Darstellung sichtbar
 
-Lade die Seite vollständig neu. Wenn die Web-Dateien nach der Installation noch fehlen, lade sie über die ioBroker-CLI erneut hoch:
+Nach einer bewusst durchgeführten Paketinstallation die Seite einmal vollständig neu laden. Fehlen die Webdateien, lade sie über die ioBroker-CLI erneut hoch:
 
 ```bash
 iobroker upload energiemanagement
 iobroker restart energiemanagement.0
 ```
 
-Prüfe außerdem, ob die verwendete `web`-Instanz läuft und deren WebSocket-/Objektzugriff funktioniert. Die [Fehlerbehebung](fehlerbehebung.md) enthält weitere Schritte.
+Die regelmäßige Versionsprüfung selbst benötigt keinen Seiten-Reload. Sie darf Scrollpositionen, Menüs und Formularentwürfe nicht zurücksetzen. Weitere Hilfe steht unter [Fehlerbehebung](fehlerbehebung.md).
 
 ## 4. Messwerte zuordnen
 
-Fahre mit [Erste Schritte](erste-schritte.md) und der [Datenquellen-Anleitung](datenquellen.md) fort. Für den Einstieg in die Stromauswertung werden die aktuelle Netzbezugsleistung in W und ein kumulativer Bezugszählerstand in kWh zugeordnet.
+Fahre mit [Erste Schritte](erste-schritte.md) und der [Datenquellen-Anleitung](datenquellen.md) fort. Für die grundlegende Stromauswertung werden eine aktuelle Netzbezugsleistung in W und ein kumulativer Bezugszählerstand in kWh zugeordnet.
 
-Die neue Installation verwendet zunächst den internen Speicher. Eine vorhandene Datenbankinstanz wird erst nach bewusster Auswahl unter **Einstellungen → Intern oder Datenbank** genutzt. Zugeordnete Messquellen und die optionalen Bereiche werden unabhängig davon eingerichtet.
+Die neue Installation verwendet zunächst den internen Speicher. Eine Datenbankinstanz wird erst nach bewusster Auswahl unter **Einstellungen → Intern oder Datenbank** genutzt.
 
-## Entwicklung aus dem Quellcode
+## Projekt-ZIP und Weiterentwicklung
 
-Für Anwender ist das oben verlinkte `.tgz`-Paket der einfachere Installationsweg. Wer den Quellcode selbst prüfen oder ein eigenes Paket erzeugen möchte, findet die Hinweise in [Architektur und Entwicklung](architektur.md). Eine Installation aus einem sich ändernden Entwicklungszweig kann vom veröffentlichten Paket abweichen.
+Den vollständigen Projekt-ZIP in einen separaten Arbeitsordner entpacken. Hinweise zu den lokalen Prüfungen stehen in [Architektur und Entwicklung](architektur.md). Das ZIP ist für die spätere Veröffentlichung vorbereitet; es ist keine Aufforderung, ohne Freigabe etwas auf GitHub oder npm hochzuladen.
 
-Die zu dieser Veröffentlichung gehörende Quellversion ist über das Tag [`v0.10.1`](https://github.com/stephanflug/ioBroker.energiemanagement/tree/v0.10.1) erreichbar. Das zugehörige Quellarchiv kann ebenfalls als ioBroker-Quelle verwendet werden:
-
-```bash
-iobroker url https://github.com/stephanflug/ioBroker.energiemanagement/tarball/v0.10.1
-```
-
-Prüfe anschließend wie bei der Paketinstallation, ob bereits eine Instanz vorhanden ist. Bei einem Update wird die bestehende Instanz weiterverwendet.
+Das Programm installiert keine Updates automatisch. Ein Updatehinweis zeigt lediglich einen öffentlichen Release-Link und Metadaten. Die eigentliche Installation erfolgt bewusst über die normale ioBroker-Verwaltung beziehungsweise deren CLI.

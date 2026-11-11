@@ -2,6 +2,8 @@
 
 Nach der [Installation](installation.md) kannst du zunächst Messwerte ansehen und auswerten. Dafür werden keine physischen Gerätefreigaben benötigt.
 
+**Stand: vorbereitete Entwicklungsversion 0.10.2.** Verwende für die erste Installation die separat bereitgestellte TGZ-Datei. Es erfolgt keine automatische Aktualisierung einer bestehenden 0.10.1.
+
 ## 1. Strommessung einrichten
 
 Öffne **Datenquellen** und beginne mit dem Netzanschlusspunkt:
@@ -45,3 +47,7 @@ Die Speicherwahl unter **Einstellungen** startet mit **Intern**. Eine vorhandene
 Wenn deine Zuordnungen stimmen, lade unter **Einstellungen → Vollsicherung & Wiederherstellung** eine gemeinsame Sicherungsdatei herunter. Sie enthält Einstellungen und aufgezeichnete Adapterdaten. Details zu Updates, Umfang und Wiederherstellung stehen unter [Updates und Sicherung](updates-und-sicherung.md).
 
 Die ausführliche [Bedienungsanleitung](benutzerhandbuch.md) führt durch die einzelnen Menüs.
+
+## 7. Version und Projektinformationen ansehen
+
+Oben bleibt die installierte Version sichtbar. Unter **Über & Lizenzen** findest du Entwickler, Dokumentation, Projektlinks und Lizenztexte. Solange noch kein öffentliches stabiles GitHub-Release vorhanden ist, ist ein neutraler Hinweis zu erwarten. Die Prüfung installiert keine Updates und aktualisiert die Seite nicht neu. Ein gefundenes Update spielst du bewusst über ioBroker ein.

@@ -5,7 +5,7 @@ test('new adapter starts, persists insights, and does not command hardware by de
  const data=new Map(),objects=new Map(),foreignWrites=[],foreignData=new Map();
  class FakeAdapter {
   constructor(){this.config={};this.namespace='energiemanagement.0';this.log={info(){},warn(){},error(m){throw Error(m)}};}
-  on(){} async setObjectNotExistsAsync(id,obj){objects.set(id,obj)}
+  on(){} setInterval(){return 2;} clearInterval(){} async setObjectNotExistsAsync(id,obj){objects.set(id,obj)}
   async getStateAsync(id){return data.has(id)?{val:data.get(id)}:null}
   async setStateAsync(id,s){data.set(id,s.val)}
   async subscribeStatesAsync(){} async getForeignStateAsync(id){return foreignData.get(id)||null}
@@ -14,7 +14,7 @@ test('new adapter starts, persists insights, and does not command hardware by de
  const filename=path.resolve(__dirname,'../main.js'),localRequire=createRequire(filename),mod={exports:{}};
  const context={require:n=>n==='@iobroker/adapter-core'?{Adapter:FakeAdapter}:localRequire(n),module:mod,exports:mod.exports,Date,JSON,console,setTimeout,setInterval:()=>1,clearInterval(){}};
  vm.runInNewContext(fs.readFileSync(filename,'utf8'),context,{filename});
- const adapter=mod.exports({});await adapter.onReady();
+ const adapter=mod.exports({versionCheckOptions:{fetch:async()=>({status:200,headers:{get:()=>null},text:async()=>'[]'})}});await adapter.onReady();
  assert.equal(data.get('status.version'),require('../package.json').version);assert.equal(data.get('status.running'),true);assert.equal(data.get('config.hardwareMaster'),false);
  const history=JSON.parse(data.get('history.power'));assert.equal(history.length,1);assert.equal(history[0].values.pvW,null);
  const snapshot=JSON.parse(data.get('live.snapshot'));assert.equal(snapshot.values.pvW,null);assert.equal(snapshot.houseQuality,'unknown');assert.ok(Number.isFinite(snapshot.ts));

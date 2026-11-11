@@ -1,0 +1,10 @@
+{
+  "Settings": "Настройки",
+  "Configure measurements, consumers and device outputs in the web interface. Hardware control is disabled by default.": "Настройте измерения, потребителей и выходы устройств в веб-интерфейсе. Управление оборудованием по умолчанию отключено.",
+  "Sampling interval (seconds)": "Интервал измерения (секунды)",
+  "Minimum coverage per quarter-hour (%)": "Минимальное покрытие за четверть часа (%)",
+  "Default power target (W)": "Целевая мощность по умолчанию (Вт)",
+  "Default safety reserve (W)": "Резерв мощности по умолчанию (Вт)",
+  "Tariff orientation threshold (W)": "Ориентир тарифного порога (Вт)",
+  "Import existing legacy configuration once (if available)": "Однократно импортировать прежнюю конфигурацию (при наличии)"
+}

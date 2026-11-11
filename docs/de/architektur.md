@@ -43,6 +43,7 @@ Die Weboberfläche liest den eigenen Namensraum der ausgewählten Instanz. Sie b
 | `lib/forecast.js`, `lib/weather-model.js`, `lib/solar-model.js` | Standortsuche und getrennte PV-Prognose |
 | `lib/storage-service.js`, `lib/storage-checkpoint.js` | Optionale Datenbankarchivierung, begrenzte Teilübertragung und Rückleseprüfung |
 | `lib/backup.js`, `lib/backup-service.js` | Validierte Vollsicherung und überwachte Wiederherstellung |
+| `lib/version-check.js` | Serverseitige öffentliche Release-Prüfung und zwischengespeicherter Informationsstatus |
 | `www/` | Weboberfläche mit Diagrammen, Navigation und Exporten |
 
 ## Eigener ioBroker-Namensraum
@@ -62,6 +63,8 @@ energiemanagement.0
 ├── config.storage_JSON            Interne Speicherung oder Datenbankinstanz
 ├── config.hardwareMaster          Freigabe tatsächlicher Verbraucherbefehle
 ├── status.*                       Version, Laufzustand und Messqualität
+├── update.status_JSON             Informationsstatus der GitHub-Versionsprüfung
+├── internal.versionCheck_JSON     Cache und Zeitpunkte der Versionsprüfung
 ├── live.*                         Aktuelle Werte und gemeinsame Momentaufnahme
 ├── interval.*                     Aktuelle Viertelstunde
 ├── day.* / month.*                Aktuelle Kalendersummen und Spitzen
@@ -122,10 +125,17 @@ Empfehlungen sind Auswertungsergebnisse. Tatsächliche Ausgänge erfordern zusä
 
 Eine Wiederherstellung nimmt aktuelle eigene Gerätebefehle zuerst zurück. Erst nach bestätigter Rücknahme werden die eigenen Daten ersetzt. Steuerungsfreigaben bleiben danach aus. So wird eine gespeicherte Konfiguration nicht automatisch als neue physische Gerätefreigabe verwendet.
 
+## Informationsprüfung ohne Eingriff in den Betrieb
+
+Die Versionsprüfung fragt die öffentlichen Releases des festgelegten Projekts `stephanflug/ioBroker.energiemanagement` ab. Sie läuft beim Adapterstart und danach ungefähr alle zwölf Stunden auf dem Server; mehrere Browser erzeugen dadurch keine eigenen GitHub-Abrufe. Versionen werden mit semantischen Regeln verglichen. Entwürfe und Vorab-Releases sind keine stabilen Updateziele.
+
+`update.status_JSON` enthält den Anzeigestatus sowie installierte/gefundene Version, öffentliche Release-Metadaten und Zeitpunkte. `internal.versionCheck_JSON` bewahrt den Abrufzustand. Das Fehlen öffentlicher Releases ist neutral; Netzwerkfehler und API-Limits bleiben als solche erkennbar. Die Prüfung besitzt keinen Installationspfad und schreibt keine Sensor- oder Geräte-Ausgänge. Die Webkomponente aktualisiert nur ihre eigenen Informationselemente, ohne Navigation, Scrollposition oder Formularentwürfe neu aufzubauen.
+
 ## Netzverkehr und Datenschutz
 
 - Messquellen und Aktoren werden über die vorhandenen lokalen ioBroker-Adapter angesprochen.
 - Die grundlegende Erfassung benötigt keinen externen Cloud-Dienst.
+- Die automatische Versionsprüfung ruft öffentliche Release-Metadaten von GitHub ab. Sie benötigt keinen Token und überträgt keine Hauskonfiguration oder Messarchive.
 - Die ausdrücklich aktivierte Wetterprognose übermittelt Standortkoordinaten an Open-Meteo. Die Online-Ortssuche übermittelt den Suchtext beim Suchen.
 - Das lokale Sonnenstandsmodell verwendet keine Wetterabfrage.
 - Datenbank-Zugangsdaten bleiben im eingerichteten Datenbankadapter und werden nicht in der Speicherwahl hinterlegt.

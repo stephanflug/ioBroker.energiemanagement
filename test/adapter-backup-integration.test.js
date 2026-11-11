@@ -5,13 +5,13 @@ test('running adapter exports and restores its tank, mappings and history throug
  const data=new Map(),files=new Map(),writes=[];
  class FakeAdapter{
   constructor(){this.config={};this.namespace='energiemanagement.0';this.log={info(){},warn(){},error(message){throw Error(message);}};}
-  on(){}async setObjectNotExistsAsync(){}async getStateAsync(id){return data.has(id)?{val:data.get(id),ack:true,ts:Date.now()}:null;}
+  on(){} setInterval(){return 2;} clearInterval(){}async setObjectNotExistsAsync(){}async getStateAsync(id){return data.has(id)?{val:data.get(id),ack:true,ts:Date.now()}:null;}
   async setStateAsync(id,state){data.set(id,state.val);}async subscribeStatesAsync(){}async getForeignStateAsync(){return null;}
   async setForeignStateAsync(id,state){writes.push({id,state});}async writeFileAsync(adapter,name,content){files.set(adapter+'/'+name,Buffer.from(content));}
  }
  const filename=path.resolve(__dirname,'../main.js'),requireLocal=createRequire(filename),mod={exports:{}};
  vm.runInNewContext(fs.readFileSync(filename,'utf8'),{require:name=>name==='@iobroker/adapter-core'?{Adapter:FakeAdapter}:requireLocal(name),module:mod,exports:mod.exports,Date,JSON,console,setTimeout,setInterval:()=>1,clearInterval(){}},{filename});
- const adapter=mod.exports({});await adapter.onReady();
+ const adapter=mod.exports({versionCheckOptions:{fetch:async()=>({status:200,headers:{get:()=>null},text:async()=>'[]'})}});await adapter.onReady();
  await adapter.utilities.inventoryConfigure({type:'pellets',capacity:1000});
  await adapter.utilities.refill({type:'pellets',operation:{mode:'set',amount:250,requestId:'initial-stock-001'}});
  const exported=await adapter.backup.export();assert.equal(exported.ok,true);assert.equal(adapter.dataBusy,false);

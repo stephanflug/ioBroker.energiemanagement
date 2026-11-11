@@ -1,0 +1,10 @@
+{
+  "Settings": "Paramètres",
+  "Configure measurements, consumers and device outputs in the web interface. Hardware control is disabled by default.": "Configurez les mesures, consommateurs et sorties dans l’interface web. La commande matérielle est désactivée par défaut.",
+  "Sampling interval (seconds)": "Intervalle de mesure (secondes)",
+  "Minimum coverage per quarter-hour (%)": "Couverture minimale par quart d’heure (%)",
+  "Default power target (W)": "Puissance cible par défaut (W)",
+  "Default safety reserve (W)": "Réserve de sécurité par défaut (W)",
+  "Tariff orientation threshold (W)": "Seuil indicatif de tarif (W)",
+  "Import existing legacy configuration once (if available)": "Importer une fois l’ancienne configuration (si disponible)"
+}
