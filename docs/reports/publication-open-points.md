@@ -8,9 +8,11 @@ Nach erfolgreicher Installation hat der Projektinhaber die Veröffentlichung auf
 - [Release v0.10.2 und Installationsdateien](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2)
 - [GitHub-Testläufe](https://github.com/stephanflug/ioBroker.energiemanagement/actions/workflows/test-and-release.yml)
 
-Die Veröffentlichung erfolgt als **Vorabversion**, passend zum unveränderten Entwicklungsstatus des bereits getesteten Pakets. Die serverseitige Versionsprüfung berücksichtigt nur stabile Releases. Das Ausbleiben eines stabilen Updateziels ist für dieses Release beabsichtigt.
+Die Veröffentlichung erfolgt auf ausdrücklichen Wunsch als **stabile Version 0.10.2**. Das öffentliche Paket verwendet `releaseChannel: stable`, das GitHub-Release ist weder Entwurf noch Vorabversion. Die serverseitige Versionsprüfung kann es nach dem öffentlichen Freischalten als stabiles Release erkennen.
 
-Das TGZ bleibt bytegleich zur geprüften und vom Projektinhaber erfolgreich installierten Datei. Die öffentliche Dokumentation wird um dauerhafte GitHub-Downloads ergänzt; im ursprünglichen TGZ enthaltene Vorbereitungsberichte dokumentieren den Stand vor der Veröffentlichungsfreigabe. Prüfsummen unterscheiden das installierbare Paket vom Projekt-ZIP.
+Das TGZ wurde vor der ersten öffentlichen Veröffentlichung mit stabilem Release-Kanal und aktueller öffentlicher Dokumentation neu gebaut. Die bestehenden Berechnungs- und Steuerungsalgorithmen bleiben unverändert. Die finale Prüfsumme bezeichnet diese stabile Ausgabe; sie unterscheidet sich vom zuvor bereitgestellten Entwicklungspaket. Historische Vorbereitungsberichte sind gekennzeichnet und dokumentieren den damaligen Prüfstand.
+
+Eine bereits installierte vorbereitete 0.10.2 kann ihre Entwicklungskennzeichnung behalten. Zum Ersetzen dieses Pakets das öffentliche stabile TGZ einmal bewusst normal installieren; es wird keine Produktivinstallation automatisch geändert. Der Hinweis „Noch kein öffentliches stabiles GitHub-Release verfügbar“ ist vor dem Freischalten des Releases erwartbar. Nach der Veröffentlichung lässt sich über „Jetzt prüfen“ ein neuer Abruf anfordern; die normalen Prüfintervalle und API-Limits gelten weiterhin.
 
 Die bereitgestellte GitHub-Verbindung besitzt Schreibzugriff auf Projektdateien. Die Änderung der Repository-Beschreibung und Topics wurde durch GitHub mit HTTP 403 („Resource not accessible by integration“) abgewiesen. Diese beiden Anzeigeangaben sind gegebenenfalls direkt in GitHub unter **About → Zahnrad** zu ergänzen; die README enthält bereits Beschreibung und Funktionsübersicht. Vorgeschlagene Beschreibung: „Herstellerneutrales Energiemanagement für ioBroker: PV, Lastmanagement, Heizung, Wasser, Regenwasser und Brennstoffe.“ Geeignete Topics: `iobroker`, `energy-management`, `photovoltaics`, `smart-home`, `energy-monitoring`, `load-management`.
 
@@ -19,7 +21,7 @@ Die bereitgestellte GitHub-Verbindung besitzt Schreibzugriff auf Projektdateien.
 Eine npm-Veröffentlichung ist noch offen und wurde nicht mit der Freigabe für GitHub beauftragt.
 
 - Zugriff auf das gewünschte npm-Konto und die Maintainer-Berechtigung klären.
-- Vor einer stabilen Version offene Code-/Checker-Punkte bearbeiten und passende Regressionstests durchführen.
+- Vor einer npm-Veröffentlichung offene Code-/Checker-Punkte bearbeiten und passende Regressionstests durchführen.
 - Paketname, Version, Metadaten, Lizenz und Paketinhalt erneut kontrollieren.
 - npm-Veröffentlichung gesondert freigeben und anschließend das tatsächlich veröffentlichte Paket prüfen.
 - Keine bereits veröffentlichte Versionsnummer überschreiben. Programmänderungen nach dem ausgelieferten 0.10.2-Paket erhalten eine neue Versionsnummer.

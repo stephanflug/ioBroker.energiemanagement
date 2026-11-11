@@ -26,7 +26,7 @@ Die Datei enthält die Quellinstanz, Adapterversion, den Sicherungszeitpunkt und
 
 ## Versionsanzeige ist kein Installationsauftrag
 
-Die Anzeige prüft öffentliche stabile Releases auf GitHub und verlinkt bei einem gefundenen Update dessen Details. Sie installiert keine Dateien. Version 0.10.2 wird als Entwicklungsversion erkannt; ein leeres Repository ohne stabiles Release führt zu einem neutralen Status. Die Anzeige und ihre Hintergrundprüfung setzen bestehende Formulare nicht zurück.
+Die Anzeige prüft öffentliche stabile Releases auf GitHub und verlinkt bei einem gefundenen Update dessen Details. Sie installiert keine Dateien. Das öffentliche Paket 0.10.2 verwendet den stabilen Release-Kanal. Ein zuvor vorbereitetes Entwicklungspaket 0.10.2 behält seine lokale Entwicklungskennzeichnung, bis du das stabile TGZ einmal normal installierst. Auch bei gleicher Versionsnummer wird so das vorbereitete Paket durch die öffentliche stabile Ausgabe ersetzt. Ein leeres Repository ohne stabiles Release führt zu einem neutralen Status. Die Anzeige und ihre Hintergrundprüfung setzen bestehende Formulare nicht zurück.
 
 Die Vorbereitung der ZIP-/TGZ-Dateien verändert eine produktive 0.10.1 nicht. Erst ein von dir ausgeführter normaler Installationsschritt spielt ein anderes Paket ein.
 

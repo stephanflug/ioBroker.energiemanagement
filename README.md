@@ -8,7 +8,7 @@
 
 ## Download v0.10.2
 
-Version **0.10.2 is a development release on GitHub**. Download the complete [installable TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), its [SHA-256 checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256), or the [full project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip). [Release notes and downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2) describe this version.
+Version **0.10.2 is a stable release on GitHub**. Download the complete [installable TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), its [SHA-256 checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256), or the [full project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip). [Release notes and downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2) describe this version.
 
 The adapter is not yet published on npm or listed in the official ioBroker repository. Installing a release is a deliberate manual step; the application never installs updates automatically.
 
@@ -69,7 +69,7 @@ A compact version indicator remains visible in the header on desktop and mobile.
 
 The indicator distinguishes checking, current, update available, unavailable, development build and a neutral state where no public stable release exists. Drafts and prereleases are ignored as update targets. Comparisons use semantic version numbers. Update details include the available version, release date, short notes and release link.
 
-The checker does not install updates or reload the page. Open forms, scroll position and navigation stay in place when version information changes. A failed GitHub request does not stop energy collection. Version 0.10.2 is marked as a development build and its GitHub prerelease is not offered as a stable update target.
+The checker does not install updates or reload the page. Open forms, scroll position and navigation stay in place when version information changes. A failed GitHub request does not stop energy collection. The public 0.10.2 package uses the stable release channel and its GitHub release is a stable update target. If an earlier prepared 0.10.2 development package is installed, install the stable TGZ once through the normal ioBroker package management to replace that build label. The application does not install it automatically.
 
 ## Data and calculations
 
@@ -96,13 +96,13 @@ Development: **Stephan Ebner**. Public project contact: [steuerung@gmx.at](mailt
 - A running `web` instance for the browser interface.
 - No external database or particular device manufacturer is required.
 
-This development release is published on GitHub. npm publication and admission to the official ioBroker adapter list remain separate pending steps. Physical load and heating automation are supplementary functions; compatible device interfaces and independent protection remain necessary.
+This stable release is published on GitHub. npm publication and admission to the official ioBroker adapter list remain separate pending steps. Physical load and heating automation are supplementary functions; compatible device interfaces and independent protection remain necessary.
 
 [Installation](docs/en/installation.md) · [User guide](docs/en/user-guide.md) · [German troubleshooting](docs/de/fehlerbehebung.md) · [Contributor guide](CONTRIBUTING.md) · [MIT licence](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## Changelog
 
-### 0.10.2 (development release)
+### 0.10.2 (stable release)
 
 - Add About and Licenses, a persistent version indicator and server-side public GitHub release checks.
 - Keep checks informational, with no automatic installation, control change or page reload.

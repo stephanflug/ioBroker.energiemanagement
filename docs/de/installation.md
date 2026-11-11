@@ -1,10 +1,12 @@
 # Manuelle Installation auf ioBroker
 
-Diese Anleitung gehört zur **Entwicklungsversion 0.10.2**. Lade das [Installationspaket als TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), die [Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256) und bei Bedarf den [vollständigen Projektordner als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip) direkt aus dem [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). npm-Veröffentlichung und offizielle Adapteraufnahme stehen noch aus.
+Diese Anleitung gehört zur **stabilen Version 0.10.2**. Lade das [Installationspaket als TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), die [Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256) und bei Bedarf den [vollständigen Projektordner als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip) direkt aus dem [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). npm-Veröffentlichung und offizielle Adapteraufnahme stehen noch aus.
 
 **Ein Download oder GitHub-Release installiert nichts auf einer laufenden Anlage.** Eine produktive 0.10.1 wird erst verändert, wenn ihr Betreiber die neue Version bewusst installiert. Für die erste Prüfung ist eine getrennte Testinstanz beziehungsweise ein Testsystem sinnvoll.
 
 **Bereits installiert?** Verwende die [Update-Anleitung](updates-und-sicherung.md#eine-neue-version-installieren). Beim Update wird keine zusätzliche Instanz angelegt.
+
+**Bereits das vorbereitete Entwicklungspaket 0.10.2 installiert?** Das öffentliche stabile TGZ verwendet jetzt den Kanal `stable`. Installiere es einmal über den normalen Update-Weg, um auch die lokale Entwicklungskennzeichnung zu ersetzen. Eine vorhandene Instanz bleibt erhalten; kein zusätzliches `add` ausführen. Das GitHub-Release installiert nichts automatisch.
 
 ## Voraussetzungen
 

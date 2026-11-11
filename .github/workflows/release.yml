@@ -8,12 +8,16 @@ on:
         required: true
         type: string
       prerelease:
-        description: Als Entwicklungsversion kennzeichnen
-        default: true
+        description: Als Vorabversion kennzeichnen
+        default: false
         type: boolean
 
 permissions:
   contents: write
+
+concurrency:
+  group: github-release-${{ inputs.tag }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -36,18 +40,30 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run check
       - run: npm test
+      - run: npm run test:integration
       - name: Paket und Prüfsumme bauen
         run: |
           mkdir -p dist
           npm pack --pack-destination dist
+          VERSION=$(node -p 'require("./package.json").version')
+          git archive --format=zip --prefix="ioBroker.energiemanagement-v$VERSION/" \
+            --output="dist/ioBroker.energiemanagement-v$VERSION-projekt.zip" HEAD
+          cp "docs/releases/v$VERSION.md" "dist/Energiemanagement-v$VERSION-Kurzbericht.txt"
           cd dist
-          sha256sum *.tgz > "$(basename *.tgz).sha256"
-      - name: GitHub-Veröffentlichung erstellen
+          sha256sum *.tgz *.zip *-Kurzbericht.txt > SHA256SUMS.txt
+          for file in *.tgz *.zip; do sha256sum "$file" > "$file.sha256"; done
+      - name: GitHub-Entwurf mit Installationsdateien bereitstellen
         run: |
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            echo "Version ist bereits veröffentlicht. Bestehende Installationsdateien bleiben erhalten."
-            exit 0
+          if gh release view "$RELEASE_TAG" --json isDraft >/dev/null 2>&1; then
+            IS_DRAFT=$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)
+            if [ "$IS_DRAFT" != true ]; then
+              echo "Version ist bereits öffentlich. Bestehende Dateien bleiben erhalten."
+              exit 0
+            fi
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft \
+              --title "Energiemanagement $RELEASE_TAG" --generate-notes
           fi
-          args=(--verify-tag --title "$RELEASE_TAG" --generate-notes)
-          if [ "$PRERELEASE" = true ]; then args+=(--prerelease); fi
-          gh release create "$RELEASE_TAG" dist/*.tgz dist/*.sha256 "${args[@]}"
+          gh release edit "$RELEASE_TAG" --draft --prerelease="$PRERELEASE"
+          gh release upload "$RELEASE_TAG" dist/* --clobber
+          echo "Entwurf bereit. Prüfsummen und Downloads vor der Veröffentlichung prüfen."

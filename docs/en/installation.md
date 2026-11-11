@@ -2,7 +2,9 @@
 
 [English overview](../../README.en.md) · [User guide](user-guide.md) · [German installation guide](../de/installation.md)
 
-Version 0.10.2 is a **development release on GitHub**. Download the [installable TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), its [checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256) and, if needed, the [complete project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip) from the [release page](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). npm publication and official ioBroker listing are still pending. Downloading the package does not change a running installation.
+Version 0.10.2 is a **stable release on GitHub**. Download the [installable TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), its [checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256) and, if needed, the [complete project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip) from the [release page](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). npm publication and official ioBroker listing are still pending. Downloading the package does not change a running installation.
+
+**Already using the earlier prepared 0.10.2 development package?** The public stable TGZ now uses the `stable` channel. Install it once through the normal update path to replace the local development label. Keep the existing instance and do not run another `add`. Publishing the release does not install anything automatically.
 
 ## Requirements
 

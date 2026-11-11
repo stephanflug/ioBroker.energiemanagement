@@ -17,7 +17,7 @@ Stand: **0.10.2, 11. November 2026**. Quellcode, Dokumentation und Installations
 | Web-Verknüpfung | Bestehende Link- und Kachelinhalte erhalten; `welcomeScreen` an das erwartete Array-Schema angepasst. |
 | Dokumentation | Englische Haupt-README, deutsche README, DE/EN-Anleitungen, Datenquellen- und Sicherungshinweise sowie synthetische Screenshots. |
 | Tests | Je 268 Tests unter Node.js 22/24/26, Browserprüfungen und fünf echte isolierte ioBroker-Tests bestanden; Einzelheiten und Grenzen im Testbericht. `@iobroker/testing` ist als Entwicklungsabhängigkeit enthalten. |
-| Veröffentlichungsart | Entwicklungsstand in `lib/build-info.json`; keine automatische Installation durch die Versionsprüfung. |
+| Veröffentlichungsart | Stabiler Release-Kanal (`stable`) in `lib/build-info.json`; keine automatische Installation durch die Versionsprüfung. |
 
 ## Repository-Checker
 

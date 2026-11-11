@@ -2,7 +2,7 @@
 
 [English overview](../../README.en.md) · [Installation](installation.md) · [Detailed German manual](../de/benutzerhandbuch.md)
 
-This guide describes development release **0.10.2**. The application currently uses German labels. Development: **Stephan Ebner**.
+This guide describes stable release **0.10.2**. The application currently uses German labels. Development: **Stephan Ebner**.
 
 ## Find your way around
 
@@ -57,7 +57,7 @@ The header keeps the installed version visible on all pages, including mobile. P
 | Vorabversion | Installed development build or semantic prerelease |
 | Noch kein stabiles Release | Neutral result for a new repository or no usable stable release |
 
-Drafts and prereleases are ignored as stable update targets. Version numbers use semantic ordering: `0.10.10` is newer than `0.10.2`. Version 0.10.2 is explicitly a development version; its GitHub prerelease is not a stable update target. The manual check uses the same server function and cannot bypass cooldowns or GitHub rate limits.
+Drafts and prereleases are ignored as stable update targets. Version numbers use semantic ordering: `0.10.10` is newer than `0.10.2`. The public 0.10.2 package uses the stable channel and its GitHub release is a stable update target. An earlier prepared 0.10.2 development package may still display its development label; install the stable TGZ once to replace that build. A release is never installed automatically. The manual check uses the same server function and cannot bypass cooldowns or GitHub rate limits.
 
 The indicator never installs software. It does not reload the page or reset scroll position, menus or unsaved forms. A failed version check does not change device control. Install a deliberately selected new package through normal ioBroker administration.
 

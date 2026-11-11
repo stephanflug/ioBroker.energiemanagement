@@ -2,7 +2,7 @@
 
 [Zur Startseite](../../README.md) · [Installation](installation.md) · [Datenquellen](datenquellen.md) · [Fehlerhilfe](fehlerbehebung.md)
 
-Diese Anleitung beschreibt Entwicklungsversion 0.10.2. Eine bestehende Installation wird nur durch ein bewusst eingespieltes Paket aktualisiert. Die Oberfläche arbeitet mit den Datenpunkten der ausgewählten Adapterinstanz, standardmäßig `energiemanagement.0`.
+Diese Anleitung beschreibt die stabile Version 0.10.2. Eine bestehende Installation wird nur durch ein bewusst eingespieltes Paket aktualisiert. Die Oberfläche arbeitet mit den Datenpunkten der ausgewählten Adapterinstanz, standardmäßig `energiemanagement.0`.
 
 ## Die Oberfläche öffnen
 
@@ -46,7 +46,7 @@ Die kompakte Versionsanzeige im oberen Bereich bleibt auf allen Seiten sichtbar.
 
 Die Prüfung läuft serverseitig beim Adapterstart und danach ungefähr alle zwölf Stunden. Ein manuell angeforderter Neuabruf verwendet dieselbe Serverfunktion und respektiert die GitHub-Limits; wiederholte Prüfungen können deshalb warten müssen. Es sind kein GitHub-Konto, Token oder API-Schlüssel für die öffentlichen Release-Metadaten nötig.
 
-Entwürfe und von GitHub als Vorabversion markierte Releases werden nicht als stabile Updateziele angeboten. Versionsnummern werden semantisch verglichen: beispielsweise ist `0.10.10` neuer als `0.10.2`. Version 0.10.2 ist ausdrücklich als Entwicklungsversion markiert und auf GitHub als Vorabversion veröffentlicht. Wenn ein neueres stabiles Release gefunden wird, kann auch bei einer installierten Entwicklungsversion **Update verfügbar** erscheinen; die installierte Entwicklungseigenschaft bleibt erkennbar.
+Entwürfe und von GitHub als Vorabversion markierte Releases werden nicht als stabile Updateziele angeboten. Versionsnummern werden semantisch verglichen: beispielsweise ist `0.10.10` neuer als `0.10.2`. Das öffentliche Paket 0.10.2 ist als stabil markiert und wird auf GitHub als stabiles Release veröffentlicht. Ein zuvor vorbereitetes Entwicklungspaket 0.10.2 behält seine lokale Entwicklungskennzeichnung, bis das stabile TGZ bewusst einmal eingespielt wird. Wenn ein neueres stabiles Release gefunden wird, kann auch bei einer installierten Entwicklungsversion **Update verfügbar** erscheinen; die installierte Entwicklungseigenschaft bleibt erkennbar.
 
 Die Weboberfläche aktualisiert diese Information an Ort und Stelle. Dafür gibt es keinen Seiten-Reload und keinen Grund, geöffnete Formulare oder Menüs zurückzusetzen. Zeitpunkte und der letzte erfolgreiche Abruf werden gespeichert. Bei einem Fehler werden Messwerterfassung und Gerätesteuerung nicht von der Versionsprüfung verändert.
 

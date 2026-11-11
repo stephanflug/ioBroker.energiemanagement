@@ -2,7 +2,7 @@
 
 Nach der [Installation](installation.md) kannst du zunächst Messwerte ansehen und auswerten. Dafür werden keine physischen Gerätefreigaben benötigt.
 
-**Stand: Entwicklungsversion 0.10.2.** Verwende für die erste Installation die TGZ-Datei aus dem [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). Es erfolgt keine automatische Aktualisierung einer bestehenden Installation.
+**Stand: stabile Version 0.10.2.** Verwende für die erste Installation die TGZ-Datei aus dem [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). Es erfolgt keine automatische Aktualisierung einer bestehenden Installation.
 
 ## 1. Strommessung einrichten
 
