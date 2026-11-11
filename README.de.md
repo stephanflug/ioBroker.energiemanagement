@@ -8,7 +8,7 @@ Es gibt keine Bindung an einen bestimmten Smart Meter, Wechselrichter oder Heizu
 
 [English](README.md) · [Installieren](docs/de/installation.md) · [Benutzerhandbuch](docs/de/benutzerhandbuch.md) · [Datenquellen](docs/de/datenquellen.md) · [Fehlerhilfe](docs/de/fehlerbehebung.md) · [Änderungen](CHANGELOG.md)
 
-**Vorbereitete Entwicklungsversion 0.10.2:** Die mitgelieferte Datei `iobroker.energiemanagement-0.10.2.tgz` ist das installierbare Paket. Der vollständige Projektordner wird zusätzlich als ZIP bereitgestellt; Prüfsummen begleiten beide Dateien. Diese Vorbereitung ist noch keine GitHub- oder npm-Veröffentlichung; eine produktive 0.10.1 wird durch das Vorbereiten nicht verändert.
+**Entwicklungsversion 0.10.2 auf GitHub:** [Installationspaket herunterladen (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz) · [Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256) · [Vollständiges Projekt (ZIP)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip) · [Release und Änderungen](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). Der Adapter ist noch nicht auf npm oder in der offiziellen ioBroker-Adapterliste veröffentlicht. Die Installation erfolgt bewusst und manuell; die Anwendung installiert keine Updates selbst.
 
 ![Übersicht mit Energiefluss und aktuellen Werten](docs/images/overview-desktop.png)
 
@@ -40,7 +40,25 @@ Wasser, Regenwasser, Brennstoff und Heizung sind bei einer neuen Installation au
 4. Unter **Verbraucher & Prioritäten** Geräte anlegen und ihre Istleistungsquellen unter **Datenquellen** zuordnen.
 5. Gewünschte Zusatzbereiche in **Einstellungen → Deine Verbrauchsbereiche** aktivieren.
 
+Bei einer vorhandenen Instanz wird das Release-Paket über die normale ioBroker-Paketverwaltung eingespielt; keine zweite Instanz anlegen. Wenn dein ioBroker-Host GitHub erreichen kann, lautet der Paketbefehl:
+
+```bash
+iobroker url https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz
+```
+
+Verwende die **TGZ-Datei aus dem Release** als Installationsdatei. Die von GitHub automatisch erzeugten „Source code“-Archive sind Quellcode-Downloads.
+
 Neue Installationen beginnen ohne freigegebene Geräteausgänge. Die Weboberfläche und Empfehlungen können bereits ohne physische Steuerung genutzt werden.
+
+## Dokumentation auf einen Blick
+
+| Aufgabe | Anleitung |
+| --- | --- |
+| Installieren oder aktualisieren | [Installation](docs/de/installation.md) · [Update und Sicherung](docs/de/updates-und-sicherung.md) |
+| Messwerte und Fühler zuordnen | [Erste Schritte](docs/de/erste-schritte.md) · [Datenquellen](docs/de/datenquellen.md) |
+| Funktionen und Anzeigen verstehen | [Benutzerhandbuch](docs/de/benutzerhandbuch.md) · [Bilderübersicht](docs/images/README.md) |
+| Ein Problem lösen | [Fehlerhilfe](docs/de/fehlerbehebung.md) · [Fehler melden](https://github.com/stephanflug/ioBroker.energiemanagement/issues/new/choose) |
+| Prüfen oder weiterentwickeln | [Architektur](docs/de/architektur.md) · [Mitwirken](CONTRIBUTING.md) · [Testergebnisse](docs/reports/test-results-v0.10.2.md) |
 
 ## Energieauswertung, die zusammenpasst
 
@@ -94,7 +112,7 @@ Die kompakte Versionsanzeige bleibt oben auf allen Seiten sichtbar, auch auf dem
 
 Die GitHub-Prüfung läuft auf dem ioBroker-Server beim Adapterstart und danach ungefähr alle zwölf Stunden. Geöffnete Browser teilen sich das Ergebnis; sie fragen GitHub nicht jeweils selbst ab. Entwürfe und als Vorabversion markierte Releases zählen nicht als stabile Updateziele. Ein Updatehinweis enthält verfügbare Version, Datum, kurze Änderungen und den Release-Link.
 
-Solange das Projekt noch kein öffentliches Release besitzt, erscheint ein neutraler Hinweis. 0.10.2 ist ausdrücklich als Entwicklungsversion gekennzeichnet. Ein GitHub-Ausfall ist als fehlgeschlagene Prüfung sichtbar, ohne die Messwerterfassung zu unterbrechen. Die Anzeige installiert keine Software und lädt die Webseite nicht neu. Neue Pakete werden ausschließlich manuell über die normale ioBroker-Adapterverwaltung eingespielt. [Zustände und Bedienung](docs/de/benutzerhandbuch.md#versionsanzeige-und-updatehinweise).
+0.10.2 ist ausdrücklich als Entwicklungsversion gekennzeichnet und auf GitHub als Vorabversion veröffentlicht. Solange kein stabiles Release vorhanden ist, bleibt ein neutraler Hinweis möglich. Vorabversionen werden nicht als stabile Updateziele angeboten. Ein GitHub-Ausfall ist als fehlgeschlagene Prüfung sichtbar, ohne die Messwerterfassung zu unterbrechen. Die Anzeige installiert keine Software und lädt die Webseite nicht neu. Neue Pakete werden ausschließlich manuell über die normale ioBroker-Adapterverwaltung eingespielt. [Zustände und Bedienung](docs/de/benutzerhandbuch.md#versionsanzeige-und-updatehinweise).
 
 ## Handy und Einbettung
 
@@ -119,7 +137,7 @@ Die Oberfläche bietet ein aufklappbares Menü und eine Schnellnavigation für s
 - Zahlen-Datenpunkte für die gewünschten Messungen. Für die grundlegende Stromauswertung: Netzbezugsleistung in W und Bezugszählerstand in kWh.
 - Eine Datenbank, PV-Anlage, Batterie, Wärmepumpe oder ein bestimmter Hersteller ist für die allgemeine Oberfläche nicht erforderlich.
 
-**0.10.2 ist eine vorbereitete Entwicklungsversion.** Der Adapter ist derzeit kein Eintrag im offiziellen ioBroker-Repository und keine npm-Veröffentlichung. GitHub-/npm-Veröffentlichung und der Antrag auf offizielle Aufnahme sind gesonderte nächste Schritte. Die [Installationsanleitung](docs/de/installation.md) beschreibt manuelle Installation, Update und Betrieb im Container.
+**0.10.2 ist eine Entwicklungsversion auf GitHub.** Der Adapter ist derzeit kein Eintrag im offiziellen ioBroker-Repository und keine npm-Veröffentlichung. npm-Veröffentlichung und der Antrag auf offizielle Aufnahme bleiben gesonderte nächste Schritte. Die [Installationsanleitung](docs/de/installation.md) beschreibt manuelle Installation, Update und Betrieb im Container.
 
 Physische Steuerungen sind ergänzende Hausautomation. Sie ersetzen keine elektrische Schutzfunktion oder Herstellerregelung. Verwende für eine Wärmepumpensperre ausschließlich einen dafür geeigneten Hersteller-Eingang, niemals die Netzversorgung oder eine unmittelbare Kompressorschaltung.
 

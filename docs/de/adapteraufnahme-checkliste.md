@@ -1,6 +1,6 @@
 # Vorbereitung für die offizielle ioBroker-Adapterliste
 
-Stand dieser Vorbereitung: **0.10.2, 11. November 2026**. Diese Liste ist keine Aufnahmebestätigung. Das Projekt wird in diesem Auftrag weder auf GitHub oder npm veröffentlicht noch bei `ioBroker/ioBroker.repositories` eingereicht.
+Stand: **0.10.2, 11. November 2026**. Quellcode, Dokumentation und Installationspaket werden über [GitHub](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2) veröffentlicht. npm-Veröffentlichung und Aufnahme bei `ioBroker/ioBroker.repositories` stehen noch aus. Diese Liste ist keine Aufnahmebestätigung.
 
 ## Vorbereiteter Projektstand
 
@@ -11,7 +11,7 @@ Stand dieser Vorbereitung: **0.10.2, 11. November 2026**. Diese Liste ist keine 
 | Node.js | Ab Version 22 deklariert; die tatsächlichen Prüfungen stehen im [Testbericht](../reports/test-results-v0.10.2.md). |
 | ioBroker-Abhängigkeiten | js-controller ab 6.0.11 und Admin ab 7.6.20 in den Metadaten; eine deklarierte Mindestversion ersetzt keinen Test jeder älteren Controller-Version. |
 | Laufzeitbibliotheken | `@iobroker/adapter-core` und die direkt deklarierte Semver-Bibliothek; Lockdatei vorhanden. |
-| Entwicklerkontakt | Stephan Ebner, `steuerung@gmx.at`; für die spätere öffentliche Verwendung ausdrücklich freigegeben. |
+| Entwicklerkontakt | Stephan Ebner, `steuerung@gmx.at`; öffentlicher Entwicklerkontakt. |
 | Lizenz | MIT, vollständige `LICENSE`, lokale Lizenzanzeige und zusätzliche Drittanbieter-Hinweise. |
 | Icon und Admin | Bestehendes SVG-Icon, JSON-Konfiguration, Übersetzungsdateien und responsive Feldgrößen vorhanden. |
 | Web-Verknüpfung | Bestehende Link- und Kachelinhalte erhalten; `welcomeScreen` an das erwartete Array-Schema angepasst. |
@@ -28,12 +28,12 @@ npx @iobroker/repochecker@5.24.0 \
   https://github.com/stephanflug/ioBroker.energiemanagement --local
 ```
 
-Der lokale Modus ist laut Werkzeug experimentell. Er liest lokale Dateien, prüft aber auch externe Angaben wie npm, Repository-Eigenschaften und Workflow-Ergebnisse. Deshalb kann ein absichtlich unveröffentlichtes Projekt diese externen Prüfungen noch nicht erfüllen. Der [Checker-Bericht](../reports/official-checker.md) trennt korrigierte Metadaten von offenen Befunden.
+Der lokale Modus ist laut Werkzeug experimentell. Er liest lokale Dateien, prüft aber auch externe Angaben wie npm, Repository-Eigenschaften und Workflow-Ergebnisse. Ein GitHub-Release allein erfüllt noch nicht die Anforderungen an npm-Veröffentlichung und offizielle Adapteraufnahme. Der [Checker-Bericht](../reports/official-checker.md) trennt korrigierte Metadaten von offenen Befunden.
 
 ## Vor einer späteren Einreichung zu erledigen
 
-1. **Projektstand freigeben.** Änderungen, Artefakte, Prüfsummen und Testergebnisse durchsehen und die Veröffentlichung ausdrücklich erlauben. Die produktive 0.10.1 wird dadurch nicht automatisch aktualisiert.
-2. **GitHub veröffentlichen.** Vorbereiteten Quellstand übertragen; Beschreibung und geeignete Topics setzen; CI ausführen und prüfen. Tag, Release, Installationspaket und Dokumentationslinks erst dann öffentlich anlegen.
+1. **GitHub-Stand prüfen.** Quellcode, Dokumentation, Release-Dateien und Prüfsummen unter [v0.10.2](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2) abgleichen. Ein Release installiert nichts automatisch auf einer Anlage.
+2. **CI-Ergebnisse prüfen.** Die vorbereiteten Node-/Betriebssystemmatrizen tatsächlich ausführen lassen. Lokal erfolgreiche Linux-Tests ersetzen keine Windows-/macOS- oder GitHub-Läufe.
 3. **Release- und CI-Konfiguration abschließen.** Die offiziellen Anforderungen an Testjobs, Tag-Auslöser und Release-Ablauf mit dem dann aktuellen Regelstand abgleichen. Ein npm-Deploy darf erst nach gesonderter Freigabe und eingerichteter npm-Berechtigung aktiviert werden.
 4. **npm vorbereiten und freigeben.** Zugang zum vorgesehenen Maintainer-Konto, Schutzmaßnahmen beziehungsweise Trusted Publishing und Paketinhalt klären. Erst nach Freigabe veröffentlichen; eine bereits veröffentlichte Versionsnummer nicht überschreiben. Danach das tatsächlich veröffentlichte Paket getrennt installieren und prüfen.
 5. **Bestehende Codebefunde separat bearbeiten.** Der Checker meldet native Timer und eigene Wartefunktionen in bereits vorhandenen Modulen. Deren Umstellung kann Mess- oder Steuerungsabläufe berühren und wurde in diesem Informationsauftrag nicht stillschweigend vorgenommen. Dafür sind eine getrennte Bewertung, gegebenenfalls Freigabe und Regressionstests nötig.
@@ -44,6 +44,6 @@ Der lokale Modus ist laut Werkzeug experimentell. Er liest lokale Dateien, prüf
 
 - Ein Lint-Workflow, die ioBroker-Entwicklungswerkzeuge, TypeScript-/Typprüfungs-Konfiguration, Dependabot und die Changelog-Struktur wurden vom Checker zusätzlich empfohlen. Diese Vorschläge sind nach Nutzen und aktuellem Projektstand zu bewerten; sie wurden nicht als erledigt dargestellt.
 - Die lokale MX-Prüfung konnte `gmx.at` nicht bestätigen. Das ist **keine Feststellung, dass die freigegebene Adresse ungültig ist**. Die öffentliche Kontaktadresse und ihre Erreichbarkeit sind vor einer Einreichung auf einem geeigneten System erneut zu prüfen.
-- Das Paket enthält keine persönlichen Hauskonfigurationen oder Messsicherungen. Vor dem späteren Upload sollte die Prüfung des konkreten finalen ZIP/TGZ wiederholt werden.
+- Das Paket enthält keine persönlichen Hauskonfigurationen oder Messsicherungen. Bei jedem neuen Release wird der konkrete finale ZIP/TGZ-Inhalt erneut geprüft.
 
 Siehe auch [offene Veröffentlichungsschritte](../reports/publication-open-points.md) und [Steuerungs-Kompatibilität](../reports/control-compatibility.md).

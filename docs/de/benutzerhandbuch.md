@@ -2,7 +2,7 @@
 
 [Zur Startseite](../../README.md) · [Installation](installation.md) · [Datenquellen](datenquellen.md) · [Fehlerhilfe](fehlerbehebung.md)
 
-Diese Anleitung beschreibt die vorbereitete Version 0.10.2. Die produktive Version 0.10.1 bleibt durch die Vorbereitung unverändert. Die Oberfläche arbeitet mit den Datenpunkten der ausgewählten Adapterinstanz, standardmäßig `energiemanagement.0`.
+Diese Anleitung beschreibt Entwicklungsversion 0.10.2. Eine bestehende Installation wird nur durch ein bewusst eingespieltes Paket aktualisiert. Die Oberfläche arbeitet mit den Datenpunkten der ausgewählten Adapterinstanz, standardmäßig `energiemanagement.0`.
 
 ## Die Oberfläche öffnen
 
@@ -42,11 +42,11 @@ Die kompakte Versionsanzeige im oberen Bereich bleibt auf allen Seiten sichtbar.
 | **Prüfung läuft** | Der Server wartet auf die aktuelle Antwort von GitHub. |
 | **Prüfung nicht möglich** | GitHub konnte nicht erreicht werden, hat die Abfrage begrenzt oder keine verwertbare Antwort geliefert. Ein älteres Ergebnis wird nicht als neue erfolgreiche Prüfung ausgegeben. |
 | **Vorabversion** | Die installierte Version ist als Entwicklungsversion gekennzeichnet oder enthält eine semantische Vorabkennung. Auch eine stabile installierte Version vor dem öffentlichen Release-Stand wird nicht fälschlich als normales aktuelles Release behandelt. |
-| **Noch kein stabiles Release** | Repository oder stabiles Release ist noch nicht öffentlich verfügbar. Bei der Vorbereitung dieses Projekts ist das ein neutraler Zustand. |
+| **Noch kein stabiles Release** | Repository oder stabiles Release ist noch nicht öffentlich verfügbar. Das ist auch bei einem Projekt mit ausschließlich Vorab-Releases ein neutraler Zustand. |
 
 Die Prüfung läuft serverseitig beim Adapterstart und danach ungefähr alle zwölf Stunden. Ein manuell angeforderter Neuabruf verwendet dieselbe Serverfunktion und respektiert die GitHub-Limits; wiederholte Prüfungen können deshalb warten müssen. Es sind kein GitHub-Konto, Token oder API-Schlüssel für die öffentlichen Release-Metadaten nötig.
 
-Entwürfe und von GitHub als Vorabversion markierte Releases werden nicht als stabile Updateziele angeboten. Versionsnummern werden semantisch verglichen: beispielsweise ist `0.10.10` neuer als `0.10.2`. Die vorbereitete 0.10.2 ist ausdrücklich als Entwicklungsversion markiert. Wenn ein neueres stabiles Release gefunden wird, kann auch bei einer installierten Entwicklungsversion **Update verfügbar** erscheinen; die installierte Entwicklungseigenschaft bleibt erkennbar.
+Entwürfe und von GitHub als Vorabversion markierte Releases werden nicht als stabile Updateziele angeboten. Versionsnummern werden semantisch verglichen: beispielsweise ist `0.10.10` neuer als `0.10.2`. Version 0.10.2 ist ausdrücklich als Entwicklungsversion markiert und auf GitHub als Vorabversion veröffentlicht. Wenn ein neueres stabiles Release gefunden wird, kann auch bei einer installierten Entwicklungsversion **Update verfügbar** erscheinen; die installierte Entwicklungseigenschaft bleibt erkennbar.
 
 Die Weboberfläche aktualisiert diese Information an Ort und Stelle. Dafür gibt es keinen Seiten-Reload und keinen Grund, geöffnete Formulare oder Menüs zurückzusetzen. Zeitpunkte und der letzte erfolgreiche Abruf werden gespeichert. Bei einem Fehler werden Messwerterfassung und Gerätesteuerung nicht von der Versionsprüfung verändert.
 

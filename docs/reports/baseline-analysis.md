@@ -1,5 +1,7 @@
 # Analyse der Ausgangsbasis 0.10.1
 
+> Historischer Prüfstand vor der GitHub-Veröffentlichung. Den aktuellen Veröffentlichungsstand enthält [Veröffentlichung und offene Schritte](publication-open-points.md).
+
 ## Zweck und Schutz der Produktivinstallation
 
 Die installierte Version 0.10.1 wurde als Ausgangsbasis geprüft. Die bekannten Pfade `/opt/iobroker/node_modules/iobroker.energiemanagement/` und `/tmp/iobroker.energiemanagement-0.10.1.tgz` wurden zunächst auf Existenz geprüft; beide waren vorhanden. Diese Analyse war lesend. Die Vorbereitung von 0.10.2 erfolgt in einem separaten Arbeitsverzeichnis.

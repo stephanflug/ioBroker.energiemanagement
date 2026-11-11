@@ -1,5 +1,7 @@
 # Steuerungs- und Datenkompatibilität 0.10.2
 
+> Historischer Prüfstand vor der GitHub-Veröffentlichung. Den aktuellen Veröffentlichungsstand enthält [Veröffentlichung und offene Schritte](publication-open-points.md).
+
 ## Freigaberahmen
 
 Der Auftrag erlaubt Informationsseite, Versionshinweise, Beschriftungen, Metadaten und Veröffentlichungsvorbereitung. Eine Änderung bestehender Steuerungslogik ist ausdrücklich nicht Teil dieser Freigabe. Insbesondere wird v0.10.2 nicht auf der produktiven v0.10.1 installiert.

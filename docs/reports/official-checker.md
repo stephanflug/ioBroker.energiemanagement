@@ -1,8 +1,10 @@
 # Bericht zur offiziellen Repository-Prüfung
 
+> Historischer Prüfstand vor der GitHub-Veröffentlichung. Den aktuellen Veröffentlichungsstand enthält [Veröffentlichung und offene Schritte](publication-open-points.md).
+
 ## Umfang und Aussagekraft
 
-Verwendet wurde **`@iobroker/repochecker` 5.24.0**, Regelbasis `bb893d7a1230fb090859ed34c3448f668890754d`, im lokalen Modus für den vorbereiteten Stand 0.10.2. Dieser Modus ist laut Werkzeug experimentell und kann Fehlbefunde liefern oder Probleme übersehen. Er berücksichtigt außerdem externe Angaben zu GitHub und npm.
+Verwendet wurde **`@iobroker/repochecker` 5.24.0**, damaliger Ausgangscommit des Zielrepositorys `bb893d7a1230fb090859ed34c3448f668890754d`, im lokalen Modus für den vorbereiteten Stand 0.10.2. Dieser Modus ist laut Werkzeug experimentell und kann Fehlbefunde liefern oder Probleme übersehen. Er berücksichtigt außerdem externe Angaben zu GitHub und npm.
 
 Es wurden keine Veröffentlichungen, Repository-Einstellungen, npm-Pakete oder Pull Requests angelegt. Die produktive 0.10.1 wurde für diese Prüfung nicht installiert, ersetzt oder umkonfiguriert.
 

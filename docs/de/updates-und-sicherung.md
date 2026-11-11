@@ -26,7 +26,7 @@ Die Datei enthält die Quellinstanz, Adapterversion, den Sicherungszeitpunkt und
 
 ## Versionsanzeige ist kein Installationsauftrag
 
-Die Anzeige prüft öffentliche stabile Releases auf GitHub und verlinkt bei einem gefundenen Update dessen Details. Sie installiert keine Dateien. Die vorbereitete 0.10.2 wird als Entwicklungsversion erkannt; ein leeres Repository ohne stabiles Release führt zu einem neutralen Status. Die Anzeige und ihre Hintergrundprüfung setzen bestehende Formulare nicht zurück.
+Die Anzeige prüft öffentliche stabile Releases auf GitHub und verlinkt bei einem gefundenen Update dessen Details. Sie installiert keine Dateien. Version 0.10.2 wird als Entwicklungsversion erkannt; ein leeres Repository ohne stabiles Release führt zu einem neutralen Status. Die Anzeige und ihre Hintergrundprüfung setzen bestehende Formulare nicht zurück.
 
 Die Vorbereitung der ZIP-/TGZ-Dateien verändert eine produktive 0.10.1 nicht. Erst ein von dir ausgeführter normaler Installationsschritt spielt ein anderes Paket ein.
 
@@ -35,7 +35,7 @@ Die Vorbereitung der ZIP-/TGZ-Dateien verändert eine produktive 0.10.1 nicht. E
 **Vor einem Update auf 0.10.2 Node.js ab Version 22 prüfen.** Die Vorbereitung verändert eine laufende 0.10.1 nicht. Erst eine bewusst ausgeführte Installation ersetzt das Programmpaket und die Weboberfläche. Die bestehende Instanz und ihre gespeicherten Daten werden weiterverwendet.
 
 1. Erstelle zunächst eine Vollsicherung mit der oben beschriebenen Funktion.
-2. Verwende das separat bereitgestellte `.tgz`-Paket der vorbereiteten Version und kopiere es auf den ioBroker-Host beziehungsweise in den ioBroker-Container. Ein GitHub-Release steht erst nach einer gesonderten Veröffentlichung zur Verfügung.
+2. Lade das `.tgz`-Paket und seine Prüfsumme aus dem [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2) herunter. Prüfe die Datei und kopiere sie auf den ioBroker-Host beziehungsweise in den ioBroker-Container.
 3. Installiere das Paket mit der ioBroker-CLI. Für Version 0.10.2:
 
    ```bash

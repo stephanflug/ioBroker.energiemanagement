@@ -50,5 +50,5 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run test:integration
 
-  # Publishing is intentionally not automated in this preparation branch.
-  # Configure the official deploy job only after explicit publication approval.
+  # npm publishing is intentionally not automated.
+  # Configure the official deploy job only after explicit npm publication approval.

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Vorhandenes Versions-Tag, z. B. v0.10.1
+        description: Vorhandenes Versions-Tag, z. B. v0.10.2
         required: true
         type: string
       prerelease:

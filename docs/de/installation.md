@@ -1,8 +1,8 @@
 # Manuelle Installation auf ioBroker
 
-Diese Anleitung gehört zur **vorbereiteten Entwicklungsversion 0.10.2**. Es werden ein vollständiger Projektordner als ZIP und das installierbare Paket `iobroker.energiemanagement-0.10.2.tgz` bereitgestellt. GitHub- und npm-Veröffentlichung sind getrennte, noch freizugebende Schritte. Deshalb setzt diese Anleitung keinen bereits vorhandenen GitHub-Release-Download voraus.
+Diese Anleitung gehört zur **Entwicklungsversion 0.10.2**. Lade das [Installationspaket als TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), die [Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256) und bei Bedarf den [vollständigen Projektordner als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip) direkt aus dem [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). npm-Veröffentlichung und offizielle Adapteraufnahme stehen noch aus.
 
-**Die Vorbereitung installiert nichts auf einer laufenden Anlage.** Eine produktive 0.10.1 wird erst verändert, wenn ihr Betreiber die neue Version bewusst installiert. Für die erste Prüfung ist eine getrennte Testinstanz beziehungsweise ein Testsystem sinnvoll.
+**Ein Download oder GitHub-Release installiert nichts auf einer laufenden Anlage.** Eine produktive 0.10.1 wird erst verändert, wenn ihr Betreiber die neue Version bewusst installiert. Für die erste Prüfung ist eine getrennte Testinstanz beziehungsweise ein Testsystem sinnvoll.
 
 **Bereits installiert?** Verwende die [Update-Anleitung](updates-und-sicherung.md#eine-neue-version-installieren). Beim Update wird keine zusätzliche Instanz angelegt.
 
@@ -17,7 +17,7 @@ Diese Anleitung gehört zur **vorbereiteten Entwicklungsversion 0.10.2**. Es wer
 | Eine eingerichtete, laufende `web`-Instanz, beispielsweise `web.0` | Weboberfläche und Verbindung zu den Datenpunkten |
 | Bereits vorhandene Messdatenpunkte in ioBroker | Zuordnung von Smart Meter, PV-Anlage und weiteren Messwerten |
 
-Die frühere 0.10.1 hatte noch Node.js ab Version 20 in ihren Paketmetadaten. Für das vorbereitete Paket 0.10.2 gilt Node.js ab Version 22. Prüfe dies auch auf einem zweiten ioBroker-System vor einem Update.
+Die frühere 0.10.1 hatte noch Node.js ab Version 20 in ihren Paketmetadaten. Für das Paket 0.10.2 gilt Node.js ab Version 22. Prüfe dies auch auf einem zweiten ioBroker-System vor einem Update.
 
 Es werden kein bestimmter Smart Meter, Wechselrichter oder Heizungshersteller und keine externe Datenbank vorausgesetzt. Wasser, Regenwasser, Brennstoff und Heizung lassen sich später unter **Einstellungen** freischalten.
 
@@ -25,9 +25,9 @@ Falls noch keine `web`-Instanz vorhanden ist, installiere in ioBroker Admin den 
 
 ## 1. Installationsdatei und Prüfsumme
 
-Verwende die separat bereitgestellte Datei **`iobroker.energiemanagement-0.10.2.tgz`** und die zugehörige `.sha256`-Datei. Das TGZ ist bereits ein installierbares npm-Paket und muss vor der Installation nicht entpackt werden. Es enthält Adapter, Weboberfläche, Lizenztexte und Dokumentation, aber keine persönliche Hauskonfiguration oder Messhistorie.
+Verwende die Datei **`iobroker.energiemanagement-0.10.2.tgz`** und die zugehörige `.sha256`-Datei aus dem [Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). Das TGZ ist bereits ein installierbares npm-Paket und muss vor der Installation nicht entpackt werden. Es enthält Adapter, Weboberfläche, Lizenztexte und Dokumentation, aber keine persönliche Hauskonfiguration oder Messhistorie.
 
-Der Projekt-ZIP dient zur Prüfung, Weiterentwicklung und späteren GitHub-Veröffentlichung. Für eine normale Installation ist das TGZ der direkte Weg.
+Der Projekt-ZIP enthält den vollständigen veröffentlichten Quellstand für Prüfung und Weiterentwicklung. Für eine normale Installation ist das TGZ der direkte Weg.
 
 Unter Linux lässt sich die Prüfsumme im Downloadordner kontrollieren:
 
@@ -114,15 +114,19 @@ Die Anleitung setzt voraus, dass ioBroker seine üblichen Schreibrechte auf die 
 
 ## Weg C: ioBroker Admin mit eigener URL
 
-Diese Möglichkeit kann nach einer später freigegebenen Veröffentlichung verwendet werden, wenn der ioBroker-Host eine tatsächlich erreichbare Paket-URL besitzt.
+Wenn der ioBroker-Host GitHub erreichen kann, lässt sich das TGZ auch direkt über seine öffentliche Release-Adresse installieren.
 
 1. Öffne ioBroker Admin und **Adapter**.
 2. Aktiviere gegebenenfalls den **Expertenmodus**.
 3. Öffne **Aus eigener URL installieren**; die genaue Bezeichnung hängt von der Admin-Version ab.
-4. Verwende ausschließlich die echte TGZ-Downloadadresse des freigegebenen Pakets.
+4. Trage diese TGZ-Downloadadresse ein:
+
+   ```text
+   https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz
+   ```
 5. Warte auf die Abschlussmeldung und prüfe unter **Instanzen**, ob `energiemanagement.0` bereits vorhanden ist.
 
-Das Projekt-Repository ist unter `stephanflug/ioBroker.energiemanagement` vorgesehen. Solange dort noch kein Release veröffentlicht ist, gibt es für 0.10.2 keine zugesicherte Release-Paketadresse. Eine fehlende GitHub-Veröffentlichung hindert die lokale TGZ-Installation über Weg A oder B nicht.
+Das [Projekt-Repository](https://github.com/stephanflug/ioBroker.energiemanagement) enthält Quellcode und Dokumentation. Verwende zur Installation die TGZ-Datei aus dem Release. Weg A oder B funktioniert auch mit einer zuvor heruntergeladenen Datei.
 
 ## 2. Installation kontrollieren
 
@@ -170,6 +174,6 @@ Die neue Installation verwendet zunächst den internen Speicher. Eine Datenbanki
 
 ## Projekt-ZIP und Weiterentwicklung
 
-Den vollständigen Projekt-ZIP in einen separaten Arbeitsordner entpacken. Hinweise zu den lokalen Prüfungen stehen in [Architektur und Entwicklung](architektur.md). Das ZIP ist für die spätere Veröffentlichung vorbereitet; es ist keine Aufforderung, ohne Freigabe etwas auf GitHub oder npm hochzuladen.
+Den vollständigen Projekt-ZIP in einen separaten Arbeitsordner entpacken. Hinweise zu den lokalen Prüfungen stehen in [Architektur und Entwicklung](architektur.md). Der Projektordner enthält Quellcode, Tests, Dokumentation und GitHub-Vorlagen; `node_modules` und persönliche Hausdaten sind nicht enthalten.
 
 Das Programm installiert keine Updates automatisch. Ein Updatehinweis zeigt lediglich einen öffentlichen Release-Link und Metadaten. Die eigentliche Installation erfolgt bewusst über die normale ioBroker-Verwaltung beziehungsweise deren CLI.

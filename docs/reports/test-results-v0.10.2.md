@@ -1,5 +1,7 @@
 # Prüfbericht 0.10.2
 
+> Historischer Prüfstand vor der GitHub-Veröffentlichung. Den aktuellen Veröffentlichungsstand enthält [Veröffentlichung und offene Schritte](publication-open-points.md).
+
 ## Tatsächlich ausgeführte Prüfungen
 
 Stand: **11. November 2026**. Die Prüfungen liefen in einer getrennten Linux-Entwicklungsumgebung mit synthetischen Messwerten. Die produktive Hausanlage wurde weder aktualisiert noch für Schreibtests verwendet.

@@ -2,7 +2,7 @@
 
 [English overview](../../README.en.md) · [User guide](user-guide.md) · [German installation guide](../de/installation.md)
 
-Version 0.10.2 is supplied as a **prepared development package**, not as an already published npm or GitHub release. Use `iobroker.energiemanagement-0.10.2.tgz` and its accompanying checksum. Preparing the package does not change a running 0.10.1 installation.
+Version 0.10.2 is a **development release on GitHub**. Download the [installable TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), its [checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256) and, if needed, the [complete project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip) from the [release page](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). npm publication and official ioBroker listing are still pending. Downloading the package does not change a running installation.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ No particular meter or inverter brand and no external database are required. Old
 
 ## Package and project ZIP
 
-The TGZ is a complete installable npm package. Do not unpack it before the normal package installation. The project ZIP contains source, documentation and tests for inspection and later publishing.
+The TGZ is a complete installable npm package. Do not unpack it before the normal package installation. The project ZIP contains the complete published source, documentation and tests for inspection and development.
 
 Verify the TGZ in the folder containing it and its checksum file:
 
@@ -80,7 +80,13 @@ In Portainer, copy the package into the container first, then open that ioBroker
 
 ## ioBroker Admin using a URL
 
-After a separately approved public release, Admin's expert mode may offer **Install from custom URL**. Use an actual reachable TGZ URL from that release. Do not assume that the intended empty GitHub repository already has a v0.10.2 release asset. Local TGZ installation does not depend on a public release.
+Admin's expert mode may offer **Install from custom URL**. If the ioBroker host can reach GitHub, use this release asset URL:
+
+```text
+https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz
+```
+
+Use the TGZ asset rather than the repository URL. You can also download the file first and follow the SSH or container instructions above.
 
 ## Confirm the installation
 

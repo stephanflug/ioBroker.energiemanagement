@@ -1,14 +1,16 @@
 # ioBroker Energiemanagement
 
+[![Tests](https://github.com/stephanflug/ioBroker.energiemanagement/actions/workflows/test-and-release.yml/badge.svg)](https://github.com/stephanflug/ioBroker.energiemanagement/actions/workflows/test-and-release.yml)
+
 [Deutsch](README.de.md) · [Installation](docs/en/installation.md) · [User guide](docs/en/user-guide.md) · [Detailed German manual](docs/de/benutzerhandbuch.md) · [Changelog](CHANGELOG.md)
 
 **PV generation, household consumption, demand peaks and optional resource monitoring in one ioBroker interface.** Existing ioBroker data points provide the measurements. The adapter does not depend on a specific meter, inverter, battery, heat pump or consumer brand.
 
-## Preparation status
+## Download v0.10.2
 
-Version **0.10.2 is a prepared development build**. The deliverables are an installable `iobroker.energiemanagement-0.10.2.tgz`, a complete project ZIP and checksums. Preparing these files does not update the running 0.10.1 installation. This preparation does not publish a GitHub release, publish to npm or submit an official ioBroker repository request.
+Version **0.10.2 is a development release on GitHub**. Download the complete [installable TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), its [SHA-256 checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256), or the [full project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip). [Release notes and downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2) describe this version.
 
-The intended project is [stephanflug/ioBroker.energiemanagement](https://github.com/stephanflug/ioBroker.energiemanagement). A new or empty repository may not yet have downloadable releases. Use the separately supplied TGZ for a local installation.
+The adapter is not yet published on npm or listed in the official ioBroker repository. Installing a release is a deliberate manual step; the application never installs updates automatically.
 
 ![Dashboard with synthetic example data](docs/images/overview-desktop.png)
 
@@ -41,7 +43,25 @@ Water, rainwater, fuel and heating are hidden by default on a new installation. 
 5. Add measured devices under **Verbraucher & Prioritäten** and assign their measurement sources centrally.
 6. Enable optional modules in Settings and create a full backup after setup.
 
+For an existing instance, install the downloaded release asset through ioBroker's normal package management; do not add a second instance. The detailed guide covers backup and the first installation. If your ioBroker host can reach GitHub, the package URL is:
+
+```bash
+iobroker url https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz
+```
+
+Use the **TGZ release asset**, not GitHub's automatically generated “Source code” ZIP/TAR archive, as the installation file.
+
 The application retains its existing German menu labels. The [English user guide](docs/en/user-guide.md) maps those labels to their purpose.
+
+## Documentation
+
+| Task | Guide |
+| --- | --- |
+| Install or update | [English installation](docs/en/installation.md) · [German installation](docs/de/installation.md) · [Backup and update](docs/de/updates-und-sicherung.md) |
+| Configure measurements | [English user guide](docs/en/user-guide.md) · [Central data sources](docs/de/datenquellen.md) |
+| Understand the interface | [Detailed German manual](docs/de/benutzerhandbuch.md) · [Screenshot gallery](docs/images/README.md) |
+| Diagnose a problem | [Troubleshooting](docs/de/fehlerbehebung.md) · [Report an issue](https://github.com/stephanflug/ioBroker.energiemanagement/issues/new/choose) |
+| Review or contribute | [Architecture](docs/de/architektur.md) · [Contributing](CONTRIBUTING.md) · [Tests](docs/reports/test-results-v0.10.2.md) |
 
 ## Version information
 
@@ -49,7 +69,7 @@ A compact version indicator remains visible in the header on desktop and mobile.
 
 The indicator distinguishes checking, current, update available, unavailable, development build and a neutral state where no public stable release exists. Drafts and prereleases are ignored as update targets. Comparisons use semantic version numbers. Update details include the available version, release date, short notes and release link.
 
-The checker does not install updates or reload the page. Open forms, scroll position and navigation stay in place when version information changes. A failed GitHub request does not stop energy collection. The prepared 0.10.2 is explicitly marked as a development build.
+The checker does not install updates or reload the page. Open forms, scroll position and navigation stay in place when version information changes. A failed GitHub request does not stop energy collection. Version 0.10.2 is marked as a development build and its GitHub prerelease is not offered as a stable update target.
 
 ## Data and calculations
 
@@ -76,20 +96,20 @@ Development: **Stephan Ebner**. Public project contact: [steuerung@gmx.at](mailt
 - A running `web` instance for the browser interface.
 - No external database or particular device manufacturer is required.
 
-This build is not an official ioBroker adapter-list or npm publication. Publishing and the official admission process require separate release steps. Physical load and heating automation are supplementary functions; compatible device interfaces and independent protection remain necessary.
+This development release is published on GitHub. npm publication and admission to the official ioBroker adapter list remain separate pending steps. Physical load and heating automation are supplementary functions; compatible device interfaces and independent protection remain necessary.
 
 [Installation](docs/en/installation.md) · [User guide](docs/en/user-guide.md) · [German troubleshooting](docs/de/fehlerbehebung.md) · [Contributor guide](CONTRIBUTING.md) · [MIT licence](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## Changelog
 
-### 0.10.2 (prepared development version)
+### 0.10.2 (development release)
 
 - Add About and Licenses, a persistent version indicator and server-side public GitHub release checks.
 - Keep checks informational, with no automatic installation, control change or page reload.
 - Update developer credits, licensing, German/English documentation and publication readiness metadata.
-- Prepare separate TGZ/ZIP artifacts while leaving the productive 0.10.1 installation unchanged.
+- Supply a complete installable TGZ, project ZIP, checksums and documented tests.
 
-See [CHANGELOG.md](CHANGELOG.md) for the complete history. No GitHub/npm release or official ioBroker submission is performed by this preparation.
+See [CHANGELOG.md](CHANGELOG.md) for the complete history and [v0.10.2 release notes](docs/releases/v0.10.2.md) for downloads and validation.
 
 ## License
 

@@ -1,5 +1,7 @@
 # Änderungen in der vorbereiteten Version 0.10.2
 
+> Historischer Prüfstand vor der GitHub-Veröffentlichung. Den aktuellen Veröffentlichungsstand enthält [Veröffentlichung und offene Schritte](publication-open-points.md).
+
 ## Neue Informationen in der Weboberfläche
 
 - Eigener Menüpunkt **Über & Lizenzen**, erreichbar auch über das mobile Menü.

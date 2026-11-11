@@ -149,6 +149,6 @@ Diese Meldung betrifft die Abfrage öffentlicher GitHub-Releases. Messwerterfass
 - Bei einem GitHub-API-Limit warte bis zum nächsten vorgesehenen Versuch. Häufiges manuelles Prüfen kann die Wartezeit nicht aufheben.
 - Ein gespeicherter letzter erfolgreicher Prüfzeitpunkt erklärt, wann zuvor eine verwertbare Antwort vorlag. Ein aktueller Fehler bedeutet keine neue Bestätigung.
 - **Noch kein stabiles Release** ist bei einem neuen/leeren Repository oder ausschließlich vorhandenen Vorab-Releases ein neutraler Zustand.
-- **Vorabversion** ist bei der vorbereiteten 0.10.2 vorgesehen. Eine Entwicklungsversion ist keine Aussage über einen Fehler der Messwerte.
+- **Vorabversion** ist bei der Entwicklungsversion 0.10.2 vorgesehen. Eine Entwicklungsversion ist keine Aussage über einen Fehler der Messwerte.
 
 Ein Updatehinweis installiert keine Software. Verwende bei einer bewusst gewählten neuen Version die [Update-Anleitung](updates-und-sicherung.md). Formulare müssen für das Aktualisieren der Versionsinformation nicht neu geladen werden.
