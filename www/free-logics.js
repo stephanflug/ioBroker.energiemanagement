@@ -21,7 +21,7 @@
    const x1=source.x+184,y1=source.y+48,x2=target.x,y2=target.y+43+k*14,m=(x1+x2)/2;
    paths.push('<path d="M'+x1+' '+y1+' C'+m+' '+y1+' '+m+' '+y2+' '+x2+' '+y2+'" stroke="#3b82f6" stroke-width="2.5" fill="none"/>');
   }
-  const nodes=blocks.map(b=>{const p=byId.get(b.id),val=(live.logics||[]).find(l=>l.id===logic.id)?.values?.[b.id];return '<div class="fup-node" data-node="'+esc(b.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="fup-node-title" data-drag="'+esc(b.id)+'">'+esc(b.name||operations[b.op])+'</div><div class="fup-node-type">'+esc(operations[b.op])+'</div><div class="fup-node-value">'+esc(val===undefined||val===null?'–':String(val))+'</div>'+(['input','output'].includes(b.op)?'<button type="button" class="fup-node-picker" data-pick-node="'+esc(b.id)+'" title="Datenpunkt zuweisen">'+esc(b.stateId||(b.op==='output'&&b.createNew?'Neuer Ausgang: '+(b.outputKey||'Ausgang'):'Datenpunkt auswählen …'))+'</button>':'')+'<button class="fup-out" type="button" data-wire-out="'+esc(b.id)+'" title="Ausgang verbinden">●</button>'+Array.from({length:count(b.op)},(_,i)=>'<button type="button" class="fup-in" style="top:'+(38+i*14)+'px" data-wire-in="'+esc(b.id)+'" data-port="'+i+'" title="Eingang '+(i+1)+' verbinden">●</button>').join('')+'</div>'}).join('');
+  const nodes=blocks.map(b=>{const p=byId.get(b.id),val=(live.logics||[]).find(l=>l.id===logic.id)?.values?.[b.id];return '<div class="fup-node" data-node="'+esc(b.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="fup-node-title" data-drag="'+esc(b.id)+'">'+esc(b.name||operations[b.op])+'</div><div class="fup-node-type">'+esc(operations[b.op])+'</div><div class="fup-node-value">'+esc(val===undefined||val===null?'–':String(val))+'</div>'+(['input','output'].includes(b.op)?'<button type="button" class="fup-pick-button" data-pick-node="'+esc(b.id)+'" title="Datenpunkt zuweisen">'+esc(b.stateId||(b.op==='output'&&b.createNew?'Neuer Ausgang: '+(b.outputKey||'Ausgang'):'Datenpunkt auswählen …'))+'</button>':'')+'<button class="fup-out" type="button" data-wire-out="'+esc(b.id)+'" title="Ausgang verbinden">●</button>'+Array.from({length:count(b.op)},(_,i)=>'<button type="button" class="fup-in" style="top:'+(38+i*14)+'px" data-wire-in="'+esc(b.id)+'" data-port="'+i+'" title="Eingang '+(i+1)+' verbinden">●</button>').join('')+'</div>'}).join('');
   return '<div class="fup-help">Bausteine mit der Maus verschieben. Zum Verbinden zuerst den Ausgang ●, danach den Eingang ● anklicken. Doppelklick auf einen Baustein öffnet dessen Einstellungen. Datenpunkte lassen sich direkt im Baustein auswählen.</div><div class="fup-viewport"><div class="fup-stage" style="width:'+width+'px;height:'+height+'px"><svg class="fup-wires" width="'+width+'" height="'+height+'" aria-hidden="true">'+paths.join('')+'</svg>'+nodes+'</div></div><div id="fupWireStatus" class="fup-help">Keine Verbindung ausgewählt.</div>';
  }
  function openBlockSettings(blockId){
@@ -52,7 +52,7 @@
    $('fupNewOutputApply').onclick=()=>{const key=$('fupNewOutputKey').value.trim();if(!/^[a-zA-Z][a-zA-Z0-9_]{0,49}$/.test(key)){$('fupPickerStatus').textContent='Name: nur Buchstaben, Zahlen und Unterstrich, beginnend mit einem Buchstaben.';return}block.createNew=true;block.outputKey=key;block.outputType=$('fupNewOutputType').value;block.stateId='';mark();dialogClosePicker();render()};
   }
   $('fupPickerType').value='number';
-  $('fupPickerQuery').value='';
+  $('fupPickerQuery').value='';$('fupSelectedId').value=block.stateId||'';
   $('fupPickerResults').replaceChildren();
   $('fupPickerStatus').textContent='Datenpunkt suchen (Zahlenwert oder TRUE/FALSE auswählen).';
   const dialog=$('fupPicker');if(!dialog.open){try{dialog.showModal()}catch(e){$('logicStatus').textContent='Auswahlfenster konnte nicht geöffnet werden: '+e.message;return}}
@@ -106,6 +106,7 @@
   for(const b of logic.blocks){const el=document.querySelector('[data-live="'+b.id+'"]');if(el)el.textContent=current?.values?.[b.id]===null||current?.values?.[b.id]===undefined?'Wert: –':'Wert: '+String(current.values[b.id]);}
   for(const b of logic.blocks){const node=document.querySelector('.fup-node[data-node="'+b.id+'"] .fup-node-value');if(node)node.textContent=current?.values?.[b.id]===null||current?.values?.[b.id]===undefined?'–':String(current.values[b.id]);}
   const stage=document.querySelector('.fup-stage');if(stage)stage.classList.toggle('fup-live-mode',viewMode==='live');
+  if(viewMode==='live'&&api.readVal){for(const b of logic.blocks.filter(x=>x.op==='input'&&x.stateId)){api.readVal(b.stateId).then(result=>{if(viewMode!=='live'||selected()?.id!==logic.id)return;const node=document.querySelector('.fup-node[data-node="'+b.id+'"] .fup-node-value');if(node){const val=result?.val??result?.state?.val;node.textContent=val===undefined?'Nicht verfügbar':'Live: '+String(val)}}).catch(()=>{})}}
   const d=$('logicDiagnostics');if(d){const stamp=live.ts?new Date(live.ts).toLocaleTimeString('de-AT'):'–';const stale=!live.ts||Date.now()-live.ts>30000;d.textContent=(stale?'Keine aktuellen Live-Daten vom Adapter. ':'Live-Berechnung: '+stamp+' · ')+(current?.errors?.length?'Diagnose: '+current.errors.join(' | '):'Keine Berechnungsfehler.');}
  }
  function ensurePicker(){
@@ -114,6 +115,8 @@
   document.body.append(dialog);
   $('fupPickerClose').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('close',()=>{pickerBlock=null;pickerResults=[]});
+  const manual=document.createElement('div');manual.innerHTML='<label>Ausgewählte Datenpunkt-ID <input id="fupSelectedId" placeholder="adapter.0.datenpunkt"></label><button type="button" id="fupApplySelection">Datenpunkt übernehmen</button>';dialog.append(manual);
+  $('fupApplySelection').onclick=()=>{const id=$('fupSelectedId').value.trim(),block=selected()?.blocks.find(b=>b.id===pickerBlock);if(!id||!block){$('fupPickerStatus').textContent='Bitte zuerst einen gültigen Datenpunkt auswählen.';return}block.stateId=id;if(block.op==='output')block.createNew=false;mark();dialog.close();render();$('logicStatus').textContent='Übernommen: '+id+' – bitte Logiken speichern.'};
   $('fupPickerForm').addEventListener('submit',async e=>{
    e.preventDefault();if(!pickerBlock)return;
    const query=$('fupPickerQuery').value.trim();if(query.length<2){$('fupPickerStatus').textContent='Mindestens 2 Zeichen eingeben.';return}
@@ -129,6 +132,7 @@
    const button=e.target.closest('[data-fup-result]');if(!button||!pickerBlock)return;
    const row=pickerResults[Number(button.dataset.fupResult)],block=selected()?.blocks.find(b=>b.id===pickerBlock);
    if(!row||!block||!row.id){$('fupPickerStatus').textContent='Auswahl nicht übernommen: Baustein oder Datenpunkt fehlt.';return}
+   $('fupSelectedId').value=String(row.id);
    block.stateId=String(row.id);if(block.op==='output')block.createNew=false;
    mark();dialog.close();render();$('logicStatus').textContent='Datenpunkt '+block.stateId+' zugewiesen – bitte Logiken speichern.';
   });
