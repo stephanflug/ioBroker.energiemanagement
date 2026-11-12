@@ -21,8 +21,8 @@
    const x1=source.x+184,y1=source.y+48,x2=target.x,y2=target.y+43+k*14,m=(x1+x2)/2;
    paths.push('<path d="M'+x1+' '+y1+' C'+m+' '+y1+' '+m+' '+y2+' '+x2+' '+y2+'" stroke="#3b82f6" stroke-width="2.5" fill="none"/>');
   }
-  const nodes=blocks.map(b=>{const p=byId.get(b.id),val=(live.logics||[]).find(l=>l.id===logic.id)?.values?.[b.id];return '<div class="fup-node" data-node="'+esc(b.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="fup-node-title" data-drag="'+esc(b.id)+'">'+esc(b.name||operations[b.op])+'</div><div class="fup-node-type">'+esc(operations[b.op])+'</div><div class="fup-node-value">'+esc(val===undefined||val===null?'–':String(val))+'</div>'+(['input','output'].includes(b.op)?'<button type="button" class="fup-pick-button" data-pick-node="'+esc(b.id)+'" title="Datenpunkt zuweisen">'+esc(b.stateId||(b.op==='output'&&b.createNew?'Neuer Ausgang: '+(b.outputKey||'Ausgang'):'Datenpunkt auswählen …'))+'</button>':'')+'<button class="fup-out" type="button" data-wire-out="'+esc(b.id)+'" title="Ausgang verbinden">●</button>'+Array.from({length:count(b.op)},(_,i)=>'<button type="button" class="fup-in" style="top:'+(38+i*14)+'px" data-wire-in="'+esc(b.id)+'" data-port="'+i+'" title="Eingang '+(i+1)+' verbinden">●</button>').join('')+'</div>'}).join('');
-  return '<div class="fup-help">Bausteine mit der Maus verschieben. Zum Verbinden zuerst den Ausgang ●, danach den Eingang ● anklicken. Doppelklick auf einen Baustein öffnet dessen Einstellungen. Datenpunkte lassen sich direkt im Baustein auswählen.</div><div class="fup-viewport"><div class="fup-stage" style="width:'+width+'px;height:'+height+'px"><svg class="fup-wires" width="'+width+'" height="'+height+'" aria-hidden="true">'+paths.join('')+'</svg>'+nodes+'</div></div><div id="fupWireStatus" class="fup-help">Keine Verbindung ausgewählt.</div>';
+  const nodes=blocks.map(b=>{const p=byId.get(b.id),val=(live.logics||[]).find(l=>l.id===logic.id)?.values?.[b.id];return '<div class="fup-node" data-node="'+esc(b.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="fup-node-title" data-drag="'+esc(b.id)+'">'+esc(b.name||operations[b.op])+'</div><button type="button" class="fup-delete" data-delete-node="'+esc(b.id)+'" title="Baustein löschen" aria-label="'+esc((b.name||operations[b.op])+' löschen')+'">×</button><div class="fup-node-type">'+esc(operations[b.op])+'</div><div class="fup-node-value">'+esc(val===undefined||val===null?'–':String(val))+'</div>'+(['input','output'].includes(b.op)?'<button type="button" class="fup-pick-button" data-pick-node="'+esc(b.id)+'" title="Datenpunkt zuweisen">'+esc(b.stateId||(b.op==='output'&&b.createNew?'Neuer Ausgang: '+(b.outputKey||'Ausgang'):'Datenpunkt auswählen …'))+'</button>':'')+'<button class="fup-out" type="button" data-wire-out="'+esc(b.id)+'" title="Ausgang verbinden">●</button>'+Array.from({length:count(b.op)},(_,i)=>'<button type="button" class="fup-in" style="top:'+(38+i*14)+'px" data-wire-in="'+esc(b.id)+'" data-port="'+i+'" title="Eingang '+(i+1)+' verbinden">●</button>').join('')+'</div>'}).join('');
+  return '<div class="fup-help">Bausteine verschieben: Titel ziehen. Verbinden: Ausgang ● und dann Eingang ● anklicken. Verbindung entfernen: belegten Eingang ● anklicken. Baustein löschen: × oben rechts. Änderungen mit „Logiken speichern“ übernehmen.</div><div class="fup-viewport"><div class="fup-stage" style="width:'+width+'px;height:'+height+'px"><svg class="fup-wires" width="'+width+'" height="'+height+'" aria-hidden="true">'+paths.join('')+'</svg>'+nodes+'</div></div><div id="fupWireStatus" class="fup-help">Keine Verbindung ausgewählt.</div>';
  }
  function openBlockSettings(blockId){
   const block=selected()?.blocks.find(b=>b.id===blockId);if(!block)return;
@@ -62,6 +62,17 @@
   const stage=document.querySelector('.fup-stage');if(!stage)return;
   let source=null,drag=null;
   stage.addEventListener('click',e=>{
+   const deletion=e.target.closest('[data-delete-node]');
+   if(deletion){
+    e.preventDefault();
+    const block=logic.blocks.find(b=>b.id===deletion.dataset.deleteNode);if(!block)return;
+    const users=logic.blocks.filter(b=>b.id!==block.id&&b.inputs?.includes(block.id)).length;
+    const note=users?' Dabei werden auch '+users+' angeschlossene Verbindung(en) entfernt.':'';
+    if(!confirm('Baustein „'+(block.name||operations[block.op])+'“ löschen?'+note+'\nDie Änderung wird erst mit „Logiken speichern“ aktiv.'))return;
+    logic.blocks=logic.blocks.filter(b=>b.id!==block.id);
+    for(const b of logic.blocks)if(Array.isArray(b.inputs))b.inputs=b.inputs.map(id=>id===block.id?'':id);
+    source=null;mark();render();return;
+   }
    const pick=e.target.closest('[data-pick-node]');if(pick){openStatePicker(pick.dataset.pickNode);return;}
    const out=e.target.closest('[data-wire-out]'),input=e.target.closest('[data-wire-in]');
    if(out){source=out.dataset.wireOut;$('fupWireStatus').textContent='Ausgang gewählt: '+(logic.blocks.find(b=>b.id===source)?.name||source)+' – jetzt Eingang wählen.';return;}
