@@ -11,7 +11,7 @@
  const percent=x=>n(x)===null?'–':format(x,1)+' %';
  const date=ts=>ts?new Date(ts).toLocaleString('de-AT',{timeZone:'Europe/Vienna',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'–';
  const dayKey=ts=>new Date(ts).toLocaleDateString('sv-SE',{timeZone:'Europe/Vienna'});
- const hashToPage={'#overview':'overview','#history':'history','#analytics':'analytics','#forecast':'forecast','#battery':'battery','#heating':'heating','#water':'water','#rainwater':'rainwater','#fuel':'fuel','#reports':'reports','#sources':'sources','#devices':'devices','#outputs':'outputs','#settings':'settings','#about':'about'};
+ const hashToPage={'#overview':'overview','#history':'history','#analytics':'analytics','#forecast':'forecast','#battery':'battery','#heating':'heating','#water':'water','#rainwater':'rainwater','#fuel':'fuel','#reports':'reports','#sources':'sources','#devices':'regulation','#outputs':'outputs','#settings':'settings','#about':'about'};
  const saveJSON=val=>JSON.stringify(val);
  const copy=x=>JSON.parse(JSON.stringify(x));
  let io,connected=false,states={},page='overview',adapterNames=[],objectCache=new Map(),picker=null,pickerLimit=150,pickerLoading=false;
@@ -50,6 +50,7 @@
  };
  $('noticeDismiss').addEventListener('click',clearNotice);
  function navigate(to){
+  if(to==='devices')to='regulation';
   const changed=page!==to;
   page=to;
   history.replaceState(null,'','#'+to);
@@ -69,6 +70,7 @@
   window.EnergyEmbed?.render(page);
  }
  function renderPage(){
+  if(page==='devices'){page='regulation';history.replaceState(null,'','#regulation');}
   if(featuresLoaded&&['water','rainwater','fuel','heating'].includes(page)&&!featureFlags[page]){page='overview';history.replaceState(null,'','#overview');}
   if(window.EnergyInsightsUI)window.EnergyInsightsUI.render(page);
   if(window.EnergyForecastUI)window.EnergyForecastUI.render(page);
@@ -79,7 +81,7 @@
   const titles={overview:'Übersicht',history:'Viertelstunden / Verlauf',analytics:'Energieauswertung',forecast:'PV-Ertragsprognose',battery:'Speicher und Hausverbrauch',heating:'Heizung & Gebäudepuffer',water:'Wasserverbrauch',rainwater:'Regenwasserverbrauch',fuel:'Brennstoffverbrauch',reports:'Berichte',sources:'Datenquellen',regulation:'Regelungsfunktionen',devices:'Verbraucher & Prioritäten',outputs:'Geräteausgänge',settings:'Einstellungen',about:'Über & Lizenzen'};
   $('pageTitle').textContent=titles[page]||'Energiemanagement';
   if(page==='overview'){renderOverview();if(window.EnergyAnalytics)window.EnergyAnalytics.render('overview')};if(page==='history')renderHistory();
-  if(page==='sources'){renderSources();renderOutputs();}if(page==='devices')renderConsumers();if(page==='outputs')renderOutputs();if(page==='settings')renderSettings();
+  if(page==='sources'){renderSources();renderOutputs();}if(page==='regulation')renderConsumers();if(page==='outputs')renderOutputs();if(page==='settings')renderSettings();
   if((page==='analytics'||page==='reports')&&window.EnergyAnalytics)window.EnergyAnalytics.render(page);
   window.EnergySummaryUI?.render(page);
   window.EnergyUtilitiesUI?.render(page);
