@@ -1,6 +1,7 @@
 'use strict';
 const utils=require('@iobroker/adapter-core');
 const {EnergyEngine,createRuntime,fresh}=require('./lib/engine');
+const {normalizeBatteryConfig,readBatteryMeasurements}=require('./lib/battery-sources');
 const {SRC_SCHEMA,defaultSources,defaultConsumers,normalizeSources,normalizeConsumers,normalizeSettings,clamp}=require('./lib/normalize');
 const {importLegacy,cleanupLegacy}=require('./lib/migration');
 const pkg=require('./package.json');
@@ -73,6 +74,7 @@ class Energiemanagement extends utils.Adapter {
       this.heating=new HeatingService(this,asJSON(await this.read('config.heating','{}'),defaultHeating()),asJSON(await this.read('internal.heatingLearning','{}'),{}),asJSON(await this.read('internal.heatingOutputs','{}'),{}),asJSON(await this.read('heating.history','[]'),[]));
       this.activeHardware=asJSON(await this.read('internal.hardware','{}'),{});
       this.sources=normalizeSources(asJSON(await this.read('config.sources','{}'),defaultSources()));
+      this.batteries=normalizeBatteryConfig(asJSON(await this.read('config.batteries_JSON','{}'),{batteries:[]}));
       this.consumers=normalizeConsumers(asJSON(await this.read('config.consumers','{}'),defaultConsumers()),this.config.maxConsumers||250);
       this.settings=normalizeSettings(asJSON(await this.read('config.settings','{}'),{}),this.config);
       this.hardwareMaster=await this.read('config.hardwareMaster',false)===true;
@@ -144,6 +146,8 @@ class Energiemanagement extends utils.Adapter {
       ['forecast.error','Letzter Prognosefehler','string',''],
       ['commands.forecastRefresh','Ertragsprognose aktualisieren','boolean',false,true],
       ['config.sources','Datenquellen (JSON)','string',JSON.stringify(defaultSources()),true],
+      ['config.batteries_JSON','Optionale Batteriespeicher und Messpunkte (JSON)','string','{"batteries":[]}',true],
+      ['live.batteries_JSON','Getrennte Batterie-Messwerte (JSON)','string','{"batteries":[]}'],
       ['config.consumers','Prioritäten und Verbraucher (JSON)','string',JSON.stringify(defaultConsumers()),true],
       ['config.settings','Leistungsziel, Reserve und Tarifwert (JSON)','string',JSON.stringify(normalizeSettings({},this.config)),true],
       ['config.hardwareMaster','Echte Hardwaresteuerung freigeben','boolean',false,true],
@@ -279,6 +283,7 @@ class Energiemanagement extends utils.Adapter {
   }
   async reloadConfig(){
     this.sources=normalizeSources(asJSON(await this.read('config.sources'),defaultSources()));
+    this.batteries=normalizeBatteryConfig(asJSON(await this.read('config.batteries_JSON','{}'),{batteries:[]}));
     this.consumers=normalizeConsumers(asJSON(await this.read('config.consumers'),defaultConsumers()),this.config.maxConsumers||250);
     this.settings=normalizeSettings(asJSON(await this.read('config.settings'),{}),this.config);
     this.hardwareMaster=await this.read('config.hardwareMaster',false)===true;
@@ -514,6 +519,12 @@ class Energiemanagement extends utils.Adapter {
     this.refreshForecast().catch(e=>this.log.warn('PV-Prognose: '+e.message));
     try{
       const measured=await this.readMeasures();
+       try{
+        const ids=[...new Set((this.batteries?.batteries||[]).filter(b=>b.enabled).flatMap(b=>Object.values(b.sources)).filter(Boolean))];
+        const entries=await Promise.all(ids.map(async id=>{try{return [id,await this.getForeignStateAsync(id)]}catch{return [id,null]}}));
+        const rows=readBatteryMeasurements(this.batteries,Object.fromEntries(entries),now);
+        await this.set('live.batteries_JSON',{ts:now,batteries:rows},true);
+       }catch(e){this.log.warn('Batterie-Messwerte: '+e.message)}
       const signature=JSON.stringify([this.sources.importKWh,this.sources.exportKWh]);
       const report=this.engine.sample(now,measured,this.settings,signature);
       await this.updateReport(now,measured,report);
@@ -578,7 +589,7 @@ class Energiemanagement extends utils.Adapter {
     if(!state||state.ack)return;
     const suffix=id.slice(this.namespace.length+1);
     if(this.dataBusy||this.restoreHold){
-      const current={'config.sources':this.sources,'config.consumers':this.consumers,'config.settings':this.settings,'config.hardwareMaster':this.hardwareMaster,'config.forecast':this.forecast?.config,'config.heating':this.heating?.config,'config.features_JSON':this.utilities?.features,'config.utilities_JSON':this.utilities?.config,'config.energySummary_JSON':this.energySummaryConfig,'config.storage_JSON':this.storage?.config};
+      const current={'config.sources':this.sources,'config.batteries_JSON':this.batteries,'config.consumers':this.consumers,'config.settings':this.settings,'config.hardwareMaster':this.hardwareMaster,'config.forecast':this.forecast?.config,'config.heating':this.heating?.config,'config.features_JSON':this.utilities?.features,'config.utilities_JSON':this.utilities?.config,'config.energySummary_JSON':this.energySummaryConfig,'config.storage_JSON':this.storage?.config};
       const previous=current[suffix]??this.lastStatus[suffix];
       if(previous!==undefined)await this.set(suffix,previous,true);
       else if(suffix.startsWith('commands.'))await this.set(suffix,false,true);
@@ -636,6 +647,11 @@ class Energiemanagement extends utils.Adapter {
           const normalized=normalizeForecast(asJSON(state.val,null));
           await this.set(suffix,JSON.stringify(normalized),true);
           await this.reloadConfig();return;
+        }
+        if(suffix==='config.batteries_JSON'){
+          const candidate=normalizeBatteryConfig(asJSON(state.val,null));
+          await this.set(suffix,candidate,true);
+          this.batteries=candidate;return;
         }
         if(suffix==='config.sources'){const candidate=normalizeSources(asJSON(state.val,null));this.heating?.validateConflicts(this.heating.config,this.consumers,candidate);}
         if(suffix==='config.consumers'){const candidate=normalizeConsumers(asJSON(state.val,null),this.config.maxConsumers||250);this.heating?.validateConflicts(this.heating.config,candidate,this.sources);}
