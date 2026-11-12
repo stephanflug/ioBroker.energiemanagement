@@ -84,7 +84,7 @@
    if(saving||!api.setVal)return;
    saving=true;$('batterySave').disabled=true;
    try{
-    for(const b of config.batteries){if(!b.name.trim())throw Error('Batteriename fehlt');for(const id of Object.values(b.sources))if(id&&!/^[a-zA-Z0-9_][\\w.:-]*$/.test(id))throw Error('Ungültige Datenpunkt-ID: '+id);}
+    for(const b of config.batteries){if(!b.name.trim())throw Error('Batteriename fehlt');for(const id of Object.values(b.sources))if(id&&!/^[a-zA-Z0-9_][\w.:-]*$/.test(id))throw Error('Ungültige Datenpunkt-ID: '+id);}
     await api.setVal('config.batteries_JSON',JSON.stringify(config));
     signature=JSON.stringify(config);dirty=false;renderEditor();$('batteryDirty').textContent='Konfiguration gespeichert';
    }catch(error){$('batteryDirty').textContent='Speichern fehlgeschlagen: '+error.message;}
