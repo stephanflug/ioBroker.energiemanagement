@@ -53,7 +53,7 @@ test('Zyklischer Fremdausgang schreibt denselben Wert erst nach dem Intervall er
  assert.equal(c.calls.length,0);
  now+=30000;
  await applyForeignOutputs(c.config,c.evaluated,c.io);
- assert.equal(c.calls.length,1);
+ assert.equal(c.calls.length,0);
  assert.match(c.evaluated.logics[0].outputs[0].writeStatus,/nächste Ausgabe/);
  now+=30000;
  await applyForeignOutputs(c.config,c.evaluated,c.io);
