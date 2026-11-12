@@ -1,3 +1,12 @@
+# 0.10.5 (2026-11-12)
+
+- Fix an unintended repeated FUP command when **Cyclic write** is disabled and another ioBroker adapter changes the target state without any change to the calculated output.
+- Non-cyclic foreign outputs now respond only to a change in the FUP-calculated value, not to drift or refreshes of the destination state.
+- Keep cyclic writes on their configured interval and preserve immediate commands when the calculated result changes.
+- Show `Zyklisch AUS – Logikwert unverändert, kein Schreibbefehl` in the output diagnostic status.
+- Retain existing FUP configurations, output IDs, write permissions and hardware-control settings.
+- Expand regression coverage for target drift without repeated commands, including the case where the original target initially matches.
+
 # 0.10.4 (2026-11-12)
 
 - FUP: Export all logics as a JSON backup, share one portable JSON template, and import templates or backups without replacing existing logics.
