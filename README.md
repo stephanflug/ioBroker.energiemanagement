@@ -6,13 +6,16 @@
 
 **PV generation, household consumption, demand peaks and optional resource monitoring in one ioBroker interface.** Existing ioBroker data points provide the measurements. The adapter does not depend on a specific meter, inverter, battery, heat pump or consumer brand.
 
-## Current source v0.10.3
+## Download v0.10.3
 
-The latest code is available on the [main branch](https://github.com/stephanflug/ioBroker.energiemanagement/tree/main) ([source ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/archive/refs/heads/main.zip)). Version 0.10.3 adds the FUP logic editor, live block values, block deletion and multi-battery monitoring. A packaged GitHub Release for v0.10.3 has not been published yet.
+**Energiemanagement 0.10.3 is available as a stable GitHub Release.** The update includes the FUP logic editor with live block values and block/connection deletion, plus separate battery configurations and SOC measurement.
 
-## Download v0.10.2
+- [Installable ioBroker package (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.3/iobroker.energiemanagement-0.10.3.tgz)
+- [Package SHA-256 checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.3/iobroker.energiemanagement-0.10.3.tgz.sha256)
+- [Complete project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.3/ioBroker.energiemanagement-v0.10.3-projekt.zip)
+- [Release notes and downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.3)
 
-Version **0.10.2 is a stable release on GitHub**. Download the complete [installable TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), its [SHA-256 checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256), or the [full project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip). [Release notes and downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2) describe this version.
+The previous stable release, v0.10.2, remains available in the [GitHub release archive](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2).
 
 The adapter is not yet published on npm or listed in the official ioBroker repository. Installing a release is a deliberate manual step; the application never installs updates automatically.
 
