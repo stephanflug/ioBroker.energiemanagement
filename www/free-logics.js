@@ -100,7 +100,7 @@
  }
  function render(){
   const host=$('freeLogicEditor');if(!host)return;
-  host.innerHTML='<div class="logic-toolbar"><label>Logik <select id="logicSelect">'+config.logics.map(l=>'<option value="'+esc(l.id)+'" '+(l.id===active?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><button type="button" id="logicAdd">+ Neue Logik</button><button type="button" id="logicRemove" '+(!selected()?'disabled':'')+'>Löschen</button></div>';
+  host.innerHTML='<div class="logic-toolbar"><label>Logik <select id="logicSelect">'+config.logics.map(l=>'<option value="'+esc(l.id)+'" '+(l.id===active?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><button type="button" id="logicAdd">+ Neue Logik</button><button type="button" id="logicRemove" '+(!selected()?'disabled':'')+'>Löschen</button><button type="button" id="fupExportAll">Alle exportieren</button><button type="button" id="fupExportTemplate" '+(!selected()?'disabled':'')+'>Vorlage teilen</button><button type="button" id="fupImport">Importieren</button><input type="file" id="fupImportFile" accept=".json,application/json" hidden></div>';
   const logic=selected();
   if(!logic){host.insertAdjacentHTML('beforeend','<p>Noch keine Logik vorhanden. Erstelle deine erste Regelung.</p>');bind();return;}
   host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Logik aktiviert</label><label title="Eigene FUP-Freigabe, getrennt von der Hardware-Masterfreigabe"><input type="checkbox" id="logicExternalWrites" '+(config.externalWritesEnabled?'checked':'')+'> Fremde Datenpunkte schreiben erlauben</label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Live-Werte werden direkt angezeigt. Änderungen gelten erst nach „Logiken speichern“. Eigene ioBroker-Ausgänge werden automatisch aktualisiert. Vorhandene Datenpunkte nur mit globaler FUP-Freigabe und einzelner Ausgangsfreigabe beschreiben. Achtung: Das kann Geräte schalten.</p>'+canvas(logic)+'<div class="fup-details" hidden aria-hidden="true"><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></div><div id="logicDiagnostics" class="logic-diagnostics"></div>');
@@ -275,7 +275,49 @@
    mark();dialog.close();render();$('logicStatus').textContent='Datenpunkt '+block.stateId+' zugewiesen – bitte Logiken speichern.';
   });
  }
+ function downloadFUP(data,filename){
+  const blob=new Blob([JSON.stringify(data,null,2)+'\n'],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }
+ function fileSlug(text){
+  return String(text||'logik').normalize('NFKD').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,50)||'logik';
+ }
  function bind(){
+  const transfer=window.EnergyFUPTransfer;
+  $('fupExportAll')?.addEventListener('click',()=>{
+   try{
+    if(!transfer)throw Error('Import-/Export-Modul fehlt. Seite neu laden.');
+    if(!config.logics.length)throw Error('Keine Logik zum Exportieren vorhanden.');
+    if(!confirm('Alle Logiken als lokale Sicherung exportieren? Die Datei enthält deine ioBroker-Datenpunkt-IDs und bisherigen Schreibfreigaben. Zum Teilen stattdessen „Vorlage teilen“ verwenden.'))return;
+    downloadFUP(transfer.createExport(config,'backup'),'energiemanagement-fup-backup-'+new Date().toISOString().slice(0,10)+'.json');
+    $('logicStatus').textContent='Logiken als JSON-Sicherung exportiert.';
+   }catch(e){$('logicStatus').textContent='Export fehlgeschlagen: '+e.message;}
+  });
+  $('fupExportTemplate')?.addEventListener('click',()=>{
+   try{
+    if(!transfer)throw Error('Import-/Export-Modul fehlt. Seite neu laden.');
+    const logic=selected();if(!logic)throw Error('Keine Logik ausgewählt');
+    const content=transfer.createExport(config,'template',logic.id);
+    downloadFUP(content,'energiemanagement-fup-vorlage-'+fileSlug(logic.name)+'.json');
+    $('logicStatus').textContent='Teilbare Vorlage exportiert: ohne lokale Datenpunkt-IDs und ohne aktive Schreibfreigaben.';
+   }catch(e){$('logicStatus').textContent='Vorlagenexport fehlgeschlagen: '+e.message;}
+  });
+  $('fupImport')?.addEventListener('click',()=>{$('fupImportFile')?.click()});
+  $('fupImportFile')?.addEventListener('change',async e=>{
+   const input=e.target,file=input.files?.[0];input.value='';
+   if(!file)return;
+   try{
+    if(!transfer)throw Error('Import-/Export-Modul fehlt. Seite neu laden.');
+    if(file.size>1024*1024)throw Error('Die JSON-Datei darf höchstens 1 MB groß sein.');
+    const data=JSON.parse(await file.text());
+    const added=transfer.importLogics(data,config.logics,unique);
+    if(!confirm(added.length+' Logik(en) hinzufügen? Bestehende Logiken bleiben erhalten. Importierte Logiken und fremde Schreibfreigaben werden zunächst deaktiviert. Erst mit „Logiken speichern“ übernehmen.'))return;
+    config.logics.push(...added);active=added[0].id;mark();render();
+    $('logicStatus').textContent=added.length+' Logik(en) importiert, noch nicht gespeichert. Datenpunkte und Freigaben vor Aktivierung prüfen.';
+   }catch(e){$('logicStatus').textContent='Import fehlgeschlagen: '+e.message;}
+  });
   $('logicSelect')?.addEventListener('change',e=>{active=e.target.value;render()});
   $('logicAdd')?.addEventListener('click',()=>{const id=unique('logic');config.logics.push({id,name:'Neue Logik',enabled:false,blocks:[]});active=id;mark();render()});
   $('logicRemove')?.addEventListener('click',()=>{if(!confirm('Diese Logik wirklich entfernen?'))return;config.logics=config.logics.filter(l=>l.id!==active);active=config.logics[0]?.id||'';mark();render()});
