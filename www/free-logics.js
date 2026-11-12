@@ -33,7 +33,7 @@
   $('fupPickerQuery').value='';
   $('fupPickerResults').replaceChildren();
   $('fupPickerStatus').textContent='Datenpunkt suchen (Zahlenwert oder TRUE/FALSE auswählen).';
-  const dialog=$('fupPicker');if(!dialog.open)dialog.showModal();
+  const dialog=$('fupPicker');if(!dialog.open){try{dialog.showModal()}catch(e){$('logicStatus').textContent='Auswahlfenster konnte nicht geöffnet werden: '+e.message;return}}
   $('fupPickerQuery').focus();
  }
  function bindCanvas(logic){
@@ -73,7 +73,8 @@
  function blockHTML(b,i,logic){
   const choices=logic.blocks.filter(x=>x.id!==b.id);
   const links=Array.from({length:count(b.op)},(_,j)=>'<label>Eingang '+(j+1)+' <select data-block="'+esc(b.id)+'" data-input="'+j+'"><option value="">– auswählen –</option>'+choices.map(x=>'<option value="'+esc(x.id)+'" '+(b.inputs[j]===x.id?'selected':'')+'>'+esc(x.name||operations[x.op])+'</option>').join('')+'</select></label>').join('');
-  const extra=b.op==='input'||b.op==='output'?'<label>Datenpunkt <span class="fup-source-field"><input data-block="'+esc(b.id)+'" data-prop="stateId" placeholder="adapter.0.datenpunkt" value="'+esc(b.stateId||'')+'"><button type="button" data-pick-state="'+esc(b.id)+'">Auswählen …</button></span></label>':b.op==='constant'?'<label>Wert <input data-block="'+esc(b.id)+'" data-prop="value" value="'+esc(b.value??0)+'"></label>':'';
+  const sourceField='<label>Datenpunkt <span class="fup-source-field"><input data-block="'+esc(b.id)+'" data-prop="stateId" placeholder="adapter.0.datenpunkt" value="'+esc(b.stateId||'')+'"><button type="button" data-pick-state="'+esc(b.id)+'">Datenpunkt auswählen …</button></span></label>';
+  const extra=b.op==='input'?sourceField:b.op==='output'?'<label>Ausgangsart <select data-block="'+esc(b.id)+'" data-prop="createNew"><option value="false" '+(!b.createNew?'selected':'')+'>Vorhandenen Datenpunkt auswählen (Simulation)</option><option value="true" '+(b.createNew?'selected':'')+'>Neuen ioBroker-Ausgang erzeugen</option></select></label>'+(b.createNew?'<label>Neuer Ausgangsname <input data-block="'+esc(b.id)+'" data-prop="outputKey" placeholder="z. B. BKW_Ladeleistung" value="'+esc(b.outputKey||'')+'"></label><small>Wird als eigener Datenpunkt unter energi​emanagement.0.logicOutputs angelegt. Nur gültige Zahlenwerte werden geschrieben.</small>':sourceField):b.op==='constant'?'<label>Wert <input data-block="'+esc(b.id)+'" data-prop="value" value="'+esc(b.value??0)+'"></label>':'';
   return '<article class="logic-block"><div class="logic-block-head"><span class="logic-block-number">'+(i+1)+'</span><strong>'+esc(operations[b.op])+'</strong><button type="button" data-delete="'+esc(b.id)+'">Entfernen</button></div><label>Name <input data-block="'+esc(b.id)+'" data-prop="name" value="'+esc(b.name||'')+'"></label>'+extra+'<div class="logic-inputs">'+links+'</div><div class="logic-live" data-live="'+esc(b.id)+'">Noch kein Ergebnis</div></article>';
  }
  function diagnostics(){
@@ -110,13 +111,14 @@
   $('logicAdd')?.addEventListener('click',()=>{const id=unique('logic');config.logics.push({id,name:'Neue Logik',enabled:false,blocks:[]});active=id;mark();render()});
   $('logicRemove')?.addEventListener('click',()=>{if(!confirm('Diese Logik wirklich entfernen?'))return;config.logics=config.logics.filter(l=>l.id!==active);active=config.logics[0]?.id||'';mark();render()});
   const logic=selected();if(!logic)return;
-  for(const button of document.querySelectorAll('#freeLogicEditor [data-pick-state]'))button.addEventListener('click',()=>openStatePicker(button.dataset.pickState));
+  
   $('logicName')?.addEventListener('change',e=>{logic.name=e.target.value;mark();render()});
   $('logicEnabled')?.addEventListener('change',e=>{logic.enabled=e.target.checked;mark()});
   $('logicBlockAdd')?.addEventListener('click',()=>{const op=$('logicOp').value;logic.blocks.push({id:unique('block'),op,name:operations[op],inputs:[],...(op==='constant'?{value:0}:{}),...(['input','output'].includes(op)?{stateId:''}:{})});mark();render()});
   for(const el of document.querySelectorAll('#freeLogicEditor [data-block]'))el.addEventListener('change',()=>{
    const b=logic.blocks.find(x=>x.id===el.dataset.block);if(!b)return;
    if(el.dataset.input!==undefined){b.inputs[Number(el.dataset.input)]=el.value;b.inputs=b.inputs}
+   else if(el.dataset.prop==='createNew'){b.createNew=el.value==='true';if(b.createNew&&!b.outputKey)b.outputKey='Ausgang';render()}
    else if(el.dataset.prop==='value'){const t=el.value.trim();b.value=t==='true'?true:t==='false'?false:Number(t)}
    else b[el.dataset.prop]=el.value;
    mark();if(el.dataset.prop==='name')render();
@@ -124,6 +126,7 @@
   for(const el of document.querySelectorAll('#freeLogicEditor [data-delete]'))el.addEventListener('click',()=>{logic.blocks=logic.blocks.filter(b=>b.id!==el.dataset.delete);for(const b of logic.blocks)b.inputs=b.inputs.filter(id=>id!==el.dataset.delete);mark();render()});
  }
  function init(){
+  document.addEventListener('click',e=>{const button=e.target.closest('[data-pick-state]');if(button&&button.closest('#freeLogicEditor')){e.preventDefault();openStatePicker(button.dataset.pickState)}});
   if(!$('freeLogicEditor'))return;
   $('logicSave')?.addEventListener('click',async()=>{if(saving)return;try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=payload;$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert (Simulation)';}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
   $('logicReset')?.addEventListener('click',()=>{dirty=false;signature='';sync()});
