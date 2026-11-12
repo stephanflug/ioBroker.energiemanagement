@@ -474,8 +474,9 @@
       .sort((a,b)=>b.kWh-a.kWh);
    }
   }
-  if(['balance','solar'].includes(type)){const batteries=batterySnapshot();if(batteries.length){result.extraTables=result.extraTables||[];result.extraTables.push({title:'Batteriespeicher – Momentaufnahme',note:'Aktuelle Messwerte zum Erstellungszeitpunkt, keine historischen Werte für den Berichtszeitraum.',columns:[{key:'name',label:'Speicher'},{key:'soc',label:'SOC (%)'},{key:'voltage',label:'Spannung (V)'},{key:'current',label:'Strom (A)'},{key:'power',label:'Leistung (W)'},{key:'status',label:'Zustand'}],rows:batteries});}}
   appendUtilityReport(result,type,from,to);
+  if(['balance','solar'].includes(type)){const batteries=batterySnapshot();if(batteries.length){result.extraTables=result.extraTables||[];result.extraTables.push({title:'Batteriespeicher – Momentaufnahme',note:'Aktuelle Messwerte zum Erstellungszeitpunkt, keine historischen Werte für den Berichtszeitraum.',columns:[{key:'name',label:'Speicher'},{key:'soc',label:'SOC (%)'},{key:'voltage',label:'Spannung (V)'},{key:'current',label:'Strom (A)'},{key:'power',label:'Leistung (W)'},{key:'status',label:'Zustand'}],rows:batteries});}}
+
   if(result.rows.length===0)result.notes.unshift('Für diesen Bericht wurden im gewählten Zeitraum keine passenden Messdaten gefunden.');
   return result;
  }
