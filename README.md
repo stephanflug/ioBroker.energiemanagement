@@ -6,19 +6,16 @@
 
 **PV generation, household consumption, demand peaks and optional resource monitoring in one ioBroker interface.** Existing ioBroker data points provide the measurements. The adapter does not depend on a specific meter, inverter, battery, heat pump or consumer brand.
 
-## Download v0.10.4
+## Download v0.10.5
 
-**Energiemanagement v0.10.4 is available as a stable GitHub Release.** This update adds FUP JSON backups, portable template sharing and safe import, plus optional cyclic writes per output (10–3600 seconds).
+**Energiemanagement v0.10.5** fixes repeated FUP commands when cyclic writing is disabled. Non-cyclic outputs now write only when their calculated logic value changes, even if another adapter updates the target state. The first evaluation can synchronize an existing differing target once.
 
-- [Installable ioBroker package (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.4/iobroker.energiemanagement-0.10.4.tgz)
-- [Package SHA-256 checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.4/iobroker.energiemanagement-0.10.4.tgz.sha256)
-- [Complete project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.4/ioBroker.energiemanagement-v0.10.4-projekt.zip)
-- [Release notes and downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.4)
-- [Shareable FUP template examples and instructions](examples/fup/README.md)
+- [Installable ioBroker package (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.5/iobroker.energiemanagement-0.10.5.tgz)
+- [Package SHA-256 checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.5/iobroker.energiemanagement-0.10.5.tgz.sha256)
+- [Full project source ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.5/ioBroker.energiemanagement-v0.10.5-projekt.zip)
+- [Release notes and downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.5)
 
-Imported logic templates start disabled and contain no foreign write permissions. With cyclic writing disabled, unchanged output values are not written repeatedly. Enabling repeated writes requires deliberate configuration per output. Previously configured hardware control and logic settings are preserved.
-
-The previous stable release, v0.10.3, remains in the [GitHub release archive](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.3).
+Version 0.10.4 introduced [portable FUP templates and JSON backups](examples/fup/README.md) plus optional interval-based writes per output. These capabilities are retained unchanged in 0.10.5. [Previous stable release v0.10.4](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.4).
 
 The adapter is not yet published on npm or listed in the official ioBroker repository. Installing a release is a deliberate manual step; the application never installs updates automatically.
 
