@@ -27,6 +27,14 @@
   const enabled=config.batteries.filter(b=>b.enabled);
   const house=$('batteryHouseValue');
   if(house){const val=window.EnergyBatteryHouse?.();house.textContent=val===null||val===undefined?'–':format(val,'W');}
+  const calendar=$('calendarBatterySoc');
+  if(calendar){
+   calendar.innerHTML=enabled.length?enabled.map(b=>{
+    const measured=live.find(x=>x.id===b.id);
+    const soc=measured?.quality?.soc==='ok'&&typeof measured?.values?.soc==='number'?measured.values.soc:null;
+    return '<div class="battery-card panel"><strong>'+esc(b.name)+'</strong><div><strong>'+esc(soc===null?'–':format(soc,'%'))+'</strong></div><div class="battery-progress" role="progressbar" aria-label="SOC '+esc(b.name)+'" aria-valuemin="0" aria-valuemax="100" '+(soc===null?'':'aria-valuenow="'+soc+'"')+'><span style="width:'+(soc??0)+'%"></span></div></div>';
+   }).join(''):'<p>Keine Batteriespeicher aktiviert.</p>';
+  }
   for(const target of ['batteryCards','batteryOverviewCards']){
    const host=$(target);if(!host)return;
    host.innerHTML=enabled.length?enabled.map(b=>{
@@ -94,7 +102,7 @@
  }
  document.addEventListener('DOMContentLoaded',init);
  window.EnergyBatteriesUI={
-  render(page){if(page==='overview')renderLive();if(page==='sources'&&!dirty)renderEditor();},
+  render(page){if(page==='overview'||page==='analytics')renderLive();if(page==='sources'&&!dirty)renderEditor();},
   update(states,N,page,methods){namespace=N;api={...api,...methods,states};sync(states);}
  };
 })();
