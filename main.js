@@ -82,6 +82,7 @@ class Energiemanagement extends utils.Adapter {
         await this.set('config.batteries_JSON',this.batteries,true);
       }
       this.freeLogics=FreeLogic.validate(asJSON(await this.read('config.freeLogics_JSON','{"logics":[]}'),{logics:[]}));
+      await this.prepareFreeLogicOutputs();
       this.consumers=normalizeConsumers(asJSON(await this.read('config.consumers','{}'),defaultConsumers()),this.config.maxConsumers||250);
       this.settings=normalizeSettings(asJSON(await this.read('config.settings','{}'),{}),this.config);
       this.hardwareMaster=await this.read('config.hardwareMaster',false)===true;
@@ -114,7 +115,7 @@ class Energiemanagement extends utils.Adapter {
     }catch(e){this.log.error('Startfehler: '+e.stack);await this.set('status.running',false).catch(()=>{});}
   }
   async createStates(){
-    const channels={config:'Einstellungen',status:'Systemstatus',live:'Livewerte',interval:'15-Minuten-Auswertung',day:'Tageswerte',month:'Monatswerte',control:'Leistungsbudget',history:'Historie',consumers:'Verbraucher',internal:'Interner Speicher',migration:'Migration',commands:'Aktionen',insights:'Dynamische Empfehlungen',analytics:'Geräte-Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',utilities:'Wasser und Brennstoff',storage:'Datenspeicherung',update:'Versionsinformationen'};
+    const channels={logicOutputs:'Ausgänge freier Logiken',config:'Einstellungen',status:'Systemstatus',live:'Livewerte',interval:'15-Minuten-Auswertung',day:'Tageswerte',month:'Monatswerte',control:'Leistungsbudget',history:'Historie',consumers:'Verbraucher',internal:'Interner Speicher',migration:'Migration',commands:'Aktionen',insights:'Dynamische Empfehlungen',analytics:'Geräte-Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',utilities:'Wasser und Brennstoff',storage:'Datenspeicherung',update:'Versionsinformationen'};
     for(const [key,label]of Object.entries(channels))await this.channel(key,label);
     const defs=[
       ['update.status_JSON','Installierte Version und öffentliche GitHub-Releases (JSON)','string','{}'],
@@ -523,13 +524,34 @@ class Energiemanagement extends utils.Adapter {
     }
     await this.set('control.hardwareReady',possible);
   }
+  async prepareFreeLogicOutputs(){
+    for(const logic of this.freeLogics?.logics||[]){
+      for(const b of logic.blocks){
+        if(b.op!=='output'||b.createNew!==true)continue;
+        const key=b.outputKey;
+        if(!/^[a-zA-Z][a-zA-Z0-9_]{0,49}$/.test(key||''))continue;
+        const id='logicOutputs.'+logic.id+'_'+key;
+        const existing=await this.getObjectAsync(id);
+        if(existing)continue;
+        await this.state(id,logic.name+' – '+(b.name||key),'number',0,false);
+      }
+    }
+  }
   async tick(){
     if(this.running||this.migrating||this.dataBusy||!this.engine)return;
     this.running=true;const now=unix();let utilitiesSampled=false;
     this.refreshForecast().catch(e=>this.log.warn('PV-Prognose: '+e.message));
     try{
       const measured=await this.readMeasures();
-      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input').map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);await this.set('live.freeLogics_JSON',FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>inputs[id]?.val??null),true);}catch(e){this.log.warn('Freie Logiken: '+e.message)}
+      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input').map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);const evaluated=FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>inputs[id]?.val??null);await this.set('live.freeLogics_JSON',evaluated,true);
+        for(const row of evaluated.logics){
+          if(!row.enabled||row.errors.length)continue;
+          for(const out of row.outputs){
+            if(!out.createNew||!out.outputKey||typeof out.value!=='number'||!Number.isFinite(out.value))continue;
+            const id='logicOutputs.'+row.id+'_'+out.outputKey;
+            if(await this.getObjectAsync(id))await this.set(id,out.value);
+          }
+        }}catch(e){this.log.warn('Freie Logiken: '+e.message)}
        try{
         const ids=[...new Set((this.batteries?.batteries||[]).filter(b=>b.enabled).flatMap(b=>Object.values(b.sources)).filter(Boolean))];
         const entries=await Promise.all(ids.map(async id=>{try{return [id,await this.getForeignStateAsync(id)]}catch{return [id,null]}}));
@@ -659,7 +681,7 @@ class Energiemanagement extends utils.Adapter {
           await this.set(suffix,JSON.stringify(normalized),true);
           await this.reloadConfig();return;
         }
-        if(suffix==='config.freeLogics_JSON'){const candidate=FreeLogic.validate(asJSON(state.val,null));await this.set(suffix,candidate,true);this.freeLogics=candidate;return;}
+        if(suffix==='config.freeLogics_JSON'){const candidate=FreeLogic.validate(asJSON(state.val,null));this.freeLogics=candidate;await this.prepareFreeLogicOutputs();await this.set(suffix,candidate,true);return;}
         if(suffix==='config.batteries_JSON'){
           const candidate=normalizeBatteryConfig(asJSON(state.val,null));
           await this.set(suffix,candidate,true);
