@@ -3,6 +3,7 @@ const utils=require('@iobroker/adapter-core');
 const {EnergyEngine,createRuntime,fresh}=require('./lib/engine');
 const {normalizeBatteryConfig,readBatteryMeasurements}=require('./lib/battery-sources');
 const FreeLogic=require('./lib/free-logic');
+const {applyForeignOutputs}=require('./lib/free-logic-output');
 const {SRC_SCHEMA,defaultSources,defaultConsumers,normalizeSources,normalizeConsumers,normalizeSettings,clamp}=require('./lib/normalize');
 const {importLegacy,cleanupLegacy}=require('./lib/migration');
 const pkg=require('./package.json');
@@ -36,7 +37,7 @@ class Energiemanagement extends utils.Adapter {
     this.versionCheck=null;this.versionTimer=null;this.versionCheckOptions=options.versionCheckOptions||{};
     this.running=false;this.timer=null;this.engine=null;this.sources=defaultSources();
     this.consumers=defaultConsumers();this.settings={targetW:9500,reserveW:500,tariffThresholdW:10000,minCoveragePct:85};
-    this.hardwareMaster=false;this.activeHardware={};this.lastOff={};this.lastSave=0;this.lastStatus={};
+    this.hardwareMaster=false;this.activeHardware={};this.lastOff={};this.lastSave=0;this.lastStatus={};this.freeLogicWriteTimes=new Map();
     this.knownConsumers=new Set();this.migrationComplete=false;this.migrating=false;this.monitorGoodSince=0;this.runCount=0;
   }
   async channel(id,name){await this.setObjectNotExistsAsync(id,{type:'channel',common:{name},native:{}});}
@@ -554,15 +555,35 @@ class Energiemanagement extends utils.Adapter {
     this.refreshForecast().catch(e=>this.log.warn('PV-Prognose: '+e.message));
     try{
       const measured=await this.readMeasures();
-      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input'&&b.stateId).map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);const virtualIds=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='virtual'&&b.virtualKey).map(b=>['virtual:'+l.id+':'+b.virtualKey,'logicVirtual.'+l.id+'_'+b.virtualKey])))];const virtualValues=Object.fromEntries(await Promise.all(virtualIds.map(async ([key,id])=>[key,(await this.getStateAsync(id).catch(()=>null))?.val??null])));const evaluated=FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>id.startsWith('virtual:')?virtualValues[id]:inputs[id]?.val??null);evaluated.ts=Date.now();await this.set('live.freeLogics_JSON',evaluated,true);
+      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input'&&b.stateId).map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);const virtualIds=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='virtual'&&b.virtualKey).map(b=>['virtual:'+l.id+':'+b.virtualKey,'logicVirtual.'+l.id+'_'+b.virtualKey])))];const virtualValues=Object.fromEntries(await Promise.all(virtualIds.map(async ([key,id])=>[key,(await this.getStateAsync(id).catch(()=>null))?.val??null])));const evaluated=FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>id.startsWith('virtual:')?virtualValues[id]:inputs[id]?.val??null);
+        await applyForeignOutputs(this.freeLogics||{logics:[]},evaluated,{
+          getObject:id=>this.getForeignObjectAsync(id),
+          getState:id=>this.getForeignStateAsync(id),
+          setState:(id,val)=>this.setForeignStateAsync(id,{val,ack:false}),
+          lastWrites:this.freeLogicWriteTimes
+        });
+        evaluated.ts=Date.now();
         for(const row of evaluated.logics){
           if(!row.enabled||row.errors.length)continue;
           for(const out of row.outputs){
             if(!out.createNew||!out.outputKey||!(typeof out.value==='boolean'||typeof out.value==='number'&&Number.isFinite(out.value)))continue;
             const id='logicOutputs.'+row.id+'_'+out.outputKey;
-            const obj=await this.getObjectAsync(id);if(obj&&obj.common?.type===typeof out.value)await this.set(id,out.value);
+            const obj=await this.getObjectAsync(id);
+            if(!obj||obj.common?.type!==typeof out.value){out.writeStatus='Eigener Ausgang fehlt oder Datentyp passt nicht';continue;}
+            const key='own|'+row.id+'|'+out.id+'|'+id;
+            const last=this.freeLogicWriteTimes.get(key);
+            const cycleMs=out.cycleSeconds*1000;
+            const due=out.cyclicWrite===true&&(!Number.isFinite(last)||Date.now()-last>=cycleMs);
+            const changed=this.lastStatus[id]!==out.value;
+            if(due||changed){
+              await this.set(id,out.value,due);
+              this.freeLogicWriteTimes.set(key,Date.now());
+              out.writeStatus=due?'Eigener Ausgang zyklisch aktualisiert ('+out.cycleSeconds+' s)':'Eigener Ausgang aktualisiert';
+            }else out.writeStatus=out.cyclicWrite?'Eigener Ausgang: zyklisch '+out.cycleSeconds+' s':'Eigener Ausgang: Wert unverändert';
           }
-        }}catch(e){this.log.warn('Freie Logiken: '+e.message)}
+        }
+        await this.set('live.freeLogics_JSON',evaluated,true);
+       }catch(e){this.log.warn('Freie Logiken: '+e.message)}
        try{
         const ids=[...new Set((this.batteries?.batteries||[]).filter(b=>b.enabled).flatMap(b=>Object.values(b.sources)).filter(Boolean))];
         const entries=await Promise.all(ids.map(async id=>{try{return [id,await this.getForeignStateAsync(id)]}catch{return [id,null]}}));

@@ -21,17 +21,17 @@
    const x1=source.x+184,y1=source.y+48,x2=target.x,y2=target.y+43+k*14,m=(x1+x2)/2;
    paths.push('<path d="M'+x1+' '+y1+' C'+m+' '+y1+' '+m+' '+y2+' '+x2+' '+y2+'" stroke="#3b82f6" stroke-width="2.5" fill="none"/>');
   }
-  const nodes=blocks.map(b=>{const p=byId.get(b.id),val=(live.logics||[]).find(l=>l.id===logic.id)?.values?.[b.id];return '<div class="fup-node" data-node="'+esc(b.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="fup-node-title" data-drag="'+esc(b.id)+'">'+esc(b.name||operations[b.op])+'</div><button type="button" class="fup-delete" data-delete-node="'+esc(b.id)+'" title="Baustein löschen" aria-label="'+esc((b.name||operations[b.op])+' löschen')+'">×</button><div class="fup-node-type">'+esc(operations[b.op])+'</div><div class="fup-node-value">'+esc(val===undefined||val===null?'–':String(val))+'</div>'+(['input','output'].includes(b.op)?'<button type="button" class="fup-pick-button" data-pick-node="'+esc(b.id)+'" title="Datenpunkt zuweisen">'+esc(b.stateId||(b.op==='output'&&b.createNew?'Neuer Ausgang: '+(b.outputKey||'Ausgang'):'Datenpunkt auswählen …'))+'</button>':'')+'<button class="fup-out" type="button" data-wire-out="'+esc(b.id)+'" title="Ausgang verbinden">●</button>'+Array.from({length:count(b.op)},(_,i)=>'<button type="button" class="fup-in" style="top:'+(38+i*14)+'px" data-wire-in="'+esc(b.id)+'" data-port="'+i+'" title="Eingang '+(i+1)+' verbinden">●</button>').join('')+'</div>'}).join('');
+  const nodes=blocks.map(b=>{const p=byId.get(b.id),val=(live.logics||[]).find(l=>l.id===logic.id)?.values?.[b.id];return '<div class="fup-node" data-node="'+esc(b.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="fup-node-title" data-drag="'+esc(b.id)+'">'+esc(b.name||operations[b.op])+'</div><button type="button" class="fup-delete" data-delete-node="'+esc(b.id)+'" title="Baustein löschen" aria-label="'+esc((b.name||operations[b.op])+' löschen')+'">×</button><div class="fup-node-type">'+esc(operations[b.op])+'</div><div class="fup-node-value">'+esc(val===undefined||val===null?'–':String(val))+'</div>'+(['input','output'].includes(b.op)?'<button type="button" class="fup-pick-button" data-pick-node="'+esc(b.id)+'" title="Datenpunkt zuweisen">'+esc(b.stateId||(b.op==='output'&&b.createNew?'Neuer Ausgang: '+(b.outputKey||'Ausgang'):'Datenpunkt auswählen …'))+'</button>':'')+(b.op==='output'?'<button type="button" class="fup-config" data-settings-node="'+esc(b.id)+'" title="Ausgang und zyklisches Schreiben konfigurieren">'+(b.createNew?'Ausgang einstellen':'Schreiben: '+(b.writeEnabled?'AN':'AUS'))+' · zyklisch '+(b.cyclicWrite?'JA':'NEIN')+'</button><div class="fup-output-status" data-output-status="'+esc(b.id)+'">'+esc((live.logics||[]).find(l=>l.id===logic.id)?.outputs?.find(o=>o.id===b.id)?.writeStatus||'Noch keine Ausgabediagnose')+'</div>':'')+'<button class="fup-out" type="button" data-wire-out="'+esc(b.id)+'" title="Ausgang verbinden">●</button>'+Array.from({length:count(b.op)},(_,i)=>'<button type="button" class="fup-in" style="top:'+(38+i*14)+'px" data-wire-in="'+esc(b.id)+'" data-port="'+i+'" title="Eingang '+(i+1)+' verbinden">●</button>').join('')+'</div>'}).join('');
   return '<div class="fup-help">Bausteine verschieben: Titel ziehen. Verbinden: Ausgang ● und dann Eingang ● anklicken. Verbindung entfernen: belegten Eingang ● anklicken. Baustein löschen: × oben rechts. Änderungen mit „Logiken speichern“ übernehmen.</div><div class="fup-viewport"><div class="fup-stage" style="width:'+width+'px;height:'+height+'px"><svg class="fup-wires" width="'+width+'" height="'+height+'" aria-hidden="true">'+paths.join('')+'</svg>'+nodes+'</div></div><div id="fupWireStatus" class="fup-help">Keine Verbindung ausgewählt.</div>';
  }
  function openBlockSettings(blockId){
   const block=selected()?.blocks.find(b=>b.id===blockId);if(!block)return;
   let dialog=$('fupBlockDialog');
   if(!dialog){dialog=document.createElement('dialog');dialog.id='fupBlockDialog';dialog.className='source-manager-picker';document.body.append(dialog)}
-  const virtual=block.op==='virtual',constant=block.op==='constant',path=ns+'.logicVirtual.'+selected().id+'_'+(block.virtualKey||'');
-  dialog.innerHTML='<div class="panel-head wrap"><h3>Baustein bearbeiten – '+esc(block.name||operations[block.op])+'</h3><button type="button" data-fup-close>Schließen</button></div><form id="fupBlockForm"><label>Beschriftung <input name="name" value="'+esc(block.name||'')+'"></label>'+(virtual?'<label>Virtueller Datenpunktname <input name="virtualKey" value="'+esc(block.virtualKey||'Sollwert')+'"></label><label>Datentyp <select name="valueType"><option value="number" '+(block.valueType!=='boolean'?'selected':'')+'>Zahlenwert</option><option value="boolean" '+(block.valueType==='boolean'?'selected':'')+'>TRUE/FALSE</option></select></label><label>Startwert <input name="value" value="'+esc(block.value??0)+'"></label><p>ioBroker: '+esc(path)+'</p><p id="fupVirtualLive">Aktueller Wert wird gelesen …</p><label>Aktuellen Sollwert ändern <input id="fupVirtualSet" value=""></label><button type="button" id="fupVirtualWrite">Sollwert schreiben</button>':constant?'<label>Werttyp <select name="valueType"><option value="number" '+(typeof block.value!=='boolean'?'selected':'')+'>Zahl</option><option value="boolean" '+(typeof block.value==='boolean'?'selected':'')+'>TRUE/FALSE</option></select></label><label>Konstantenwert <input name="value" value="'+esc(block.value??0)+'"></label>':'')+'<button type="submit">Baustein übernehmen</button></form>';
+  const virtual=block.op==='virtual',constant=block.op==='constant',output=block.op==='output',path=ns+'.logicVirtual.'+selected().id+'_'+(block.virtualKey||'');
+  dialog.innerHTML='<div class="panel-head wrap"><h3>Baustein bearbeiten – '+esc(block.name||operations[block.op])+'</h3><button type="button" data-fup-close>Schließen</button></div><form id="fupBlockForm"><label>Beschriftung <input name="name" value="'+esc(block.name||'')+'"></label>'+(virtual?'<label>Virtueller Datenpunktname <input name="virtualKey" value="'+esc(block.virtualKey||'Sollwert')+'"></label><label>Datentyp <select name="valueType"><option value="number" '+(block.valueType!=='boolean'?'selected':'')+'>Zahlenwert</option><option value="boolean" '+(block.valueType==='boolean'?'selected':'')+'>TRUE/FALSE</option></select></label><label>Startwert <input name="value" value="'+esc(block.value??0)+'"></label><p>ioBroker: '+esc(path)+'</p><p id="fupVirtualLive">Aktueller Wert wird gelesen …</p><label>Aktuellen Sollwert ändern <input id="fupVirtualSet" value=""></label><button type="button" id="fupVirtualWrite">Sollwert schreiben</button>':constant?'<label>Werttyp <select name="valueType"><option value="number" '+(typeof block.value!=='boolean'?'selected':'')+'>Zahl</option><option value="boolean" '+(typeof block.value==='boolean'?'selected':'')+'>TRUE/FALSE</option></select></label><label>Konstantenwert <input name="value" value="'+esc(block.value??0)+'"></label>':output?'<p>Ziel-Datenpunkt: <code>'+esc(block.stateId||(block.createNew?'Eigener ioBroker-Ausgang':'Keiner ausgewählt'))+'</code></p><label><input type="checkbox" name="writeEnabled" '+(block.writeEnabled?'checked':'')+' '+(block.createNew?'disabled':'')+'> Vorhandenen Datenpunkt aktiv beschreiben</label><label><input type="checkbox" name="cyclicWrite" '+(block.cyclicWrite?'checked':'')+'> Zyklisch schreiben (auch bei unverändertem Wert)</label><label>Schreibintervall in Sekunden <input type="number" name="cycleSeconds" min="10" max="3600" step="1" value="'+esc(block.cycleSeconds??60)+'"></label><p class="fup-warning">Änderungen werden erst nach „Logiken speichern“ wirksam. Zyklisches Schreiben kann fremde Geräte wiederholt ansteuern.</p>':'')+'<button type="submit">Baustein übernehmen</button></form>';
   dialog.querySelector('[data-fup-close]').onclick=()=>dialog.close();
-  dialog.querySelector('form').onsubmit=e=>{e.preventDefault();const form=e.target;const raw=String(form.elements.value?.value??'').trim();if(virtual||constant){const type=form.elements.valueType.value;if(type==='number'&&(!raw||!Number.isFinite(Number(raw)))){alert('Bitte einen gültigen Zahlenwert eingeben.');return}if(type==='boolean'&&!['true','false'].includes(raw.toLowerCase())){alert('Für TRUE/FALSE bitte true oder false eingeben.');return}block.value=type==='boolean'?raw.toLowerCase()==='true':Number(raw);if(virtual){block.virtualKey=form.elements.virtualKey.value;block.valueType=type}}block.name=form.elements.name.value;mark();dialog.close();render()};
+  dialog.querySelector('form').onsubmit=e=>{e.preventDefault();const form=e.target;const raw=String(form.elements.value?.value??'').trim();if(virtual||constant){const type=form.elements.valueType.value;if(type==='number'&&(!raw||!Number.isFinite(Number(raw)))){alert('Bitte einen gültigen Zahlenwert eingeben.');return}if(type==='boolean'&&!['true','false'].includes(raw.toLowerCase())){alert('Für TRUE/FALSE bitte true oder false eingeben.');return}block.value=type==='boolean'?raw.toLowerCase()==='true':Number(raw);if(virtual){block.virtualKey=form.elements.virtualKey.value;block.valueType=type}}if(output){const seconds=Number(form.elements.cycleSeconds.value);if(!Number.isInteger(seconds)||seconds<10||seconds>3600){alert('Das Schreibintervall muss zwischen 10 und 3600 Sekunden liegen.');return;}block.writeEnabled=block.createNew?false:form.elements.writeEnabled.checked;block.cyclicWrite=form.elements.cyclicWrite.checked;block.cycleSeconds=seconds;}block.name=form.elements.name.value;mark();dialog.close();render()};
   if(virtual){
     api.readVal?.('logicVirtual.'+selected().id+'_'+block.virtualKey).then(v=>{if(!dialog.open)return;const current=v?.val??v?.state?.val;$('fupVirtualLive').textContent=current===undefined?'Noch kein aktueller Wert vorhanden':'Aktueller Wert: '+String(current);$('fupVirtualSet').value=current===undefined?'':String(current)}).catch(()=>{$('fupVirtualLive').textContent='Wert derzeit nicht lesbar'});
     $('fupVirtualWrite').onclick=async()=>{const raw=$('fupVirtualSet').value;const val=block.valueType==='boolean'?raw==='true':Number(raw);if(block.valueType==='number'&&(!raw.trim()||!Number.isFinite(val))){$('fupVirtualLive').textContent='Ungültiger Zahlenwert';return}try{await api.setVal('logicVirtual.'+selected().id+'_'+block.virtualKey,val);$('fupVirtualLive').textContent='Wert geschrieben: '+String(val)}catch(e){$('fupVirtualLive').textContent='Schreiben fehlgeschlagen: '+e.message}};
@@ -49,7 +49,7 @@
   if(block.op==='output'){
    const update=()=>{$('fupNewOutput').hidden=$('fupOutputMode').value!=='new';$('fupPickerForm').querySelectorAll(':scope > label, :scope > .source-picker-search').forEach(el=>el.hidden=$('fupOutputMode').value==='new')};
    $('fupOutputMode').onchange=update;update();
-   $('fupNewOutputApply').onclick=()=>{const key=$('fupNewOutputKey').value.trim();if(!/^[a-zA-Z][a-zA-Z0-9_]{0,49}$/.test(key)){$('fupPickerStatus').textContent='Name: nur Buchstaben, Zahlen und Unterstrich, beginnend mit einem Buchstaben.';return}block.createNew=true;block.outputKey=key;block.outputType=$('fupNewOutputType').value;block.stateId='';mark();dialogClosePicker();render()};
+   $('fupNewOutputApply').onclick=()=>{const key=$('fupNewOutputKey').value.trim();if(!/^[a-zA-Z][a-zA-Z0-9_]{0,49}$/.test(key)){$('fupPickerStatus').textContent='Name: nur Buchstaben, Zahlen und Unterstrich, beginnend mit einem Buchstaben.';return}block.createNew=true;block.writeEnabled=false;block.outputKey=key;block.outputType=$('fupNewOutputType').value;block.stateId='';mark();dialogClosePicker();render()};
   }
   $('fupPickerType').value='number';
   $('fupPickerQuery').value='';$('fupSelectedId').value=block.stateId||'';
@@ -73,6 +73,7 @@
     for(const b of logic.blocks)if(Array.isArray(b.inputs))b.inputs=b.inputs.map(id=>id===block.id?'':id);
     source=null;mark();render();return;
    }
+   const settings=e.target.closest('[data-settings-node]');if(settings){openBlockSettings(settings.dataset.settingsNode);return;}
    const pick=e.target.closest('[data-pick-node]');if(pick){openStatePicker(pick.dataset.pickNode);return;}
    const out=e.target.closest('[data-wire-out]'),input=e.target.closest('[data-wire-in]');
    if(out){source=out.dataset.wireOut;$('fupWireStatus').textContent='Ausgang gewählt: '+(logic.blocks.find(b=>b.id===source)?.name||source)+' – jetzt Eingang wählen.';return;}
@@ -99,10 +100,10 @@
  }
  function render(){
   const host=$('freeLogicEditor');if(!host)return;
-  host.innerHTML='<div class="logic-toolbar"><label>Logik <select id="logicSelect">'+config.logics.map(l=>'<option value="'+esc(l.id)+'" '+(l.id===active?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><button type="button" id="logicAdd">+ Neue Logik</button><button type="button" id="logicRemove" '+(!selected()?'disabled':'')+'>Löschen</button></div>';
+  host.innerHTML='<div class="logic-toolbar"><label>Logik <select id="logicSelect">'+config.logics.map(l=>'<option value="'+esc(l.id)+'" '+(l.id===active?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><button type="button" id="logicAdd">+ Neue Logik</button><button type="button" id="logicRemove" '+(!selected()?'disabled':'')+'>Löschen</button><button type="button" id="fupExportAll">Alle exportieren</button><button type="button" id="fupExportTemplate" '+(!selected()?'disabled':'')+'>Vorlage teilen</button><button type="button" id="fupImport">Importieren</button><input type="file" id="fupImportFile" accept=".json,application/json" hidden></div>';
   const logic=selected();
   if(!logic){host.insertAdjacentHTML('beforeend','<p>Noch keine Logik vorhanden. Erstelle deine erste Regelung.</p>');bind();return;}
-  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Logik aktiviert</label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Live-Werte werden direkt im Funktionsplan angezeigt. Änderungen werden erst mit „Logiken speichern“ übernommen. Eigene ioBroker-Ausgänge werden bei aktiver, fehlerfreier Logik aktualisiert; fremde Geräteausgänge werden nicht automatisch geschaltet.</p>'+canvas(logic)+'<div class="fup-details" hidden aria-hidden="true"><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></div><div id="logicDiagnostics" class="logic-diagnostics"></div>');
+  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Logik aktiviert</label><label title="Eigene FUP-Freigabe, getrennt von der Hardware-Masterfreigabe"><input type="checkbox" id="logicExternalWrites" '+(config.externalWritesEnabled?'checked':'')+'> Fremde Datenpunkte schreiben erlauben</label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Live-Werte werden direkt angezeigt. Änderungen gelten erst nach „Logiken speichern“. Eigene ioBroker-Ausgänge werden automatisch aktualisiert. Vorhandene Datenpunkte nur mit globaler FUP-Freigabe und einzelner Ausgangsfreigabe beschreiben. Achtung: Das kann Geräte schalten.</p>'+canvas(logic)+'<div class="fup-details" hidden aria-hidden="true"><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></div><div id="logicDiagnostics" class="logic-diagnostics"></div>');
   bind();bindCanvas(logic);diagnostics();
  }
  function blockHTML(b,i,logic){
@@ -236,6 +237,7 @@
   const fresh=live.ts&&Date.now()-live.ts<30000&&current;
   if(fresh){
    paintLogicValues(logic,current.values||{},current.errors||[],[],'adapter');
+   for(const out of current.outputs||[]){const el=document.querySelector('[data-output-status="'+out.id+'"]');if(el)el.textContent=out.writeStatus||'Nur Live-Anzeige';}
   }else if(viewMode==='live'&&preview.logicId===logic.id&&preview.signature===JSON.stringify(logic)){
    paintLogicValues(logic,preview.values,preview.errors,preview.fallbacks,'preview');
   }else{
@@ -252,7 +254,7 @@
   $('fupPickerClose').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('close',()=>{pickerBlock=null;pickerResults=[]});
   const manual=document.createElement('div');manual.innerHTML='<label>Ausgewählte Datenpunkt-ID <input id="fupSelectedId" placeholder="adapter.0.datenpunkt"></label><button type="button" id="fupApplySelection">Datenpunkt übernehmen</button>';dialog.append(manual);
-  $('fupApplySelection').onclick=()=>{const id=$('fupSelectedId').value.trim(),block=selected()?.blocks.find(b=>b.id===pickerBlock);if(!id||!block){$('fupPickerStatus').textContent='Bitte zuerst einen gültigen Datenpunkt auswählen.';return}block.stateId=id;if(block.op==='output')block.createNew=false;mark();dialog.close();render();$('logicStatus').textContent='Übernommen: '+id+' – bitte Logiken speichern.'};
+  $('fupApplySelection').onclick=()=>{const id=$('fupSelectedId').value.trim(),block=selected()?.blocks.find(b=>b.id===pickerBlock);if(!id||!block){$('fupPickerStatus').textContent='Bitte zuerst einen gültigen Datenpunkt auswählen.';return}block.stateId=id;if(block.op==='output'){block.createNew=false;block.writeEnabled=false;}mark();dialog.close();render();$('logicStatus').textContent='Übernommen: '+id+' – bitte Logiken speichern.'};
   $('fupPickerForm').addEventListener('submit',async e=>{
    e.preventDefault();if(!pickerBlock)return;
    const query=$('fupPickerQuery').value.trim();if(query.length<2){$('fupPickerStatus').textContent='Mindestens 2 Zeichen eingeben.';return}
@@ -269,11 +271,53 @@
    const row=pickerResults[Number(button.dataset.fupResult)],block=selected()?.blocks.find(b=>b.id===pickerBlock);
    if(!row||!block||!row.id){$('fupPickerStatus').textContent='Auswahl nicht übernommen: Baustein oder Datenpunkt fehlt.';return}
    $('fupSelectedId').value=String(row.id);
-   block.stateId=String(row.id);if(block.op==='output')block.createNew=false;
+   block.stateId=String(row.id);if(block.op==='output'){block.createNew=false;block.writeEnabled=false;}
    mark();dialog.close();render();$('logicStatus').textContent='Datenpunkt '+block.stateId+' zugewiesen – bitte Logiken speichern.';
   });
  }
+ function downloadFUP(data,filename){
+  const blob=new Blob([JSON.stringify(data,null,2)+'\n'],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }
+ function fileSlug(text){
+  return String(text||'logik').normalize('NFKD').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,50)||'logik';
+ }
  function bind(){
+  const transfer=window.EnergyFUPTransfer;
+  $('fupExportAll')?.addEventListener('click',()=>{
+   try{
+    if(!transfer)throw Error('Import-/Export-Modul fehlt. Seite neu laden.');
+    if(!config.logics.length)throw Error('Keine Logik zum Exportieren vorhanden.');
+    if(!confirm('Alle Logiken als lokale Sicherung exportieren? Die Datei enthält deine ioBroker-Datenpunkt-IDs und bisherigen Schreibfreigaben. Zum Teilen stattdessen „Vorlage teilen“ verwenden.'))return;
+    downloadFUP(transfer.createExport(config,'backup'),'energiemanagement-fup-backup-'+new Date().toISOString().slice(0,10)+'.json');
+    $('logicStatus').textContent='Logiken als JSON-Sicherung exportiert.';
+   }catch(e){$('logicStatus').textContent='Export fehlgeschlagen: '+e.message;}
+  });
+  $('fupExportTemplate')?.addEventListener('click',()=>{
+   try{
+    if(!transfer)throw Error('Import-/Export-Modul fehlt. Seite neu laden.');
+    const logic=selected();if(!logic)throw Error('Keine Logik ausgewählt');
+    const content=transfer.createExport(config,'template',logic.id);
+    downloadFUP(content,'energiemanagement-fup-vorlage-'+fileSlug(logic.name)+'.json');
+    $('logicStatus').textContent='Teilbare Vorlage exportiert: ohne lokale Datenpunkt-IDs und ohne aktive Schreibfreigaben.';
+   }catch(e){$('logicStatus').textContent='Vorlagenexport fehlgeschlagen: '+e.message;}
+  });
+  $('fupImport')?.addEventListener('click',()=>{$('fupImportFile')?.click()});
+  $('fupImportFile')?.addEventListener('change',async e=>{
+   const input=e.target,file=input.files?.[0];input.value='';
+   if(!file)return;
+   try{
+    if(!transfer)throw Error('Import-/Export-Modul fehlt. Seite neu laden.');
+    if(file.size>5*1024*1024)throw Error('Die JSON-Datei darf höchstens 5 MB groß sein.');
+    const data=JSON.parse(await file.text());
+    const added=transfer.importLogics(data,config.logics,unique);
+    if(!confirm(added.length+' Logik(en) hinzufügen? Bestehende Logiken bleiben erhalten. Importierte Logiken und fremde Schreibfreigaben werden zunächst deaktiviert. Erst mit „Logiken speichern“ übernehmen.'))return;
+    config.logics.push(...added);active=added[0].id;mark();render();
+    $('logicStatus').textContent=added.length+' Logik(en) importiert, noch nicht gespeichert. Datenpunkte und Freigaben vor Aktivierung prüfen.';
+   }catch(e){$('logicStatus').textContent='Import fehlgeschlagen: '+e.message;}
+  });
   $('logicSelect')?.addEventListener('change',e=>{active=e.target.value;render()});
   $('logicAdd')?.addEventListener('click',()=>{const id=unique('logic');config.logics.push({id,name:'Neue Logik',enabled:false,blocks:[]});active=id;mark();render()});
   $('logicRemove')?.addEventListener('click',()=>{if(!confirm('Diese Logik wirklich entfernen?'))return;config.logics=config.logics.filter(l=>l.id!==active);active=config.logics[0]?.id||'';mark();render()});
@@ -281,11 +325,12 @@
   
   $('logicName')?.addEventListener('change',e=>{logic.name=e.target.value;mark();render()});
   $('logicEnabled')?.addEventListener('change',e=>{logic.enabled=e.target.checked;mark();const status=$('logicStatus');if(status)status.textContent='Aktivierung geändert – bitte Logiken speichern.'});
+  $('logicExternalWrites')?.addEventListener('change',e=>{config.externalWritesEnabled=e.target.checked;mark();render()});
   $('logicBlockAdd')?.addEventListener('click',()=>{const op=$('logicOp').value;logic.blocks.push({id:unique('block'),op,name:operations[op],inputs:[],...(['constant','virtual'].includes(op)?{value:0}:{}),...(op==='virtual'?{virtualKey:'Sollwert_'+(logic.blocks.length+1),valueType:'number'}:{}),...(['input','output'].includes(op)?{stateId:''}:{})});mark();render()});
   for(const el of document.querySelectorAll('#freeLogicEditor [data-block]'))el.addEventListener('change',()=>{
    const b=logic.blocks.find(x=>x.id===el.dataset.block);if(!b)return;
    if(el.dataset.input!==undefined){b.inputs[Number(el.dataset.input)]=el.value;b.inputs=b.inputs}
-   else if(el.dataset.prop==='createNew'){b.createNew=el.value==='true';if(b.createNew&&!b.outputKey)b.outputKey='Ausgang';render()}
+   else if(el.dataset.prop==='createNew'){b.createNew=el.value==='true';b.writeEnabled=false;if(b.createNew&&!b.outputKey)b.outputKey='Ausgang';render()}
    else if(el.dataset.prop==='value'){const t=el.value.trim();b.value=t==='true'?true:t==='false'?false:Number(t)}
    else b[el.dataset.prop]=el.value;
    mark();if(el.dataset.prop==='name')render();
@@ -295,7 +340,16 @@
  function init(){
   document.addEventListener('click',e=>{const button=e.target.closest('[data-pick-state]');if(button&&button.closest('#freeLogicEditor')){e.preventDefault();openStatePicker(button.dataset.pickState)}});
   if(!$('freeLogicEditor'))return;
-  $('logicSave')?.addEventListener('click',async()=>{if(saving)return;try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=payload;preview.signature='';$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert – Live-Werte werden aktualisiert';diagnostics();}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
+  $('logicSave')?.addEventListener('click',async()=>{if(saving)return;
+   if(config.externalWritesEnabled===true){
+    const previous=new Set(lastKnown?.externalWritesEnabled===true?(lastKnown.logics||[]).flatMap(l=>l.enabled===true?l.blocks.filter(b=>b.op==='output'&&b.writeEnabled===true&&b.createNew!==true&&b.stateId).map(b=>b.stateId):[]):[]);
+    const targets=[...new Set(config.logics.flatMap(l=>l.enabled===true?l.blocks.filter(b=>b.op==='output'&&b.writeEnabled===true&&b.createNew!==true&&b.stateId).map(b=>b.stateId):[]))].filter(id=>!previous.has(id));
+    if(targets.length){
+     const nl=String.fromCharCode(10);
+     if(!confirm('Achtung: Folgende ioBroker-Datenpunkte dürfen nach dem Speichern beschrieben werden und möglicherweise Geräte schalten:'+nl+targets.join(nl)+nl+nl+'Wirklich freigeben?'))return;
+    }
+   }
+   try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=payload;preview.signature='';$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert – Live-Werte werden aktualisiert';diagnostics();}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
   $('logicReset')?.addEventListener('click',()=>{dirty=false;signature='';sync()});
   render();
   loadSaved();
