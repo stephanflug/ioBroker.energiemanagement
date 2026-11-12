@@ -40,6 +40,7 @@
   const stage=document.querySelector('.fup-stage');if(!stage)return;
   let source=null,drag=null;
   stage.addEventListener('click',e=>{
+   const pick=e.target.closest('[data-pick-node]');if(pick){openStatePicker(pick.dataset.pickNode);return;}
    const out=e.target.closest('[data-wire-out]'),input=e.target.closest('[data-wire-in]');
    if(out){source=out.dataset.wireOut;$('fupWireStatus').textContent='Ausgang gewählt: '+(logic.blocks.find(b=>b.id===source)?.name||source)+' – jetzt Eingang wählen.';return;}
    if(input&&source){
@@ -48,7 +49,7 @@
     const arr=Array.from({length:count(target.op)},(_,i)=>target.inputs[i]||'');arr[port]=source;target.inputs=arr;
     source=null;mark();render();return;
    }
-   const node=e.target.closest('.fup-node');if(node)openStatePicker(node.dataset.node);
+
   });
   stage.addEventListener('pointerdown',e=>{
    const handle=e.target.closest('[data-drag]');if(!handle)return;
