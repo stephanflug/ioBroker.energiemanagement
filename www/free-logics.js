@@ -3,13 +3,13 @@
  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const operations={input:'Eingang',virtual:'Virtueller Sollwert',constant:'Konstante',add:'Addieren (+)',sub:'Subtrahieren (−)',mul:'Multiplizieren (×)',div:'Dividieren (÷)',min:'Minimum',max:'Maximum',gt:'Größer (>)',lt:'Kleiner (<)',gte:'Größer gleich (≥)',lte:'Kleiner gleich (≤)',eq:'Gleich (=)',neq:'Ungleich (≠)',and:'UND',or:'ODER',not:'NICHT',xor:'XOR',limit:'Begrenzen',output:'Ausgang'};
  const counts={input:0,virtual:0,constant:0,not:1,output:1,limit:3};
- let viewMode='programming';let config={logics:[]},signature='',dirty=false,states={},ns='energiemanagement.0',api={},active='',live={logics:[]},pendingSave=null,saving=false,pickerBlock=null,pickerResults=[],lastKnown=null,loading=false;
+ const viewMode='live';let config={logics:[]},signature='',dirty=false,states={},ns='energiemanagement.0',api={},active='',live={logics:[]},pendingSave=null,saving=false,pickerBlock=null,pickerResults=[],lastKnown=null,loading=false;
  const parse=(s,d)=>{try{return JSON.parse(s)}catch{return d}};
  const value=id=>states[ns+'.'+id]?.val;
  const unique=prefix=>prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
  const selected=()=>config.logics.find(l=>l.id===active);
  const count=op=>counts[op]??2;
- function mark(){dirty=true;$('logicStatus').textContent='Ungespeicherte Änderungen';}
+ function mark(){dirty=true;preview.signature='';$('logicStatus').textContent='Ungespeicherte Änderungen – erst nach „Logiken speichern“ wirksam';}
  function canvas(logic){
   const blocks=logic.blocks;
   const width=Math.max(980,...blocks.map((b,i)=>(Number.isFinite(b.x)?b.x:30+(i%4)*235)+215));
@@ -91,7 +91,7 @@
   host.innerHTML='<div class="logic-toolbar"><label>Logik <select id="logicSelect">'+config.logics.map(l=>'<option value="'+esc(l.id)+'" '+(l.id===active?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><button type="button" id="logicAdd">+ Neue Logik</button><button type="button" id="logicRemove" '+(!selected()?'disabled':'')+'>Löschen</button></div>';
   const logic=selected();
   if(!logic){host.insertAdjacentHTML('beforeend','<p>Noch keine Logik vorhanden. Erstelle deine erste Regelung.</p>');bind();return;}
-  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Logik aktiviert</label><label>Ansicht <select id="logicViewMode"><option value="programming" '+(viewMode==='programming'?'selected':'')+'>Programmierung</option><option value="live" '+(viewMode==='live'?'selected':'')+'>Live-Werte</option></select></label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Eigene ioBroker-Ausgänge werden bei aktiver, fehlerfreier Logik aktualisiert. Fremde Geräteausgänge werden nicht automatisch geschaltet.</p>'+canvas(logic)+'<div class="fup-details" hidden aria-hidden="true"><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></div><div id="logicDiagnostics" class="logic-diagnostics"></div>');
+  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Logik aktiviert</label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Live-Werte werden direkt im Funktionsplan angezeigt. Änderungen werden erst mit „Logiken speichern“ übernommen. Eigene ioBroker-Ausgänge werden bei aktiver, fehlerfreier Logik aktualisiert; fremde Geräteausgänge werden nicht automatisch geschaltet.</p>'+canvas(logic)+'<div class="fup-details" hidden aria-hidden="true"><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></div><div id="logicDiagnostics" class="logic-diagnostics"></div>');
   bind();bindCanvas(logic);diagnostics();
  }
  function blockHTML(b,i,logic){
@@ -197,7 +197,7 @@
  }
  async function refreshLogicPreview(){
   const logic=selected();
-  if(viewMode!=='live'||!logic||!api.readForeignVal||!api.readVal||previewRunning)return;
+  if(dirty||pendingSave||!logic||!api.readForeignVal||!api.readVal||previewRunning)return;
   const fingerprint=JSON.stringify(logic);
   if(preview.logicId===logic.id&&preview.signature===fingerprint&&Date.now()-previewLastStart<3000)return;
   previewRunning=true;previewLastStart=Date.now();
@@ -231,7 +231,8 @@
    const d=$('logicDiagnostics');
    if(d)d.textContent=viewMode==='live'?'Live-Werte werden gelesen …':'Zur Anzeige der aktuellen Werte oben „Live-Werte“ auswählen.';
   }
-  if(viewMode==='live')refreshLogicPreview().catch(e=>{const d=$('logicDiagnostics');if(d)d.textContent='Live-Abfrage fehlgeschlagen: '+e.message});
+  if(!dirty&&!pendingSave)refreshLogicPreview().catch(e=>{const d=$('logicDiagnostics');if(d)d.textContent='Live-Abfrage fehlgeschlagen: '+e.message});
+  if(dirty){const d=$('logicDiagnostics');if(d)d.textContent='Ungespeicherte Änderungen. Die Live-Werte stammen aus der zuletzt gespeicherten Logik. Neue Verbindungen und Bausteine werden erst nach „Logiken speichern“ wirksam.';}
  }
  function ensurePicker(){
   if($('fupPicker'))return;
@@ -269,7 +270,6 @@
   
   $('logicName')?.addEventListener('change',e=>{logic.name=e.target.value;mark();render()});
   $('logicEnabled')?.addEventListener('change',e=>{logic.enabled=e.target.checked;mark();const status=$('logicStatus');if(status)status.textContent='Aktivierung geändert – bitte Logiken speichern.'});
-  $('logicViewMode')?.addEventListener('change',e=>{viewMode=e.target.value;render()});
   $('logicBlockAdd')?.addEventListener('click',()=>{const op=$('logicOp').value;logic.blocks.push({id:unique('block'),op,name:operations[op],inputs:[],...(['constant','virtual'].includes(op)?{value:0}:{}),...(op==='virtual'?{virtualKey:'Sollwert_'+(logic.blocks.length+1),valueType:'number'}:{}),...(['input','output'].includes(op)?{stateId:''}:{})});mark();render()});
   for(const el of document.querySelectorAll('#freeLogicEditor [data-block]'))el.addEventListener('change',()=>{
    const b=logic.blocks.find(x=>x.id===el.dataset.block);if(!b)return;
@@ -284,7 +284,7 @@
  function init(){
   document.addEventListener('click',e=>{const button=e.target.closest('[data-pick-state]');if(button&&button.closest('#freeLogicEditor')){e.preventDefault();openStatePicker(button.dataset.pickState)}});
   if(!$('freeLogicEditor'))return;
-  $('logicSave')?.addEventListener('click',async()=>{if(saving)return;try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=payload;$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert';}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
+  $('logicSave')?.addEventListener('click',async()=>{if(saving)return;try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=payload;preview.signature='';$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert – Live-Werte werden aktualisiert';diagnostics();}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
   $('logicReset')?.addEventListener('click',()=>{dirty=false;signature='';sync()});
   render();
   loadSaved();
