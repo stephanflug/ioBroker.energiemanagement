@@ -3,6 +3,7 @@ const utils=require('@iobroker/adapter-core');
 const {EnergyEngine,createRuntime,fresh}=require('./lib/engine');
 const {normalizeBatteryConfig,readBatteryMeasurements}=require('./lib/battery-sources');
 const FreeLogic=require('./lib/free-logic');
+const {applyForeignOutputs}=require('./lib/free-logic-output');
 const {SRC_SCHEMA,defaultSources,defaultConsumers,normalizeSources,normalizeConsumers,normalizeSettings,clamp}=require('./lib/normalize');
 const {importLegacy,cleanupLegacy}=require('./lib/migration');
 const pkg=require('./package.json');
@@ -554,7 +555,13 @@ class Energiemanagement extends utils.Adapter {
     this.refreshForecast().catch(e=>this.log.warn('PV-Prognose: '+e.message));
     try{
       const measured=await this.readMeasures();
-      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input'&&b.stateId).map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);const virtualIds=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='virtual'&&b.virtualKey).map(b=>['virtual:'+l.id+':'+b.virtualKey,'logicVirtual.'+l.id+'_'+b.virtualKey])))];const virtualValues=Object.fromEntries(await Promise.all(virtualIds.map(async ([key,id])=>[key,(await this.getStateAsync(id).catch(()=>null))?.val??null])));const evaluated=FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>id.startsWith('virtual:')?virtualValues[id]:inputs[id]?.val??null);evaluated.ts=Date.now();await this.set('live.freeLogics_JSON',evaluated,true);
+      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input'&&b.stateId).map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);const virtualIds=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='virtual'&&b.virtualKey).map(b=>['virtual:'+l.id+':'+b.virtualKey,'logicVirtual.'+l.id+'_'+b.virtualKey])))];const virtualValues=Object.fromEntries(await Promise.all(virtualIds.map(async ([key,id])=>[key,(await this.getStateAsync(id).catch(()=>null))?.val??null])));const evaluated=FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>id.startsWith('virtual:')?virtualValues[id]:inputs[id]?.val??null);
+        await applyForeignOutputs(this.freeLogics||{logics:[]},evaluated,{
+          getObject:id=>this.getForeignObjectAsync(id),
+          getState:id=>this.getForeignStateAsync(id),
+          setState:(id,val)=>this.setForeignStateAsync(id,{val,ack:false})
+        });
+        evaluated.ts=Date.now();await this.set('live.freeLogics_JSON',evaluated,true);
         for(const row of evaluated.logics){
           if(!row.enabled||row.errors.length)continue;
           for(const out of row.outputs){
