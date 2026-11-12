@@ -1,3 +1,13 @@
+# 0.10.3 (2026-11-12)
+
+- Introduce a freely configurable FUP logic editor with ioBroker input, virtual setpoint, constant, math, comparison, boolean, limiting and output blocks.
+- Show actual live values of inputs, virtual setpoints, function blocks and created ioBroker outputs directly on the canvas; changes take effect only after saving.
+- Provide per-logic enable/disable, ioBroker data point selection, wiring and removal of connections and individual blocks (including safe cleanup of dependent connections).
+- Create virtual setpoint and output states when configuration changes; handle disconnected ports and failed block evaluations without spurious cycle errors.
+- Add separate battery configurations and SOC measurements without a combined SOC; retain previous hardware-control settings.
+- Add regression tests for live FUP calculations, deleted blocks and invalid references.
+- Source version on GitHub; a packaged v0.10.3 Release asset has not yet been published.
+
 # 0.10.2 (2026-11-10, prepared development version)
 
 - Add an About & Licenses page with the developer name, installed version, project/documentation/issue links and full MIT and third-party notices.
