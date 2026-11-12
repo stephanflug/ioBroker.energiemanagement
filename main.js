@@ -2,6 +2,7 @@
 const utils=require('@iobroker/adapter-core');
 const {EnergyEngine,createRuntime,fresh}=require('./lib/engine');
 const {normalizeBatteryConfig,readBatteryMeasurements}=require('./lib/battery-sources');
+const FreeLogic=require('./lib/free-logic');
 const {SRC_SCHEMA,defaultSources,defaultConsumers,normalizeSources,normalizeConsumers,normalizeSettings,clamp}=require('./lib/normalize');
 const {importLegacy,cleanupLegacy}=require('./lib/migration');
 const pkg=require('./package.json');
@@ -80,6 +81,7 @@ class Energiemanagement extends utils.Adapter {
         this.batteries=normalizeBatteryConfig({batteries:[{id:'battery_1',name:'Vorhandener Batteriespeicher',enabled:true,sources:{power:this.sources.batteryW.id}}]});
         await this.set('config.batteries_JSON',this.batteries,true);
       }
+      this.freeLogics=FreeLogic.validate(asJSON(await this.read('config.freeLogics_JSON','{"logics":[]}'),{logics:[]}));
       this.consumers=normalizeConsumers(asJSON(await this.read('config.consumers','{}'),defaultConsumers()),this.config.maxConsumers||250);
       this.settings=normalizeSettings(asJSON(await this.read('config.settings','{}'),{}),this.config);
       this.hardwareMaster=await this.read('config.hardwareMaster',false)===true;
@@ -152,6 +154,8 @@ class Energiemanagement extends utils.Adapter {
       ['commands.forecastRefresh','Ertragsprognose aktualisieren','boolean',false,true],
       ['config.sources','Datenquellen (JSON)','string',JSON.stringify(defaultSources()),true],
       ['config.batteries_JSON','Optionale Batteriespeicher und Messpunkte (JSON)','string','{"batteries":[]}',true],
+      ['config.freeLogics_JSON','Frei konfigurierbare Funktionsbaustein-Logiken (JSON)','string','{"logics":[]}',true],
+      ['live.freeLogics_JSON','Simulation und Diagnose der freien Logiken (JSON)','string','{"logics":[],"simulation":true}'],
       ['live.batteries_JSON','Getrennte Batterie-Messwerte (JSON)','string','{"batteries":[]}'],
       ['config.consumers','Prioritäten und Verbraucher (JSON)','string',JSON.stringify(defaultConsumers()),true],
       ['config.settings','Leistungsziel, Reserve und Tarifwert (JSON)','string',JSON.stringify(normalizeSettings({},this.config)),true],
@@ -289,6 +293,7 @@ class Energiemanagement extends utils.Adapter {
   async reloadConfig(){
     this.sources=normalizeSources(asJSON(await this.read('config.sources'),defaultSources()));
     this.batteries=normalizeBatteryConfig(asJSON(await this.read('config.batteries_JSON','{}'),{batteries:[]}));
+    this.freeLogics=FreeLogic.validate(asJSON(await this.read('config.freeLogics_JSON','{"logics":[]}'),{logics:[]}));
     this.consumers=normalizeConsumers(asJSON(await this.read('config.consumers'),defaultConsumers()),this.config.maxConsumers||250);
     this.settings=normalizeSettings(asJSON(await this.read('config.settings'),{}),this.config);
     this.hardwareMaster=await this.read('config.hardwareMaster',false)===true;
@@ -524,6 +529,7 @@ class Energiemanagement extends utils.Adapter {
     this.refreshForecast().catch(e=>this.log.warn('PV-Prognose: '+e.message));
     try{
       const measured=await this.readMeasures();
+      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input').map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);await this.set('live.freeLogics_JSON',FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>inputs[id]?.val??null),true);}catch(e){this.log.warn('Freie Logiken: '+e.message)}
        try{
         const ids=[...new Set((this.batteries?.batteries||[]).filter(b=>b.enabled).flatMap(b=>Object.values(b.sources)).filter(Boolean))];
         const entries=await Promise.all(ids.map(async id=>{try{return [id,await this.getForeignStateAsync(id)]}catch{return [id,null]}}));
@@ -653,6 +659,7 @@ class Energiemanagement extends utils.Adapter {
           await this.set(suffix,JSON.stringify(normalized),true);
           await this.reloadConfig();return;
         }
+        if(suffix==='config.freeLogics_JSON'){const candidate=FreeLogic.validate(asJSON(state.val,null));await this.set(suffix,candidate,true);this.freeLogics=candidate;return;}
         if(suffix==='config.batteries_JSON'){
           const candidate=normalizeBatteryConfig(asJSON(state.val,null));
           await this.set(suffix,candidate,true);
