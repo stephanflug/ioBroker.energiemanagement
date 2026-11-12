@@ -10,7 +10,7 @@ const sample=()=>({externalWritesEnabled:true,logics:[{
   {id:'limit',op:'constant',name:'Grenze',value:80,inputs:[]},
   {id:'compare',op:'gt',name:'Größer',inputs:['soc','limit'],x:300,y:60},
   {id:'out',op:'output',name:'E-Patrone',inputs:['compare'],stateId:'hm-rega.0.48501',createNew:false,writeEnabled:true,cyclicWrite:true,cycleSeconds:60}
- ]}]}));
+ ]}]});
 const idFactory=()=>{let n=0;return prefix=>prefix+'_'+(++n)};
 
 test('Teilbare Vorlage entfernt lokale Zuordnungen und alle Aktivierungen',()=>{
