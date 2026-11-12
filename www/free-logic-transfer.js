@@ -28,8 +28,9 @@
    n.valueType=b.valueType==='boolean'?'boolean':'number';
   }
   if(b.op==='virtual'||b.op==='constant'){
-   if(typeof b.value!=='boolean'&&!(typeof b.value==='number'&&Number.isFinite(b.value)))throw Error('Ungültiger Bausteinwert bei '+b.id);
-   n.value=b.value;
+   const value=b.op==='virtual'&&b.value===undefined?(n.valueType==='boolean'?false:0):b.value;
+   if(typeof value!=='boolean'&&!(typeof value==='number'&&Number.isFinite(value)))throw Error('Ungültiger Bausteinwert bei '+b.id);
+   n.value=value;
   }
   if(b.op==='output'){
    n.createNew=b.createNew===true;
