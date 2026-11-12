@@ -101,13 +101,137 @@
   const extra=b.op==='virtual'?'<label>Datenpunktname <input data-block="'+esc(b.id)+'" data-prop="virtualKey" placeholder="Sollwert" value="'+esc(b.virtualKey||'Sollwert')+'"></label><label>Datentyp <select data-block="'+esc(b.id)+'" data-prop="valueType"><option value="number" '+(b.valueType!=='boolean'?'selected':'')+'>Zahlenwert</option><option value="boolean" '+(b.valueType==='boolean'?'selected':'')+'>TRUE / FALSE</option></select></label><label>Startwert <input data-block="'+esc(b.id)+'" data-prop="value" value="'+esc(b.value??0)+'"></label><small>Schreibbarer ioBroker-Datenpunkt: '+esc(ns+'.logicVirtual.'+logic.id+'_'+(b.virtualKey||'Sollwert'))+'</small>':b.op==='input'?sourceField:b.op==='output'?'<label>Ausgangsart <select data-block="'+esc(b.id)+'" data-prop="createNew"><option value="false" '+(!b.createNew?'selected':'')+'>Vorhandenen Datenpunkt auswählen (Simulation)</option><option value="true" '+(b.createNew?'selected':'')+'>Neuen ioBroker-Ausgang erzeugen</option></select></label>'+(b.createNew?'<label>Datentyp <select data-block="'+esc(b.id)+'" data-prop="outputType"><option value="number" '+(b.outputType!=='boolean'?'selected':'')+'>Zahlenwert</option><option value="boolean" '+(b.outputType==='boolean'?'selected':'')+'>TRUE / FALSE</option></select></label><label>Neuer Ausgangsname <input data-block="'+esc(b.id)+'" data-prop="outputKey" placeholder="z. B. BKW_Ladeleistung" value="'+esc(b.outputKey||'')+'"></label><small>Wird als eigener Datenpunkt unter energiemanagement.0.logicOutputs angelegt. Nur gültige Werte des ausgewählten Datentyps werden geschrieben.</small>':sourceField):b.op==='constant'?'<label>Wert <input data-block="'+esc(b.id)+'" data-prop="value" value="'+esc(b.value??0)+'"></label>':'';
   return '<article class="logic-block"><div class="logic-block-head"><span class="logic-block-number">'+(i+1)+'</span><strong>'+esc(operations[b.op])+'</strong><button type="button" data-delete="'+esc(b.id)+'">Entfernen</button></div><label>Name <input data-block="'+esc(b.id)+'" data-prop="name" value="'+esc(b.name||'')+'"></label>'+extra+'<div class="logic-inputs">'+links+'</div><div class="logic-live" data-live="'+esc(b.id)+'">Noch kein Ergebnis</div></article>';
  }
+ // Reine Anzeige-Berechnung, solange der installierte Adapter noch keine Live-Logikwerte liefert.
+ // Diese Funktion schreibt weder Aktoren noch simulierte Ausgänge in ioBroker.
+ let preview={logicId:'',signature:'',values:{},errors:[],fallbacks:[],ts:0};
+ let previewRunning=false,previewLastStart=0;
+ const stateValue=result=>result?.state?.val??result?.val??result?.data?.state?.val??result?.data?.val;
+ function formatLogicValue(value){
+  if(value===undefined||value===null)return '–';
+  if(typeof value==='boolean')return value?'TRUE':'FALSE';
+  return typeof value==='number'?String(Math.round(value*1000)/1000):String(value);
+ }
+ function calculatePreview(logic,inputs,virtuals){
+  const blocks=new Map(logic.blocks.map(b=>[b.id,b])),memo=new Map(),visiting=new Set(),errors=[],fallbacks=[];
+  function calculate(id){
+   if(memo.has(id))return memo.get(id);
+   const b=blocks.get(id);
+   if(!b)throw Error('Baustein nicht vorhanden: '+id);
+   if(visiting.has(id))throw Error('Zyklische Verbindung');
+   visiting.add(id);
+   try{
+    const number=x=>{if(typeof x!=='number'||!Number.isFinite(x))throw Error('Zahlenwert fehlt');return x};
+    const boolean=x=>{if(typeof x!=='boolean')throw Error('TRUE/FALSE-Wert fehlt');return x};
+    const required=count(b.op);
+    const connected=Array.isArray(b.inputs)?b.inputs.slice(0,required):[];
+    if(required&&(connected.length!==required||connected.some(source=>!source||!blocks.has(source))))throw Error('Eingang nicht verbunden');
+    const v=connected.map(calculate);let out;
+    switch(b.op){
+     case 'input':
+      if(!b.stateId)throw Error('Kein Datenpunkt ausgewählt');
+      out=inputs[b.stateId];break;
+     case 'virtual':{
+      const key='logicVirtual.'+logic.id+'_'+b.virtualKey;
+      if(Object.prototype.hasOwnProperty.call(virtuals,key)&&virtuals[key]!==null&&virtuals[key]!==undefined){out=virtuals[key];}
+      else {out=b.value;fallbacks.push(b.id)}
+      break;
+     }
+     case 'constant':out=b.value;break;
+     case 'add':out=v.reduce((a,x)=>a+number(x),0);break;
+     case 'sub':out=number(v[0])-number(v[1]);break;
+     case 'mul':out=v.reduce((a,x)=>a*number(x),1);break;
+     case 'div':if(number(v[1])===0)throw Error('Division durch null');out=number(v[0])/number(v[1]);break;
+     case 'min':out=Math.min(...v.map(number));break;
+     case 'max':out=Math.max(...v.map(number));break;
+     case 'gt':out=number(v[0])>number(v[1]);break;
+     case 'lt':out=number(v[0])<number(v[1]);break;
+     case 'gte':out=number(v[0])>=number(v[1]);break;
+     case 'lte':out=number(v[0])<=number(v[1]);break;
+     case 'eq':out=v[0]===v[1];break;
+     case 'neq':out=v[0]!==v[1];break;
+     case 'and':out=v.every(boolean);break;
+     case 'or':out=v.some(boolean);break;
+     case 'not':out=!boolean(v[0]);break;
+     case 'xor':out=v.filter(boolean).length%2===1;break;
+     case 'limit':out=Math.max(number(v[1]),Math.min(number(v[2]),number(v[0])));break;
+     case 'output':out=v[0];break;
+     default:throw Error('Unbekannter Funktionsbaustein: '+b.op);
+    }
+    if(out===null||out===undefined||typeof out==='number'&&!Number.isFinite(out))throw Error('Kein gültiger Wert');
+    memo.set(id,out);return out;
+   }finally{visiting.delete(id)}
+  }
+  const values={};
+  for(const b of logic.blocks){
+   try{values[b.id]=calculate(b.id)}
+   catch(e){values[b.id]=null;errors.push((b.name||operations[b.op])+': '+e.message)}
+  }
+  return {values,errors,fallbacks};
+ }
+ function paintLogicValues(logic,values,errors,fallbacks,origin){
+  const fallbackSet=new Set(fallbacks||[]);
+  for(const b of logic.blocks){
+   const node=document.querySelector('.fup-node[data-node="'+b.id+'"]');
+   const el=node?.querySelector('.fup-node-value');
+   if(!el)continue;
+   const value=values?.[b.id];
+   const fallback=fallbackSet.has(b.id);
+   const prefix=origin==='adapter'?'Live':fallback?'Startwert':b.op==='input'||b.op==='virtual'?'Live':'Berechnet';
+   el.textContent=prefix+': '+formatLogicValue(value);
+   node.classList.toggle('fup-node-error',value===undefined||value===null);
+   el.title=fallback?'Virtueller Live-Datenpunkt fehlt. Angezeigt wird nur der konfigurierte Startwert.':origin==='preview'&&b.op==='output'?'Berechneter Wert im Browser; dieser Ausgang wurde nicht geschrieben.':'';
+   const hidden=document.querySelector('[data-live="'+b.id+'"]');
+   if(hidden)hidden.textContent=el.textContent;
+  }
+  const d=$('logicDiagnostics');
+  if(!d)return;
+  if(origin==='adapter'){
+   d.textContent='Adapter-Live-Berechnung: '+new Date(live.ts).toLocaleTimeString('de-AT')+
+    (errors.length?' · '+errors.join(' | '):' · Keine Berechnungsfehler');
+  }else{
+   const desc=errors.length?' · Fehler: '+errors.join(' | '):' · Alle verbundenen Bausteine berechnet';
+   d.textContent='Live-Vorschau aus aktuellen ioBroker-Eingängen: '+new Date(preview.ts).toLocaleTimeString('de-AT')+
+    '. Die Berechnung läuft im Browser und schreibt keine Ausgänge.'+
+    (fallbackSet.size?' Virtuelle Werte ohne eigenen ioBroker-Datenpunkt verwenden den konfigurierten Startwert.':'')+desc;
+  }
+ }
+ async function refreshLogicPreview(){
+  const logic=selected();
+  if(viewMode!=='live'||!logic||!api.readForeignVal||!api.readVal||previewRunning)return;
+  const fingerprint=JSON.stringify(logic);
+  if(preview.logicId===logic.id&&preview.signature===fingerprint&&Date.now()-previewLastStart<3000)return;
+  previewRunning=true;previewLastStart=Date.now();
+  try{
+   const inputIds=[...new Set(logic.blocks.filter(b=>b.op==='input'&&b.stateId).map(b=>b.stateId))];
+   const virtualIds=[...new Set(logic.blocks.filter(b=>b.op==='virtual'&&b.virtualKey).map(b=>'logicVirtual.'+logic.id+'_'+b.virtualKey))];
+   const [inputRows,virtualRows]=await Promise.all([
+    Promise.all(inputIds.map(async id=>{try{return [id,stateValue(await api.readForeignVal(id))]}catch{return [id,null]}})),
+    Promise.all(virtualIds.map(async id=>{try{return [id,stateValue(await api.readVal(id))]}catch{return [id,null]}}))
+   ]);
+   if(viewMode!=='live'||selected()?.id!==logic.id||JSON.stringify(selected())!==fingerprint)return;
+   const result=calculatePreview(logic,Object.fromEntries(inputRows),Object.fromEntries(virtualRows));
+   preview={logicId:logic.id,signature:fingerprint,...result,ts:Date.now()};
+   const current=(live.logics||[]).find(row=>row.id===logic.id);
+   const fresh=live.ts&&Date.now()-live.ts<30000&&current;
+   if(!fresh)paintLogicValues(logic,preview.values,preview.errors,preview.fallbacks,'preview');
+  }finally{previewRunning=false}
+ }
  function diagnostics(){
-  const logic=selected(),current=(live.logics||[]).find(l=>l.id===logic?.id);if(!logic)return;
-  for(const b of logic.blocks){const el=document.querySelector('[data-live="'+b.id+'"]');if(el)el.textContent=current?.values?.[b.id]===null||current?.values?.[b.id]===undefined?'Wert: –':'Wert: '+String(current.values[b.id]);}
-  for(const b of logic.blocks){const node=document.querySelector('.fup-node[data-node="'+b.id+'"] .fup-node-value');if(node)node.textContent=current?.values?.[b.id]===null||current?.values?.[b.id]===undefined?'–':String(current.values[b.id]);}
-  const stage=document.querySelector('.fup-stage');if(stage)stage.classList.toggle('fup-live-mode',viewMode==='live');
-  if(viewMode==='live'&&api.readForeignVal){for(const b of logic.blocks.filter(x=>x.op==='input'&&x.stateId)){api.readForeignVal(b.stateId).then(result=>{if(viewMode!=='live'||selected()?.id!==logic.id)return;const node=document.querySelector('.fup-node[data-node="'+b.id+'"] .fup-node-value');if(node){const val=result?.val??result?.state?.val;node.textContent=val===undefined?'Nicht verfügbar':'Live: '+String(val)}}).catch(()=>{})}}
-  const d=$('logicDiagnostics');if(d){const stamp=live.ts?new Date(live.ts).toLocaleTimeString('de-AT'):'–';const stale=!live.ts||Date.now()-live.ts>30000;d.textContent=(stale?'Keine aktuellen Live-Daten vom Adapter. ':'Live-Berechnung: '+stamp+' · ')+(current?.errors?.length?'Diagnose: '+current.errors.join(' | '):'Keine Berechnungsfehler.');}
+  const logic=selected();
+  if(!logic)return;
+  const stage=document.querySelector('.fup-stage');
+  if(stage)stage.classList.toggle('fup-live-mode',viewMode==='live');
+  const current=(live.logics||[]).find(row=>row.id===logic.id);
+  const fresh=live.ts&&Date.now()-live.ts<30000&&current;
+  if(fresh){
+   paintLogicValues(logic,current.values||{},current.errors||[],[],'adapter');
+  }else if(viewMode==='live'&&preview.logicId===logic.id&&preview.signature===JSON.stringify(logic)){
+   paintLogicValues(logic,preview.values,preview.errors,preview.fallbacks,'preview');
+  }else{
+   const d=$('logicDiagnostics');
+   if(d)d.textContent=viewMode==='live'?'Live-Werte werden gelesen …':'Zur Anzeige der aktuellen Werte oben „Live-Werte“ auswählen.';
+  }
+  if(viewMode==='live')refreshLogicPreview().catch(e=>{const d=$('logicDiagnostics');if(d)d.textContent='Live-Abfrage fehlgeschlagen: '+e.message});
  }
  function ensurePicker(){
   if($('fupPicker'))return;
