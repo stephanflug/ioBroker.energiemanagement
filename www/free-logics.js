@@ -3,7 +3,7 @@
  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const operations={input:'Datenpunkt',constant:'Konstante',add:'Addieren (+)',sub:'Subtrahieren (−)',mul:'Multiplizieren (×)',div:'Dividieren (÷)',min:'Minimum',max:'Maximum',gt:'Größer (>)',lt:'Kleiner (<)',gte:'Größer gleich (≥)',lte:'Kleiner gleich (≤)',eq:'Gleich (=)',neq:'Ungleich (≠)',and:'UND',or:'ODER',not:'NICHT',xor:'XOR',limit:'Begrenzen',output:'Ausgang (Simulation)'};
  const counts={input:0,constant:0,not:1,output:1,limit:3};
- let config={logics:[]},signature='',dirty=false,states={},ns='energiemanagement.0',api={},active='',live={logics:[]},pendingSave=null,saving=false;
+ let config={logics:[]},signature='',dirty=false,states={},ns='energiemanagement.0',api={},active='',live={logics:[]},pendingSave=null,saving=false,pickerBlock=null,pickerResults=[];
  const parse=(s,d)=>{try{return JSON.parse(s)}catch{return d}};
  const value=id=>states[ns+'.'+id]?.val;
  const unique=prefix=>prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
@@ -59,7 +59,7 @@
  function blockHTML(b,i,logic){
   const choices=logic.blocks.filter(x=>x.id!==b.id);
   const links=Array.from({length:count(b.op)},(_,j)=>'<label>Eingang '+(j+1)+' <select data-block="'+esc(b.id)+'" data-input="'+j+'"><option value="">– auswählen –</option>'+choices.map(x=>'<option value="'+esc(x.id)+'" '+(b.inputs[j]===x.id?'selected':'')+'>'+esc(x.name||operations[x.op])+'</option>').join('')+'</select></label>').join('');
-  const extra=b.op==='input'||b.op==='output'?'<label>Datenpunkt <input data-block="'+esc(b.id)+'" data-prop="stateId" placeholder="adapter.0.datenpunkt" value="'+esc(b.stateId||'')+'"></label>':b.op==='constant'?'<label>Wert <input data-block="'+esc(b.id)+'" data-prop="value" value="'+esc(b.value??0)+'"></label>':'';
+  const extra=b.op==='input'||b.op==='output'?'<label>Datenpunkt <span class="fup-source-field"><input data-block="'+esc(b.id)+'" data-prop="stateId" placeholder="adapter.0.datenpunkt" value="'+esc(b.stateId||'')+'"><button type="button" data-pick-state="'+esc(b.id)+'">Auswählen …</button></span></label>':b.op==='constant'?'<label>Wert <input data-block="'+esc(b.id)+'" data-prop="value" value="'+esc(b.value??0)+'"></label>':'';
   return '<article class="logic-block"><div class="logic-block-head"><span class="logic-block-number">'+(i+1)+'</span><strong>'+esc(operations[b.op])+'</strong><button type="button" data-delete="'+esc(b.id)+'">Entfernen</button></div><label>Name <input data-block="'+esc(b.id)+'" data-prop="name" value="'+esc(b.name||'')+'"></label>'+extra+'<div class="logic-inputs">'+links+'</div><div class="logic-live" data-live="'+esc(b.id)+'">Noch kein Ergebnis</div></article>';
  }
  function diagnostics(){
@@ -68,11 +68,35 @@
   for(const b of logic.blocks){const node=document.querySelector('.fup-node[data-node="'+b.id+'"] .fup-node-value');if(node)node.textContent=current?.values?.[b.id]===null||current?.values?.[b.id]===undefined?'–':String(current.values[b.id]);}
   const d=$('logicDiagnostics');if(d)d.textContent=current?.errors?.length?'Diagnose: '+current.errors.join(' | '):'Simulationsmodus – keine physischen Ausgänge werden geschaltet.';
  }
+ function ensurePicker(){
+  if($('fupPicker'))return;
+  const dialog=document.createElement('dialog');dialog.id='fupPicker';dialog.className='source-manager-picker';dialog.innerHTML='<div class="panel-head wrap"><h3 id="fupPickerTitle">Datenpunkt auswählen</h3><button type="button" id="fupPickerClose" class="button ghost">Schließen</button></div><form id="fupPickerForm"><label for="fupPickerQuery">Name oder vollständige Datenpunkt-ID</label><div class="source-picker-search"><input id="fupPickerQuery" type="search" maxlength="100" placeholder="Mindestens 2 Zeichen"><button type="submit" id="fupPickerSearch" class="button primary">Suchen</button></div></form><p id="fupPickerStatus" role="status">Datenpunkt suchen.</p><div id="fupPickerResults"></div>';
+  document.body.append(dialog);
+  $('fupPickerClose').addEventListener('click',()=>dialog.close());
+  dialog.addEventListener('close',()=>{pickerBlock=null;pickerResults=[]});
+  $('fupPickerForm').addEventListener('submit',async e=>{
+   e.preventDefault();if(!pickerBlock)return;
+   const query=$('fupPickerQuery').value.trim();if(query.length<2){$('fupPickerStatus').textContent='Mindestens 2 Zeichen eingeben.';return}
+   if(!api.send){$('fupPickerStatus').textContent='Keine Verbindung zum Adapter.';return}
+   const target=pickerBlock;$('fupPickerSearch').disabled=true;$('fupPickerStatus').textContent='Datenpunkte werden gesucht …';
+   try{const response=await api.send('sourceObjects',{query,type:'number'});if(pickerBlock!==target)return;if(response?.ok===false)throw Error(response.error||'Suche fehlgeschlagen');
+    pickerResults=(response?.results||[]).filter(row=>row.type==='number'||row.type==='boolean'||!row.type);
+    $('fupPickerResults').innerHTML=pickerResults.map((row,i)=>'<button type="button" data-fup-result="'+i+'"><strong>'+esc(row.name||row.id)+'</strong><small>'+esc(row.id)+'</small><small>'+esc([row.type,row.unit].filter(Boolean).join(' · '))+'</small></button>').join('');
+    $('fupPickerStatus').textContent=pickerResults.length?pickerResults.length+' passende Datenpunkte':'Keine passenden Datenpunkte gefunden.';
+   }catch(error){$('fupPickerStatus').textContent='Suche fehlgeschlagen: '+error.message}finally{$('fupPickerSearch').disabled=false}
+  });
+  $('fupPickerResults').addEventListener('click',e=>{
+   const button=e.target.closest('[data-fup-result]');if(!button||!pickerBlock)return;
+   const row=pickerResults[Number(button.dataset.fupResult)],block=selected()?.blocks.find(b=>b.id===pickerBlock);
+   if(!row||!block)return;block.stateId=String(row.id);mark();dialog.close();render();
+  });
+ }
  function bind(){
   $('logicSelect')?.addEventListener('change',e=>{active=e.target.value;render()});
   $('logicAdd')?.addEventListener('click',()=>{const id=unique('logic');config.logics.push({id,name:'Neue Logik',enabled:false,blocks:[]});active=id;mark();render()});
   $('logicRemove')?.addEventListener('click',()=>{if(!confirm('Diese Logik wirklich entfernen?'))return;config.logics=config.logics.filter(l=>l.id!==active);active=config.logics[0]?.id||'';mark();render()});
   const logic=selected();if(!logic)return;
+  for(const button of document.querySelectorAll('#freeLogicEditor [data-pick-state]'))button.addEventListener('click',()=>{ensurePicker();pickerBlock=button.dataset.pickState;$('fupPickerTitle').textContent='Datenpunkt auswählen – '+(logic.blocks.find(b=>b.id===pickerBlock)?.name||'Baustein');$('fupPickerQuery').value='';$('fupPickerResults').replaceChildren();$('fupPickerStatus').textContent='Numerischen oder booleschen Datenpunkt suchen.';$('fupPicker').showModal();$('fupPickerQuery').focus()});
   $('logicName')?.addEventListener('change',e=>{logic.name=e.target.value;mark();render()});
   $('logicEnabled')?.addEventListener('change',e=>{logic.enabled=e.target.checked;mark()});
   $('logicBlockAdd')?.addEventListener('click',()=>{const op=$('logicOp').value;logic.blocks.push({id:unique('block'),op,name:operations[op],inputs:[],...(op==='constant'?{value:0}:{}),...(['input','output'].includes(op)?{stateId:''}:{})});mark();render()});
