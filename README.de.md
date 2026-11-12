@@ -8,13 +8,13 @@ Es gibt keine Bindung an einen bestimmten Smart Meter, Wechselrichter oder Heizu
 
 [English](README.md) · [Installieren](docs/de/installation.md) · [Benutzerhandbuch](docs/de/benutzerhandbuch.md) · [Datenquellen](docs/de/datenquellen.md) · [Fehlerhilfe](docs/de/fehlerbehebung.md) · [Änderungen](CHANGELOG.md)
 
-**Aktuelle stabile Version 0.10.4 auf GitHub:** [Installationspaket (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.4/iobroker.energiemanagement-0.10.4.tgz) · [SHA-256-Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.4/iobroker.energiemanagement-0.10.4.tgz.sha256) · [Projekt vollständig als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.4/ioBroker.energiemanagement-v0.10.4-projekt.zip) · [Versionshinweise und Downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.4).
+**Aktuelle stabile Version 0.10.5 auf GitHub:** [Installationspaket (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.5/iobroker.energiemanagement-0.10.5.tgz) · [SHA-256-Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.5/iobroker.energiemanagement-0.10.5.tgz.sha256) · [Projekt vollständig als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.5/ioBroker.energiemanagement-v0.10.5-projekt.zip) · [Versionshinweise](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.5).
 
-**Neu im FUP-Logikeditor:** Alle Logiken als JSON sichern, einzelne Logiken als datenschutzfreundliche Vorlage teilen und Vorlagen bzw. Sicherungen importieren. Der Import verändert keine bestehenden Logiken und deaktiviert die importierten Logiken sowie alle fremden Schreibfreigaben. An jedem Ausgang lässt sich **„Zyklisch schreiben“** mit einem Intervall von 10 bis 3.600 Sekunden einschalten (Standard: aus, Vorgabeintervall 60 Sekunden). Bei ausgeschalteter Zyklik wird ein gleichbleibender Wert nicht erneut geschrieben.
+**Fehlerbehebung in 0.10.5:** Ist am FUP-Ausgang „Zyklisch schreiben“ deaktiviert, wird nur bei einer Änderung des *berechneten Logikwerts* ein neuer Schreibbefehl ausgelöst. Eine Aktualisierung oder Fremdänderung des Ziel-Datenpunkts führt nicht mehr zum wiederholten Schreiben desselben Ergebnisses. Beim ersten gültigen Auswertungslauf ist eine einmalige Synchronisierung eines abweichenden Zielwerts möglich.
 
-[Beispielvorlagen und Anleitung](examples/fup/README.md) · [Batterie über Grenzwert als JSON](examples/fup/batterie-ueber-grenzwert.json)
+**Funktionen aus 0.10.4:** [Logiken als JSON sichern, Vorlagen teilen und importieren](examples/fup/README.md); Ausgänge wahlweise zyklisch im Intervall von 10 bis 3.600 Sekunden schreiben.
 
-**Vorherige stabile Version 0.10.3:** [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.3). Der Adapter ist bislang weder auf npm noch in der offiziellen ioBroker-Adapterliste veröffentlicht. Eine GitHub-Veröffentlichung aktualisiert bestehende Installationen nicht automatisch.
+**Vorherige stabile Version 0.10.4:** [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.4). Der Adapter ist nicht auf npm oder in der offiziellen ioBroker-Adapterliste veröffentlicht. Ein GitHub-Release installiert kein automatisches Update.
 
 ![Übersicht mit Energiefluss und aktuellen Werten](docs/images/overview-desktop.png)
 
