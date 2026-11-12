@@ -27,16 +27,17 @@
   const enabled=config.batteries.filter(b=>b.enabled);
   const house=$('batteryHouseValue');
   if(house){const val=window.EnergyBatteryHouse?.();house.textContent=val===null||val===undefined?'–':format(val,'W');}
-  const calendar=$('calendarBatterySoc');
-  if(calendar){
-   calendar.innerHTML=enabled.length?enabled.map(b=>{
-    const measured=live.find(x=>x.id===b.id);
-    const soc=measured?.quality?.soc==='ok'&&typeof measured?.values?.soc==='number'?measured.values.soc:null;
-    return '<div class="battery-card panel"><strong>'+esc(b.name)+'</strong><div><strong>'+esc(soc===null?'–':format(soc,'%'))+'</strong></div><div class="battery-progress" role="progressbar" aria-label="SOC '+esc(b.name)+'" aria-valuemin="0" aria-valuemax="100" '+(soc===null?'':'aria-valuenow="'+soc+'"')+'><span style="width:'+(soc??0)+'%"></span></div></div>';
-   }).join(''):'<p>Keine Batteriespeicher aktiviert.</p>';
-  }
+  const socRows=enabled.map(b=>{
+   const measured=live.find(x=>x.id===b.id);
+   const soc=measured?.quality?.soc==='ok'&&Number.isFinite(measured?.values?.soc)?measured.values.soc:null;
+   return {name:b.name,soc};
+  });
+  const flow=$('flowBatterySoc');
+  if(flow)flow.innerHTML=socRows.map(b=>'<div><small>'+esc(b.name)+' · SOC</small> <strong>'+esc(format(b.soc,'%'))+'</strong></div>').join('');
+  const today=$('energyBatterySoc');
+  if(today)today.innerHTML=socRows.map(b=>'<div class="battery-soc-today"><span>'+esc(b.name)+' · SOC</span><strong>'+esc(format(b.soc,'%'))+'</strong><div class="energy-metric-track"><i style="width:'+Math.max(0,Math.min(100,b.soc??0))+'%"></i></div></div>').join('');
   for(const target of ['batteryCards','batteryOverviewCards']){
-   const host=$(target);if(!host)return;
+   const host=$(target);if(!host)continue;
    host.innerHTML=enabled.length?enabled.map(b=>{
     const data=live.find(x=>x.id===b.id),v=data?.values||{},soc=typeof v.soc==='number'?v.soc:null;
     const metrics=Object.entries(fields).filter(([key])=>key!=='soc'&&b.sources[key]).map(([key,[label,unit]])=>'<div><small>'+esc(label)+'</small><strong>'+esc(format(v[key],unit))+'</strong></div>').join('');
