@@ -92,6 +92,7 @@
   window.EnergyTankUI?.render(page);
   window.EnergySourcesUI?.render(page);
   window.EnergyBatteriesUI?.render(page);
+  window.EnergyFreeLogicsUI?.render(page);
   window.EnergyBackupUI?.render(page);
   window.EnergyAboutUI?.render(page);
   window.EnergyVersionUI?.render(page);
@@ -175,6 +176,7 @@
    window.EnergyTankUI?.update(states,N,page,{send:forecastSend});
    window.EnergySourcesUI?.update(states,N,page,{send:forecastSend});
    window.EnergyBatteriesUI?.update(states,N,page,{setVal,send:forecastSend});
+   window.EnergyFreeLogicsUI?.update(states,N,page,{setVal});
    window.EnergyBackupUI?.update(states,N,page,{send:forecastSend});
    window.EnergyAboutUI?.update(states,N,page);
    window.EnergyVersionUI?.update(states,N,page,{send:forecastSend});
