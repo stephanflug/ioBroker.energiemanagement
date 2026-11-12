@@ -76,7 +76,7 @@
   if(window.EnergyHeatingUI)window.EnergyHeatingUI.render(page);
   for(const section of document.querySelectorAll('.page'))section.classList.toggle('hidden',section.id!=='page-'+page);
   for(const btn of document.querySelectorAll('[data-page]')){const active=btn.dataset.page===page;btn.classList.toggle('active',active);if(active)btn.setAttribute('aria-current','page');else btn.removeAttribute('aria-current');}
-  const titles={overview:'Übersicht',history:'Viertelstunden / Verlauf',analytics:'Energieauswertung',forecast:'PV-Ertragsprognose',battery:'Speicher und Hausverbrauch',heating:'Heizung & Gebäudepuffer',water:'Wasserverbrauch',rainwater:'Regenwasserverbrauch',fuel:'Brennstoffverbrauch',reports:'Berichte',sources:'Datenquellen',devices:'Verbraucher & Prioritäten',outputs:'Geräteausgänge',settings:'Einstellungen',about:'Über & Lizenzen'};
+  const titles={overview:'Übersicht',history:'Viertelstunden / Verlauf',analytics:'Energieauswertung',forecast:'PV-Ertragsprognose',battery:'Speicher und Hausverbrauch',heating:'Heizung & Gebäudepuffer',water:'Wasserverbrauch',rainwater:'Regenwasserverbrauch',fuel:'Brennstoffverbrauch',reports:'Berichte',sources:'Datenquellen',regulation:'Regelungsfunktionen',devices:'Verbraucher & Prioritäten',outputs:'Geräteausgänge',settings:'Einstellungen',about:'Über & Lizenzen'};
   $('pageTitle').textContent=titles[page]||'Energiemanagement';
   if(page==='overview'){renderOverview();if(window.EnergyAnalytics)window.EnergyAnalytics.render('overview')};if(page==='history')renderHistory();
   if(page==='sources'){renderSources();renderOutputs();}if(page==='devices')renderConsumers();if(page==='outputs')renderOutputs();if(page==='settings')renderSettings();
