@@ -11,3 +11,9 @@
 .fup-node-title{padding-right:34px}
 .fup-node .fup-delete{position:absolute;top:5px;right:5px;z-index:2;width:25px;height:25px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid #fecaca;border-radius:6px;background:#fff1f2;color:#b91c1c;font-size:20px;line-height:1;cursor:pointer}
 .fup-node .fup-delete:hover,.fup-node .fup-delete:focus-visible{background:#fee2e2;outline:2px solid #f87171}
+
+/* Optionale Ausgabe auf vorhandene ioBroker-Datenpunkte mit expliziter Freigabe. */
+.fup-node .fup-config{display:block;margin:0 9px 4px;padding:4px 7px;max-width:calc(100% - 18px);border:1px solid #f59e0b;border-radius:6px;background:#fffbeb;color:#92400e;font-size:11px;text-align:left;cursor:pointer}
+.fup-node .fup-config:hover,.fup-node .fup-config:focus-visible{background:#fef3c7}
+.fup-node .fup-output-status{padding:1px 10px 8px;font-size:10px;color:var(--muted,#64748b);overflow-wrap:anywhere}
+.fup-warning{font-size:12px;color:#9a3412}
