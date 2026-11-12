@@ -7,7 +7,7 @@ function setup({global=false,perOutput=false,val=true,old=false,type='boolean',w
  const config={externalWritesEnabled:global,logics:[{id:'test',name:'Test',enabled:true,blocks:[{id:'source',op:'constant',name:'Konstante',value:1,inputs:[]},{id:'out',op:'output',inputs:['source'],stateId:'hm-rega.0.48501',createNew:false,writeEnabled:perOutput}]}]};
  const evaluated={logics:[{id:'test',enabled:true,errors:[],outputs:[{id:'out',stateId:'hm-rega.0.48501',createNew:false,value:val}]}]};
  const calls=[];
- const io={getObject:async()=>({type:'state',common:{type,write:writable}}),getState:async()=>({val:old,ack:true}),setState:async(id,value)=>{calls.push({id,value})}};
+ const io={lastValues:new Map(),lastWrites:new Map(),getObject:async()=>({type:'state',common:{type,write:writable}}),getState:async()=>({val:old,ack:true}),setState:async(id,value)=>{calls.push({id,value})}};
  return {config,evaluated,io,calls};
 }
 test('Fremdausgang bleibt ohne beide Freigaben strikt read-only',async()=>{
