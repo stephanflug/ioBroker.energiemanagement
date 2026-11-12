@@ -3,7 +3,7 @@
  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const operations={input:'Datenpunkt',constant:'Konstante',add:'Addieren (+)',sub:'Subtrahieren (−)',mul:'Multiplizieren (×)',div:'Dividieren (÷)',min:'Minimum',max:'Maximum',gt:'Größer (>)',lt:'Kleiner (<)',gte:'Größer gleich (≥)',lte:'Kleiner gleich (≤)',eq:'Gleich (=)',neq:'Ungleich (≠)',and:'UND',or:'ODER',not:'NICHT',xor:'XOR',limit:'Begrenzen',output:'Ausgang (Simulation)'};
  const counts={input:0,constant:0,not:1,output:1,limit:3};
- let config={logics:[]},signature='',dirty=false,states={},ns='energiemanagement.0',api={},active='',live={logics:[]};
+ let config={logics:[]},signature='',dirty=false,states={},ns='energiemanagement.0',api={},active='',live={logics:[]},pendingSave=null,saving=false;
  const parse=(s,d)=>{try{return JSON.parse(s)}catch{return d}};
  const value=id=>states[ns+'.'+id]?.val;
  const unique=prefix=>prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
@@ -87,15 +87,15 @@
  }
  function init(){
   if(!$('freeLogicEditor'))return;
-  $('logicSave')?.addEventListener('click',async()=>{try{if(!api.setVal)throw Error('Keine Verbindung');await api.setVal('config.freeLogics_JSON',JSON.stringify(config));dirty=false;signature=JSON.stringify(config);$('logicStatus').textContent='Gespeichert (nur Simulation)';}catch(e){$('logicStatus').textContent='Fehler: '+e.message}});
+  $('logicSave')?.addEventListener('click',async()=>{if(saving)return;try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=null;$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert (Simulation)';}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
   $('logicReset')?.addEventListener('click',()=>{dirty=false;signature='';sync()});
   render();
  }
  function sync(){
   const saved=parse(value('config.freeLogics_JSON'),{logics:[]}),sig=JSON.stringify(saved);
-  if(!dirty&&sig!==signature){config=saved;signature=sig;if(!config.logics.some(l=>l.id===active))active=config.logics[0]?.id||'';render()}
+  if(!dirty&&!pendingSave&&sig!==signature){config=saved;signature=sig;if(!config.logics.some(l=>l.id===active))active=config.logics[0]?.id||'';render()}
   live=parse(value('live.freeLogics_JSON'),{logics:[]});diagnostics();
  }
  document.addEventListener('DOMContentLoaded',init);
- window.EnergyFreeLogicsUI={render(page){if(page==='regulation'&&!dirty)render()},update(next,N,page,methods){states=next||{};ns=N;api={...api,...methods};sync()}};
+ window.EnergyFreeLogicsUI={render(page){if(page==='regulation'&&!dirty&&!pendingSave)render()},update(next,N,page,methods){states=next||{};ns=N;api={...api,...methods};sync()}};
 })();
