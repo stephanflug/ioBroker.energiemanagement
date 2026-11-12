@@ -176,7 +176,7 @@
    window.EnergyTankUI?.update(states,N,page,{send:forecastSend});
    window.EnergySourcesUI?.update(states,N,page,{send:forecastSend});
    window.EnergyBatteriesUI?.update(states,N,page,{setVal,send:forecastSend});
-   window.EnergyFreeLogicsUI?.update(states,N,page,{setVal});
+   window.EnergyFreeLogicsUI?.update(states,N,page,{setVal,readVal});
    window.EnergyBackupUI?.update(states,N,page,{send:forecastSend});
    window.EnergyAboutUI?.update(states,N,page);
    window.EnergyVersionUI?.update(states,N,page,{send:forecastSend});
