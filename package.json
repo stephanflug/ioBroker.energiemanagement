@@ -1,6 +1,6 @@
 {
   "name": "iobroker.energiemanagement",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "Vendor-neutral energy monitoring and priority-based load management for ioBroker",
   "main": "main.js",
   "type": "commonjs",
