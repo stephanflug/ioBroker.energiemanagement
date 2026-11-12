@@ -79,7 +79,7 @@
   const titles={overview:'Übersicht',history:'Viertelstunden / Verlauf',analytics:'Energieauswertung',forecast:'PV-Ertragsprognose',battery:'Speicher und Hausverbrauch',heating:'Heizung & Gebäudepuffer',water:'Wasserverbrauch',rainwater:'Regenwasserverbrauch',fuel:'Brennstoffverbrauch',reports:'Berichte',sources:'Datenquellen',devices:'Verbraucher & Prioritäten',outputs:'Geräteausgänge',settings:'Einstellungen',about:'Über & Lizenzen'};
   $('pageTitle').textContent=titles[page]||'Energiemanagement';
   if(page==='overview'){renderOverview();if(window.EnergyAnalytics)window.EnergyAnalytics.render('overview')};if(page==='history')renderHistory();
-  if(page==='sources')renderSources();if(page==='devices')renderConsumers();if(page==='outputs')renderOutputs();if(page==='settings')renderSettings();
+  if(page==='sources'){renderSources();renderOutputs();}if(page==='devices')renderConsumers();if(page==='outputs')renderOutputs();if(page==='settings')renderSettings();
   if((page==='analytics'||page==='reports')&&window.EnergyAnalytics)window.EnergyAnalytics.render(page);
   window.EnergySummaryUI?.render(page);
   window.EnergyUtilitiesUI?.render(page);
