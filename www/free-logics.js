@@ -70,7 +70,7 @@
  }
  function ensurePicker(){
   if($('fupPicker'))return;
-  const dialog=document.createElement('dialog');dialog.id='fupPicker';dialog.className='source-manager-picker';dialog.innerHTML='<div class="panel-head wrap"><h3 id="fupPickerTitle">Datenpunkt auswählen</h3><button type="button" id="fupPickerClose" class="button ghost">Schließen</button></div><form id="fupPickerForm"><label for="fupPickerQuery">Name oder vollständige Datenpunkt-ID</label><div class="source-picker-search"><input id="fupPickerQuery" type="search" maxlength="100" placeholder="Mindestens 2 Zeichen"><button type="submit" id="fupPickerSearch" class="button primary">Suchen</button></div></form><p id="fupPickerStatus" role="status">Datenpunkt suchen.</p><div id="fupPickerResults"></div>';
+  const dialog=document.createElement('dialog');dialog.id='fupPicker';dialog.className='source-manager-picker';dialog.innerHTML='<div class="panel-head wrap"><h3 id="fupPickerTitle">Datenpunkt auswählen</h3><button type="button" id="fupPickerClose" class="button ghost">Schließen</button></div><form id="fupPickerForm"><label>Datentyp <select id="fupPickerType"><option value="number">Zahlenwert</option><option value="boolean">TRUE / FALSE</option></select></label><label for="fupPickerQuery">Name oder vollständige Datenpunkt-ID</label><div class="source-picker-search"><input id="fupPickerQuery" type="search" maxlength="100" placeholder="Mindestens 2 Zeichen"><button type="submit" id="fupPickerSearch" class="button primary">Suchen</button></div></form><p id="fupPickerStatus" role="status">Datenpunkt suchen.</p><div id="fupPickerResults"></div>';
   document.body.append(dialog);
   $('fupPickerClose').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('close',()=>{pickerBlock=null;pickerResults=[]});
@@ -79,8 +79,8 @@
    const query=$('fupPickerQuery').value.trim();if(query.length<2){$('fupPickerStatus').textContent='Mindestens 2 Zeichen eingeben.';return}
    if(!api.send){$('fupPickerStatus').textContent='Keine Verbindung zum Adapter.';return}
    const target=pickerBlock;$('fupPickerSearch').disabled=true;$('fupPickerStatus').textContent='Datenpunkte werden gesucht …';
-   try{const response=await api.send('sourceObjects',{query,type:'number'});if(pickerBlock!==target)return;if(response?.ok===false)throw Error(response.error||'Suche fehlgeschlagen');
-    pickerResults=(response?.results||[]).filter(row=>row.type==='number'||row.type==='boolean'||!row.type);
+   try{const response=await api.send('sourceObjects',{query,type:$('fupPickerType').value});if(pickerBlock!==target)return;if(response?.ok===false)throw Error(response.error||'Suche fehlgeschlagen');
+    pickerResults=(response?.results||[]).filter(row=>row.type===$('fupPickerType').value||!row.type);
     $('fupPickerResults').innerHTML=pickerResults.map((row,i)=>'<button type="button" data-fup-result="'+i+'"><strong>'+esc(row.name||row.id)+'</strong><small>'+esc(row.id)+'</small><small>'+esc([row.type,row.unit].filter(Boolean).join(' · '))+'</small></button>').join('');
     $('fupPickerStatus').textContent=pickerResults.length?pickerResults.length+' passende Datenpunkte':'Keine passenden Datenpunkte gefunden.';
    }catch(error){$('fupPickerStatus').textContent='Suche fehlgeschlagen: '+error.message}finally{$('fupPickerSearch').disabled=false}
