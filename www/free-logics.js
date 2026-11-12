@@ -24,7 +24,20 @@
   const nodes=blocks.map(b=>{const p=byId.get(b.id),val=(live.logics||[]).find(l=>l.id===logic.id)?.values?.[b.id];return '<div class="fup-node" data-node="'+esc(b.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="fup-node-title" data-drag="'+esc(b.id)+'">'+esc(b.name||operations[b.op])+'</div><div class="fup-node-type">'+esc(operations[b.op])+'</div><div class="fup-node-value">'+esc(val===undefined||val===null?'–':String(val))+'</div><button class="fup-out" type="button" data-wire-out="'+esc(b.id)+'" title="Ausgang verbinden">●</button>'+Array.from({length:count(b.op)},(_,i)=>'<button type="button" class="fup-in" style="top:'+(38+i*14)+'px" data-wire-in="'+esc(b.id)+'" data-port="'+i+'" title="Eingang '+(i+1)+' verbinden">●</button>').join('')+'</div>'}).join('');
   return '<div class="fup-help">Bausteine mit der Maus verschieben. Zum Verbinden zuerst den Ausgang ●, danach den Eingang ● anklicken. Die Detailkonfiguration steht darunter.</div><div class="fup-viewport"><div class="fup-stage" style="width:'+width+'px;height:'+height+'px"><svg class="fup-wires" width="'+width+'" height="'+height+'" aria-hidden="true">'+paths.join('')+'</svg>'+nodes+'</div></div><div id="fupWireStatus" class="fup-help">Keine Verbindung ausgewählt.</div>';
  }
- function openBlockSettings(blockId){const details=document.querySelector('.fup-details');if(!details)return;details.open=true;const el=details.querySelector('[data-block="'+blockId+'"]');if(el){el.scrollIntoView({block:'nearest',behavior:'smooth'});el.focus({preventScroll:true})}}
+ function openBlockSettings(blockId){
+  const block=selected()?.blocks.find(b=>b.id===blockId);if(!block)return;
+  let dialog=$('fupBlockDialog');
+  if(!dialog){dialog=document.createElement('dialog');dialog.id='fupBlockDialog';dialog.className='source-manager-picker';document.body.append(dialog)}
+  const virtual=block.op==='virtual',path=ns+'.logicVirtual.'+selected().id+'_'+(block.virtualKey||'');
+  dialog.innerHTML='<div class="panel-head wrap"><h3>Baustein bearbeiten – '+esc(block.name||operations[block.op])+'</h3><button type="button" data-fup-close>Schließen</button></div><form id="fupBlockForm"><label>Beschriftung <input name="name" value="'+esc(block.name||'')+'"></label>'+(virtual?'<label>Virtueller Datenpunktname <input name="virtualKey" value="'+esc(block.virtualKey||'Sollwert')+'"></label><label>Datentyp <select name="valueType"><option value="number" '+(block.valueType!=='boolean'?'selected':'')+'>Zahlenwert</option><option value="boolean" '+(block.valueType==='boolean'?'selected':'')+'>TRUE/FALSE</option></select></label><label>Startwert <input name="value" value="'+esc(block.value??0)+'"></label><p>ioBroker: '+esc(path)+'</p><p id="fupVirtualLive">Aktueller Wert wird gelesen …</p><label>Aktuellen Sollwert ändern <input id="fupVirtualSet" value=""></label><button type="button" id="fupVirtualWrite">Sollwert schreiben</button>':'')+'<button type="submit">Baustein übernehmen</button></form>';
+  dialog.querySelector('[data-fup-close]').onclick=()=>dialog.close();
+  dialog.querySelector('form').onsubmit=e=>{e.preventDefault();const form=e.target;block.name=form.elements.name.value;if(virtual){block.virtualKey=form.elements.virtualKey.value;block.valueType=form.elements.valueType.value;const raw=form.elements.value.value;block.value=block.valueType==='boolean'?raw==='true':Number(raw)}mark();dialog.close();render()};
+  if(virtual){
+    api.readVal?.('logicVirtual.'+selected().id+'_'+block.virtualKey).then(v=>{if(!dialog.open)return;const current=v?.val??v?.state?.val;$('fupVirtualLive').textContent=current===undefined?'Noch kein aktueller Wert vorhanden':'Aktueller Wert: '+String(current);$('fupVirtualSet').value=current===undefined?'':String(current)}).catch(()=>{$('fupVirtualLive').textContent='Wert derzeit nicht lesbar'});
+    $('fupVirtualWrite').onclick=async()=>{const raw=$('fupVirtualSet').value;const val=block.valueType==='boolean'?raw==='true':Number(raw);if(block.valueType==='number'&&(!raw.trim()||!Number.isFinite(val))){$('fupVirtualLive').textContent='Ungültiger Zahlenwert';return}try{await api.setVal('logicVirtual.'+selected().id+'_'+block.virtualKey,val);$('fupVirtualLive').textContent='Wert geschrieben: '+String(val)}catch(e){$('fupVirtualLive').textContent='Schreiben fehlgeschlagen: '+e.message}};
+  }
+  dialog.showModal();
+ }
  function openStatePicker(blockId){
   const block=selected()?.blocks.find(b=>b.id===blockId);
   if(!block||!['input','output'].includes(block.op))return;
@@ -153,5 +166,5 @@
   live=parse(value('live.freeLogics_JSON'),{logics:[]});diagnostics();
  }
  document.addEventListener('DOMContentLoaded',init);
- window.EnergyFreeLogicsUI={render(page){if(page==='regulation'&&!dirty&&!pendingSave&&!document.querySelector('#fupPicker[open]'))render()},update(next,N,page,methods){states=next||{};ns=N;api={...api,...methods};sync();if(value('config.freeLogics_JSON')===undefined)loadSaved()}};
+ window.EnergyFreeLogicsUI={render(page){if(page==='regulation'&&!dirty&&!pendingSave&&!document.querySelector('#fupPicker[open],#fupBlockDialog[open]'))render()},update(next,N,page,methods){states=next||{};ns=N;api={...api,...methods};sync();if(value('config.freeLogics_JSON')===undefined)loadSaved()}};
 })();
