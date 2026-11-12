@@ -1,9 +1,9 @@
 'use strict';
 (() => {
  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const operations={input:'Datenpunkt',virtual:'Virtueller Sollwert',constant:'Konstante',add:'Addieren (+)',sub:'Subtrahieren (−)',mul:'Multiplizieren (×)',div:'Dividieren (÷)',min:'Minimum',max:'Maximum',gt:'Größer (>)',lt:'Kleiner (<)',gte:'Größer gleich (≥)',lte:'Kleiner gleich (≤)',eq:'Gleich (=)',neq:'Ungleich (≠)',and:'UND',or:'ODER',not:'NICHT',xor:'XOR',limit:'Begrenzen',output:'Ausgang (Simulation)'};
+ const operations={input:'Datenpunkt',virtual:'Virtueller Sollwert',constant:'Konstante',add:'Addieren (+)',sub:'Subtrahieren (−)',mul:'Multiplizieren (×)',div:'Dividieren (÷)',min:'Minimum',max:'Maximum',gt:'Größer (>)',lt:'Kleiner (<)',gte:'Größer gleich (≥)',lte:'Kleiner gleich (≤)',eq:'Gleich (=)',neq:'Ungleich (≠)',and:'UND',or:'ODER',not:'NICHT',xor:'XOR',limit:'Begrenzen',output:'Ausgang'};
  const counts={input:0,virtual:0,constant:0,not:1,output:1,limit:3};
- let config={logics:[]},signature='',dirty=false,states={},ns='energiemanagement.0',api={},active='',live={logics:[]},pendingSave=null,saving=false,pickerBlock=null,pickerResults=[],lastKnown=null,loading=false;
+ let viewMode='programming';let config={logics:[]},signature='',dirty=false,states={},ns='energiemanagement.0',api={},active='',live={logics:[]},pendingSave=null,saving=false,pickerBlock=null,pickerResults=[],lastKnown=null,loading=false;
  const parse=(s,d)=>{try{return JSON.parse(s)}catch{return d}};
  const value=id=>states[ns+'.'+id]?.val;
  const unique=prefix=>prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
@@ -82,7 +82,7 @@
   host.innerHTML='<div class="logic-toolbar"><label>Logik <select id="logicSelect">'+config.logics.map(l=>'<option value="'+esc(l.id)+'" '+(l.id===active?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><button type="button" id="logicAdd">+ Neue Logik</button><button type="button" id="logicRemove" '+(!selected()?'disabled':'')+'>Löschen</button></div>';
   const logic=selected();
   if(!logic){host.insertAdjacentHTML('beforeend','<p>Noch keine Logik vorhanden. Erstelle deine erste Regelung.</p>');bind();return;}
-  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Simulation aktiv</label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Ausgänge werden derzeit ausschließlich simuliert und schreiben keine Datenpunkte.</p>'+canvas(logic)+'<details class="fup-details"><summary>Bausteine konfigurieren und Datenpunkte zuordnen</summary><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></details><div id="logicDiagnostics" class="logic-diagnostics"></div>');
+  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Simulation aktiv</label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Eigene ioBroker-Ausgänge werden bei aktiver, fehlerfreier Logik aktualisiert. Fremde Geräteausgänge werden nicht automatisch geschaltet.</p>'+canvas(logic)+'<details class="fup-details" '+(viewMode==='programming'?'':'style="display:none"')+'><summary>Bausteine konfigurieren und Datenpunkte zuordnen</summary><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></details><div id="logicDiagnostics" class="logic-diagnostics"></div>');
   bind();bindCanvas(logic);diagnostics();
  }
  function blockHTML(b,i,logic){
@@ -96,6 +96,7 @@
   const logic=selected(),current=(live.logics||[]).find(l=>l.id===logic?.id);if(!logic)return;
   for(const b of logic.blocks){const el=document.querySelector('[data-live="'+b.id+'"]');if(el)el.textContent=current?.values?.[b.id]===null||current?.values?.[b.id]===undefined?'Wert: –':'Wert: '+String(current.values[b.id]);}
   for(const b of logic.blocks){const node=document.querySelector('.fup-node[data-node="'+b.id+'"] .fup-node-value');if(node)node.textContent=current?.values?.[b.id]===null||current?.values?.[b.id]===undefined?'–':String(current.values[b.id]);}
+  const stage=document.querySelector('.fup-stage');if(stage)stage.classList.toggle('fup-live-mode',viewMode==='live');
   const d=$('logicDiagnostics');if(d){const stamp=live.ts?new Date(live.ts).toLocaleTimeString('de-AT'):'–';const stale=!live.ts||Date.now()-live.ts>30000;d.textContent=(stale?'Keine aktuellen Live-Daten vom Adapter. ':'Live-Berechnung: '+stamp+' · ')+(current?.errors?.length?'Diagnose: '+current.errors.join(' | '):'Keine Berechnungsfehler.');}
  }
  function ensurePicker(){
@@ -128,7 +129,8 @@
   const logic=selected();if(!logic)return;
   
   $('logicName')?.addEventListener('change',e=>{logic.name=e.target.value;mark();render()});
-  $('logicEnabled')?.addEventListener('change',e=>{logic.enabled=e.target.checked;mark()});
+  $('logicEnabled')?.addEventListener('change',e=>{logic.enabled=e.target.checked;mark();const status=$('logicStatus');if(status)status.textContent='Aktivierung geändert – bitte Logiken speichern.'});
+  $('logicViewMode')?.addEventListener('change',e=>{viewMode=e.target.value;render()});
   $('logicBlockAdd')?.addEventListener('click',()=>{const op=$('logicOp').value;logic.blocks.push({id:unique('block'),op,name:operations[op],inputs:[],...(['constant','virtual'].includes(op)?{value:0}:{}),...(op==='virtual'?{virtualKey:'Sollwert_'+(logic.blocks.length+1),valueType:'number'}:{}),...(['input','output'].includes(op)?{stateId:''}:{})});mark();render()});
   for(const el of document.querySelectorAll('#freeLogicEditor [data-block]'))el.addEventListener('change',()=>{
    const b=logic.blocks.find(x=>x.id===el.dataset.block);if(!b)return;
@@ -143,7 +145,7 @@
  function init(){
   document.addEventListener('click',e=>{const button=e.target.closest('[data-pick-state]');if(button&&button.closest('#freeLogicEditor')){e.preventDefault();openStatePicker(button.dataset.pickState)}});
   if(!$('freeLogicEditor'))return;
-  $('logicSave')?.addEventListener('click',async()=>{if(saving)return;try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=payload;$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert (Simulation)';}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
+  $('logicSave')?.addEventListener('click',async()=>{if(saving)return;try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=payload;$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert';}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
   $('logicReset')?.addEventListener('click',()=>{dirty=false;signature='';sync()});
   render();
   loadSaved();
@@ -166,5 +168,5 @@
   live=parse(value('live.freeLogics_JSON'),{logics:[]});diagnostics();
  }
  document.addEventListener('DOMContentLoaded',init);
- window.EnergyFreeLogicsUI={render(page){if(page==='regulation'&&!dirty&&!pendingSave&&!document.querySelector('#fupPicker[open],#fupBlockDialog[open]'))render()},update(next,N,page,methods){states=next||{};ns=N;api={...api,...methods};sync();if(value('config.freeLogics_JSON')===undefined)loadSaved()}};
+ window.EnergyFreeLogicsUI={render(page){if(page==='regulation'){const el=$('freeLogicEditor');if(el&&!el.querySelector('#logicSelect')&&!dirty)render();else diagnostics()}},update(next,N,page,methods){states=next||{};ns=N;api={...api,...methods};sync();if(value('config.freeLogics_JSON')===undefined)loadSaved()}};
 })();
