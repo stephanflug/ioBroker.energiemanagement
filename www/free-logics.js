@@ -24,6 +24,18 @@
   const nodes=blocks.map(b=>{const p=byId.get(b.id),val=(live.logics||[]).find(l=>l.id===logic.id)?.values?.[b.id];return '<div class="fup-node" data-node="'+esc(b.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="fup-node-title" data-drag="'+esc(b.id)+'">'+esc(b.name||operations[b.op])+'</div><div class="fup-node-type">'+esc(operations[b.op])+'</div><div class="fup-node-value">'+esc(val===undefined||val===null?'–':String(val))+'</div><button class="fup-out" type="button" data-wire-out="'+esc(b.id)+'" title="Ausgang verbinden">●</button>'+Array.from({length:count(b.op)},(_,i)=>'<button type="button" class="fup-in" style="top:'+(38+i*14)+'px" data-wire-in="'+esc(b.id)+'" data-port="'+i+'" title="Eingang '+(i+1)+' verbinden">●</button>').join('')+'</div>'}).join('');
   return '<div class="fup-help">Bausteine mit der Maus verschieben. Zum Verbinden zuerst den Ausgang ●, danach den Eingang ● anklicken. Die Detailkonfiguration steht darunter.</div><div class="fup-viewport"><div class="fup-stage" style="width:'+width+'px;height:'+height+'px"><svg class="fup-wires" width="'+width+'" height="'+height+'" aria-hidden="true">'+paths.join('')+'</svg>'+nodes+'</div></div><div id="fupWireStatus" class="fup-help">Keine Verbindung ausgewählt.</div>';
  }
+ function openStatePicker(blockId){
+  const block=selected()?.blocks.find(b=>b.id===blockId);
+  if(!block||!['input','output'].includes(block.op))return;
+  ensurePicker();pickerBlock=blockId;
+  $('fupPickerTitle').textContent='Datenpunkt auswählen – '+(block.name||operations[block.op]);
+  $('fupPickerType').value='number';
+  $('fupPickerQuery').value='';
+  $('fupPickerResults').replaceChildren();
+  $('fupPickerStatus').textContent='Datenpunkt suchen (Zahlenwert oder TRUE/FALSE auswählen).';
+  const dialog=$('fupPicker');if(!dialog.open)dialog.showModal();
+  $('fupPickerQuery').focus();
+ }
  function bindCanvas(logic){
   const stage=document.querySelector('.fup-stage');if(!stage)return;
   let source=null,drag=null;
@@ -34,8 +46,9 @@
     const target=logic.blocks.find(b=>b.id===input.dataset.wireIn),port=Number(input.dataset.port);
     if(!target||target.id===source){$('fupWireStatus').textContent='Selbstverbindungen sind nicht erlaubt.';return;}
     const arr=Array.from({length:count(target.op)},(_,i)=>target.inputs[i]||'');arr[port]=source;target.inputs=arr;
-    source=null;mark();render();
+    source=null;mark();render();return;
    }
+   const node=e.target.closest('.fup-node');if(node)openStatePicker(node.dataset.node);
   });
   stage.addEventListener('pointerdown',e=>{
    const handle=e.target.closest('[data-drag]');if(!handle)return;
@@ -96,7 +109,7 @@
   $('logicAdd')?.addEventListener('click',()=>{const id=unique('logic');config.logics.push({id,name:'Neue Logik',enabled:false,blocks:[]});active=id;mark();render()});
   $('logicRemove')?.addEventListener('click',()=>{if(!confirm('Diese Logik wirklich entfernen?'))return;config.logics=config.logics.filter(l=>l.id!==active);active=config.logics[0]?.id||'';mark();render()});
   const logic=selected();if(!logic)return;
-  for(const button of document.querySelectorAll('#freeLogicEditor [data-pick-state]'))button.addEventListener('click',()=>{ensurePicker();pickerBlock=button.dataset.pickState;$('fupPickerTitle').textContent='Datenpunkt auswählen – '+(logic.blocks.find(b=>b.id===pickerBlock)?.name||'Baustein');$('fupPickerQuery').value='';$('fupPickerResults').replaceChildren();$('fupPickerStatus').textContent='Numerischen oder booleschen Datenpunkt suchen.';$('fupPicker').showModal();$('fupPickerQuery').focus()});
+  for(const button of document.querySelectorAll('#freeLogicEditor [data-pick-state]'))button.addEventListener('click',()=>openStatePicker(button.dataset.pickState));
   $('logicName')?.addEventListener('change',e=>{logic.name=e.target.value;mark();render()});
   $('logicEnabled')?.addEventListener('change',e=>{logic.enabled=e.target.checked;mark()});
   $('logicBlockAdd')?.addEventListener('click',()=>{const op=$('logicOp').value;logic.blocks.push({id:unique('block'),op,name:operations[op],inputs:[],...(op==='constant'?{value:0}:{}),...(['input','output'].includes(op)?{stateId:''}:{})});mark();render()});
