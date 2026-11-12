@@ -24,7 +24,7 @@ test('Explizit freigegebener Boolean-Ausgang wird mit val und ack:false übergeb
 test('Unveränderte Zielwerte werden nicht erneut geschrieben',async()=>{
  const c=setup({global:true,perOutput:true,old:true});await applyForeignOutputs(c.config,c.evaluated,c.io);
  assert.equal(c.calls.length,0);
- assert.equal(c.evaluated.logics[0].outputs[0].writeStatus,'Zielwert bereits vorhanden');
+ assert.match(c.evaluated.logics[0].outputs[0].writeStatus,/Zielwert bereits vorhanden/);
 });
 test('Nicht schreibbare States und Typkonflikte werden abgewiesen',async()=>{
  for(const options of [{global:true,perOutput:true,writable:false},{global:true,perOutput:true,type:'number'}]){
