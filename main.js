@@ -295,6 +295,7 @@ class Energiemanagement extends utils.Adapter {
     this.sources=normalizeSources(asJSON(await this.read('config.sources'),defaultSources()));
     this.batteries=normalizeBatteryConfig(asJSON(await this.read('config.batteries_JSON','{}'),{batteries:[]}));
     this.freeLogics=FreeLogic.validate(asJSON(await this.read('config.freeLogics_JSON','{"logics":[]}'),{logics:[]}));
+    await this.prepareFreeLogicOutputs();
     this.consumers=normalizeConsumers(asJSON(await this.read('config.consumers'),defaultConsumers()),this.config.maxConsumers||250);
     this.settings=normalizeSettings(asJSON(await this.read('config.settings'),{}),this.config);
     this.hardwareMaster=await this.read('config.hardwareMaster',false)===true;
