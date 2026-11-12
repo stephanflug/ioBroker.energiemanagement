@@ -65,7 +65,6 @@
  <nav>
   <button data-page="sources"><span>⌕</span> Datenquellen</button>
   <button data-page="regulation"><span>⚙</span> Regelungsfunktionen</button>
-  <button data-page="devices"><span>☷</span> Verbraucher & Prioritäten</button>
   <button data-page="settings"><span>⚙</span> Einstellungen</button>
   <button data-page="about"><span aria-hidden="true">ⓘ</span> Über &amp; Lizenzen</button>
  </nav>
@@ -413,14 +412,16 @@
  <div id="sourceWater"></div><div id="sourceRainwater" class="source-category"></div><div id="sourceFuel"></div><div id="sourceHeating"></div><div id="sourceConsumers"></div>
 </section>
 <section id="page-regulation" class="page hidden">
- <div class="intro"><h2>Regelungsfunktionen</h2><p>Eigener Bereich für die Konfiguration der Regelungslogik. Die bestehende Verbraucher- und Prioritätenverwaltung findest du weiterhin unter „Verbraucher &amp; Prioritäten“.</p></div>
- <article class="panel"><div class="panel-head"><div><h2>Regelungslogik</h2><p>Die vorhandenen Regelungsfunktionen bleiben unverändert. Weitere Einstellungen werden hier erst nach ihrer Umsetzung bereitgestellt; es wird keine Regelung automatisch aktiviert.</p></div></div></article>
-</section>
-<section id="page-devices" class="page hidden">
+ <div class="intro"><h2>Regelungsfunktionen</h2><p>Hier werden die bestehenden und künftigen Regelungsfunktionen verwaltet.</p></div>
+ <details class="source-manager-group" id="regulationConsumers" open>
+  <summary><span class="source-group-icon" aria-hidden="true">☷</span><span><strong>Verbraucher &amp; Prioritäten</strong><small>Verbraucher, Prioritätenmatrix und Freigaben verwalten.</small></span></summary>
+  <div class="source-manager-body">
  <div class="intro device-intro"><div><h2>Verbraucher & Prioritäten</h2><p>Verbraucher frei hinzufügen, Leistung festlegen und die Reihenfolge bestimmen. Die Ausgänge bleiben ohne Hardwarefreigabe virtuell.</p></div><button id="deviceIntroAdd" type="button" class="button primary">+ Neuen Verbraucher anlegen</button></div>
  <article class="panel"><div class="settings-grid"><label class="checkbox-line"><input id="virtualMaster" type="checkbox"> Prioritätenmatrix aktivieren</label><label>Maximal gleichzeitig freigeben <input id="maxParallel" type="number" min="1" max="250" value="3"></label></div></article>
  <article class="panel"><div class="panel-head"><div><div class="eyebrow">VERBRAUCHER</div><h2>Prioritätenmatrix</h2></div><button id="addDevice" type="button" class="button primary">+ Verbraucher hinzufügen</button></div><div id="consumerCards" class="consumer-list"></div></article>
  <div class="savebar"><span id="consDirty">Keine Änderungen</span><button id="resetConsumers" class="button ghost">Verwerfen</button><button id="saveConsumers" class="button primary">Verbraucher speichern</button></div>
+</div>
+ </details>
 </section>
 <section id="page-outputs" class="page hidden">
  <div class="intro"><h2>Geräteausgänge</h2><p>Freigabe- und Sollwert-Datenpunkte zuordnen. Eine eigene Freigabe schützt vor unbeabsichtigtem Schalten.</p></div>
