@@ -90,7 +90,7 @@
   host.innerHTML='<div class="logic-toolbar"><label>Logik <select id="logicSelect">'+config.logics.map(l=>'<option value="'+esc(l.id)+'" '+(l.id===active?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><button type="button" id="logicAdd">+ Neue Logik</button><button type="button" id="logicRemove" '+(!selected()?'disabled':'')+'>Löschen</button></div>';
   const logic=selected();
   if(!logic){host.insertAdjacentHTML('beforeend','<p>Noch keine Logik vorhanden. Erstelle deine erste Regelung.</p>');bind();return;}
-  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Simulation aktiv</label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Eigene ioBroker-Ausgänge werden bei aktiver, fehlerfreier Logik aktualisiert. Fremde Geräteausgänge werden nicht automatisch geschaltet.</p>'+canvas(logic)+'<div class="fup-details" hidden aria-hidden="true"><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></div><div id="logicDiagnostics" class="logic-diagnostics"></div>');
+  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Logik aktiviert</label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Eigene ioBroker-Ausgänge werden bei aktiver, fehlerfreier Logik aktualisiert. Fremde Geräteausgänge werden nicht automatisch geschaltet.</p>'+canvas(logic)+'<div class="fup-details" hidden aria-hidden="true"><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></div><div id="logicDiagnostics" class="logic-diagnostics"></div>');
   bind();bindCanvas(logic);diagnostics();
  }
  function blockHTML(b,i,logic){
@@ -127,7 +127,9 @@
   $('fupPickerResults').addEventListener('click',e=>{
    const button=e.target.closest('[data-fup-result]');if(!button||!pickerBlock)return;
    const row=pickerResults[Number(button.dataset.fupResult)],block=selected()?.blocks.find(b=>b.id===pickerBlock);
-   if(!row||!block||!row.id)return;block.stateId=String(row.id);if(block.op==='output')block.createNew=false;mark();$('logicStatus').textContent='Datenpunkt '+block.stateId+' zugewiesen – bitte Logiken speichern.';dialog.close();render();
+   if(!row||!block||!row.id){$('fupPickerStatus').textContent='Auswahl nicht übernommen: Baustein oder Datenpunkt fehlt.';return}
+   block.stateId=String(row.id);if(block.op==='output')block.createNew=false;
+   mark();dialog.close();render();$('logicStatus').textContent='Datenpunkt '+block.stateId+' zugewiesen – bitte Logiken speichern.';
   });
  }
  function bind(){
