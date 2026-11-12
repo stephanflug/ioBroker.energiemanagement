@@ -6,6 +6,10 @@
 
 **PV generation, household consumption, demand peaks and optional resource monitoring in one ioBroker interface.** Existing ioBroker data points provide the measurements. The adapter does not depend on a specific meter, inverter, battery, heat pump or consumer brand.
 
+## Current source v0.10.3
+
+The latest code is available on the [main branch](https://github.com/stephanflug/ioBroker.energiemanagement/tree/main) ([source ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/archive/refs/heads/main.zip)). Version 0.10.3 adds the FUP logic editor, live block values, block deletion and multi-battery monitoring. A packaged GitHub Release for v0.10.3 has not been published yet.
+
 ## Download v0.10.2
 
 Version **0.10.2 is a stable release on GitHub**. Download the complete [installable TGZ](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz), its [SHA-256 checksum](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256), or the [full project ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip). [Release notes and downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2) describe this version.
