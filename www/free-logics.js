@@ -310,7 +310,7 @@
    if(!file)return;
    try{
     if(!transfer)throw Error('Import-/Export-Modul fehlt. Seite neu laden.');
-    if(file.size>1024*1024)throw Error('Die JSON-Datei darf höchstens 1 MB groß sein.');
+    if(file.size>5*1024*1024)throw Error('Die JSON-Datei darf höchstens 5 MB groß sein.');
     const data=JSON.parse(await file.text());
     const added=transfer.importLogics(data,config.logics,unique);
     if(!confirm(added.length+' Logik(en) hinzufügen? Bestehende Logiken bleiben erhalten. Importierte Logiken und fremde Schreibfreigaben werden zunächst deaktiviert. Erst mit „Logiken speichern“ übernehmen.'))return;
