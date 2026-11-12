@@ -1,6 +1,8 @@
 'use strict';
 const utils=require('@iobroker/adapter-core');
 const {EnergyEngine,createRuntime,fresh}=require('./lib/engine');
+const {normalizeBatteryConfig,readBatteryMeasurements}=require('./lib/battery-sources');
+const FreeLogic=require('./lib/free-logic');
 const {SRC_SCHEMA,defaultSources,defaultConsumers,normalizeSources,normalizeConsumers,normalizeSettings,clamp}=require('./lib/normalize');
 const {importLegacy,cleanupLegacy}=require('./lib/migration');
 const pkg=require('./package.json');
@@ -73,6 +75,14 @@ class Energiemanagement extends utils.Adapter {
       this.heating=new HeatingService(this,asJSON(await this.read('config.heating','{}'),defaultHeating()),asJSON(await this.read('internal.heatingLearning','{}'),{}),asJSON(await this.read('internal.heatingOutputs','{}'),{}),asJSON(await this.read('heating.history','[]'),[]));
       this.activeHardware=asJSON(await this.read('internal.hardware','{}'),{});
       this.sources=normalizeSources(asJSON(await this.read('config.sources','{}'),defaultSources()));
+      this.batteries=normalizeBatteryConfig(asJSON(await this.read('config.batteries_JSON','{}'),{batteries:[]}));
+      // Vorhandene Batterie-Leistungsquelle einmalig als eigenen Speicher übernehmen.
+      if(!this.batteries.batteries.length&&this.sources.batteryW?.id){
+        this.batteries=normalizeBatteryConfig({batteries:[{id:'battery_1',name:'Vorhandener Batteriespeicher',enabled:true,sources:{power:this.sources.batteryW.id}}]});
+        await this.set('config.batteries_JSON',this.batteries,true);
+      }
+      this.freeLogics=FreeLogic.validate(asJSON(await this.read('config.freeLogics_JSON','{"logics":[]}'),{logics:[]}));
+      await this.prepareFreeLogicOutputs();
       this.consumers=normalizeConsumers(asJSON(await this.read('config.consumers','{}'),defaultConsumers()),this.config.maxConsumers||250);
       this.settings=normalizeSettings(asJSON(await this.read('config.settings','{}'),{}),this.config);
       this.hardwareMaster=await this.read('config.hardwareMaster',false)===true;
@@ -105,7 +115,7 @@ class Energiemanagement extends utils.Adapter {
     }catch(e){this.log.error('Startfehler: '+e.stack);await this.set('status.running',false).catch(()=>{});}
   }
   async createStates(){
-    const channels={config:'Einstellungen',status:'Systemstatus',live:'Livewerte',interval:'15-Minuten-Auswertung',day:'Tageswerte',month:'Monatswerte',control:'Leistungsbudget',history:'Historie',consumers:'Verbraucher',internal:'Interner Speicher',migration:'Migration',commands:'Aktionen',insights:'Dynamische Empfehlungen',analytics:'Geräte-Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',utilities:'Wasser und Brennstoff',storage:'Datenspeicherung',update:'Versionsinformationen'};
+    const channels={logicVirtual:'Virtuelle Sollwerte freier Logiken',logicOutputs:'Ausgänge freier Logiken',config:'Einstellungen',status:'Systemstatus',live:'Livewerte',interval:'15-Minuten-Auswertung',day:'Tageswerte',month:'Monatswerte',control:'Leistungsbudget',history:'Historie',consumers:'Verbraucher',internal:'Interner Speicher',migration:'Migration',commands:'Aktionen',insights:'Dynamische Empfehlungen',analytics:'Geräte-Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',utilities:'Wasser und Brennstoff',storage:'Datenspeicherung',update:'Versionsinformationen'};
     for(const [key,label]of Object.entries(channels))await this.channel(key,label);
     const defs=[
       ['update.status_JSON','Installierte Version und öffentliche GitHub-Releases (JSON)','string','{}'],
@@ -144,6 +154,10 @@ class Energiemanagement extends utils.Adapter {
       ['forecast.error','Letzter Prognosefehler','string',''],
       ['commands.forecastRefresh','Ertragsprognose aktualisieren','boolean',false,true],
       ['config.sources','Datenquellen (JSON)','string',JSON.stringify(defaultSources()),true],
+      ['config.batteries_JSON','Optionale Batteriespeicher und Messpunkte (JSON)','string','{"batteries":[]}',true],
+      ['config.freeLogics_JSON','Frei konfigurierbare Funktionsbaustein-Logiken (JSON)','string','{"logics":[]}',true],
+      ['live.freeLogics_JSON','Simulation und Diagnose der freien Logiken (JSON)','string','{"logics":[],"simulation":true}'],
+      ['live.batteries_JSON','Getrennte Batterie-Messwerte (JSON)','string','{"batteries":[]}'],
       ['config.consumers','Prioritäten und Verbraucher (JSON)','string',JSON.stringify(defaultConsumers()),true],
       ['config.settings','Leistungsziel, Reserve und Tarifwert (JSON)','string',JSON.stringify(normalizeSettings({},this.config)),true],
       ['config.hardwareMaster','Echte Hardwaresteuerung freigeben','boolean',false,true],
@@ -279,6 +293,9 @@ class Energiemanagement extends utils.Adapter {
   }
   async reloadConfig(){
     this.sources=normalizeSources(asJSON(await this.read('config.sources'),defaultSources()));
+    this.batteries=normalizeBatteryConfig(asJSON(await this.read('config.batteries_JSON','{}'),{batteries:[]}));
+    this.freeLogics=FreeLogic.validate(asJSON(await this.read('config.freeLogics_JSON','{"logics":[]}'),{logics:[]}));
+    await this.prepareFreeLogicOutputs();
     this.consumers=normalizeConsumers(asJSON(await this.read('config.consumers'),defaultConsumers()),this.config.maxConsumers||250);
     this.settings=normalizeSettings(asJSON(await this.read('config.settings'),{}),this.config);
     this.hardwareMaster=await this.read('config.hardwareMaster',false)===true;
@@ -508,12 +525,50 @@ class Energiemanagement extends utils.Adapter {
     }
     await this.set('control.hardwareReady',possible);
   }
+  async prepareFreeLogicOutputs(){
+    for(const logic of this.freeLogics?.logics||[]){
+      for(const b of logic.blocks){
+        if(b.op!=='virtual'||!/^[a-zA-Z][a-zA-Z0-9_]{0,49}$/.test(b.virtualKey||''))continue;
+        const id='logicVirtual.'+logic.id+'_'+b.virtualKey;
+        if(await this.getObjectAsync(id))continue;
+        const type=b.valueType==='boolean'?'boolean':'number';
+        const initial=typeof b.value===type?b.value:(type==='boolean'?false:0);
+        await this.state(id,logic.name+' – '+(b.name||b.virtualKey),type,initial,true);
+      }
+    }
+    for(const logic of this.freeLogics?.logics||[]){
+      for(const b of logic.blocks){
+        if(b.op!=='output'||b.createNew!==true)continue;
+        const key=b.outputKey;
+        if(!/^[a-zA-Z][a-zA-Z0-9_]{0,49}$/.test(key||''))continue;
+        const id='logicOutputs.'+logic.id+'_'+key;
+        const existing=await this.getObjectAsync(id);
+        if(existing)continue;
+        await this.state(id,logic.name+' – '+(b.name||key),b.outputType==='boolean'?'boolean':'number',b.outputType==='boolean'?false:0,false);
+      }
+    }
+  }
   async tick(){
     if(this.running||this.migrating||this.dataBusy||!this.engine)return;
     this.running=true;const now=unix();let utilitiesSampled=false;
     this.refreshForecast().catch(e=>this.log.warn('PV-Prognose: '+e.message));
     try{
       const measured=await this.readMeasures();
+      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input'&&b.stateId).map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);const virtualIds=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='virtual'&&b.virtualKey).map(b=>['virtual:'+l.id+':'+b.virtualKey,'logicVirtual.'+l.id+'_'+b.virtualKey])))];const virtualValues=Object.fromEntries(await Promise.all(virtualIds.map(async ([key,id])=>[key,(await this.getStateAsync(id).catch(()=>null))?.val??null])));const evaluated=FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>id.startsWith('virtual:')?virtualValues[id]:inputs[id]?.val??null);evaluated.ts=Date.now();await this.set('live.freeLogics_JSON',evaluated,true);
+        for(const row of evaluated.logics){
+          if(!row.enabled||row.errors.length)continue;
+          for(const out of row.outputs){
+            if(!out.createNew||!out.outputKey||!(typeof out.value==='boolean'||typeof out.value==='number'&&Number.isFinite(out.value)))continue;
+            const id='logicOutputs.'+row.id+'_'+out.outputKey;
+            const obj=await this.getObjectAsync(id);if(obj&&obj.common?.type===typeof out.value)await this.set(id,out.value);
+          }
+        }}catch(e){this.log.warn('Freie Logiken: '+e.message)}
+       try{
+        const ids=[...new Set((this.batteries?.batteries||[]).filter(b=>b.enabled).flatMap(b=>Object.values(b.sources)).filter(Boolean))];
+        const entries=await Promise.all(ids.map(async id=>{try{return [id,await this.getForeignStateAsync(id)]}catch{return [id,null]}}));
+        const rows=readBatteryMeasurements(this.batteries,Object.fromEntries(entries),now);
+        await this.set('live.batteries_JSON',{ts:now,batteries:rows},true);
+       }catch(e){this.log.warn('Batterie-Messwerte: '+e.message)}
       const signature=JSON.stringify([this.sources.importKWh,this.sources.exportKWh]);
       const report=this.engine.sample(now,measured,this.settings,signature);
       await this.updateReport(now,measured,report);
@@ -578,7 +633,7 @@ class Energiemanagement extends utils.Adapter {
     if(!state||state.ack)return;
     const suffix=id.slice(this.namespace.length+1);
     if(this.dataBusy||this.restoreHold){
-      const current={'config.sources':this.sources,'config.consumers':this.consumers,'config.settings':this.settings,'config.hardwareMaster':this.hardwareMaster,'config.forecast':this.forecast?.config,'config.heating':this.heating?.config,'config.features_JSON':this.utilities?.features,'config.utilities_JSON':this.utilities?.config,'config.energySummary_JSON':this.energySummaryConfig,'config.storage_JSON':this.storage?.config};
+      const current={'config.sources':this.sources,'config.batteries_JSON':this.batteries,'config.consumers':this.consumers,'config.settings':this.settings,'config.hardwareMaster':this.hardwareMaster,'config.forecast':this.forecast?.config,'config.heating':this.heating?.config,'config.features_JSON':this.utilities?.features,'config.utilities_JSON':this.utilities?.config,'config.energySummary_JSON':this.energySummaryConfig,'config.storage_JSON':this.storage?.config};
       const previous=current[suffix]??this.lastStatus[suffix];
       if(previous!==undefined)await this.set(suffix,previous,true);
       else if(suffix.startsWith('commands.'))await this.set(suffix,false,true);
@@ -636,6 +691,12 @@ class Energiemanagement extends utils.Adapter {
           const normalized=normalizeForecast(asJSON(state.val,null));
           await this.set(suffix,JSON.stringify(normalized),true);
           await this.reloadConfig();return;
+        }
+        if(suffix==='config.freeLogics_JSON'){const candidate=FreeLogic.validate(asJSON(state.val,null));this.freeLogics=candidate;await this.prepareFreeLogicOutputs();await this.set(suffix,candidate,true);return;}
+        if(suffix==='config.batteries_JSON'){
+          const candidate=normalizeBatteryConfig(asJSON(state.val,null));
+          await this.set(suffix,candidate,true);
+          this.batteries=candidate;return;
         }
         if(suffix==='config.sources'){const candidate=normalizeSources(asJSON(state.val,null));this.heating?.validateConflicts(this.heating.config,this.consumers,candidate);}
         if(suffix==='config.consumers'){const candidate=normalizeConsumers(asJSON(state.val,null),this.config.maxConsumers||250);this.heating?.validateConflicts(this.heating.config,candidate,this.sources);}

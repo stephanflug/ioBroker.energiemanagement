@@ -8,6 +8,8 @@ Es gibt keine Bindung an einen bestimmten Smart Meter, Wechselrichter oder Heizu
 
 [English](README.md) · [Installieren](docs/de/installation.md) · [Benutzerhandbuch](docs/de/benutzerhandbuch.md) · [Datenquellen](docs/de/datenquellen.md) · [Fehlerhilfe](docs/de/fehlerbehebung.md) · [Änderungen](CHANGELOG.md)
 
+**Aktueller Quellcode 0.10.3:** [GitHub-Hauptzweig](https://github.com/stephanflug/ioBroker.energiemanagement/tree/main) · [Projekt als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/archive/refs/heads/main.zip). Enthält den FUP-Logikeditor mit Live-Werten, Bausteine löschen und getrennte Batteriespeicher. Die offiziell gepackte 0.10.3-Version ist noch nicht als GitHub-Release veröffentlicht.
+
 **Stabile Version 0.10.2 auf GitHub:** [Installationspaket herunterladen (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz) · [Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/iobroker.energiemanagement-0.10.2.tgz.sha256) · [Vollständiges Projekt (ZIP)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.2/ioBroker.energiemanagement-v0.10.2-projekt.zip) · [Release und Änderungen](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). Der Adapter ist noch nicht auf npm oder in der offiziellen ioBroker-Adapterliste veröffentlicht. Die Installation erfolgt bewusst und manuell; die Anwendung installiert keine Updates selbst.
 
 ![Übersicht mit Energiefluss und aktuellen Werten](docs/images/overview-desktop.png)

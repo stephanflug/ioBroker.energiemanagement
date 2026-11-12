@@ -49,6 +49,23 @@
   const inventory=stateJSON('analytics.fuelInventory_JSON',{});
   fuelInventory=inventory&&typeof inventory==='object'&&!Array.isArray(inventory)?inventory:{};
  }
+ function batterySnapshot(){
+  const config=stateJSON('config.batteries_JSON',{batteries:[]});
+  const measured=stateJSON('live.batteries_JSON',{batteries:[]});
+  const live=new Map((Array.isArray(measured.batteries)?measured.batteries:[]).map(b=>[b.id,b]));
+  return (Array.isArray(config.batteries)?config.batteries:[]).filter(b=>b.enabled===true).map(b=>{
+   const data=live.get(b.id),v=data?.values||{},q=data?.quality||{};
+   const read=key=>q[key]==='ok'?(key==='status'?String(v[key]??''):num(v[key])):null;
+   return {id:b.id,name:b.name||b.id,soc:read('soc'),voltage:read('voltage'),current:read('current'),power:read('power'),status:read('status'),timestamp:measured.ts||null};
+  });
+ }
+ function renderBatteries(){
+  const rows=batterySnapshot();
+  for(const id of ['analysisBatteries','reportBatteries']){
+   const host=$(id);if(!host)continue;
+   host.innerHTML=rows.length?'<div class="table-scroll"><table class="ana-table"><thead><tr><th>Speicher</th><th>SOC</th><th>Spannung</th><th>Strom</th><th>Leistung</th><th>Zustand</th></tr></thead><tbody>'+rows.map(b=>'<tr><td>'+escape(b.name)+'</td><td>'+escape(b.soc===null?'–':fmt(b.soc,1)+' %')+'</td><td>'+escape(b.voltage===null?'–':fmt(b.voltage,1)+' V')+'</td><td>'+escape(b.current===null?'–':fmt(b.current,1)+' A')+'</td><td>'+escape(b.power===null?'–':fmt(b.power,0)+' W')+'</td><td>'+escape(b.status??'–')+'</td></tr>').join('')+'</tbody></table></div><p class="footnote">Aktuelle Messwerte je aktivem Speicher. Noch keine historische Batterie-Energieaufzeichnung; die Werte sind keine Zeitraum-Summen.</p>':'<p class="footnote">Keine Batteriespeicher aktiviert.</p>';
+  }
+ }
  function availableDays(){
   return [...new Set([...Object.keys(allDayData),...Object.keys(deviceDayData)])]
    .filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)).sort();
@@ -225,6 +242,7 @@
     $('reportDevice').value=wasReportDevice||'';
    }
   }
+  renderBatteries();
   if(initialized&&$('page-reports')&&!$('page-reports').classList.contains('hidden')){if($('reportPreset').value!=='custom')setPreset();generateReport();}
  }
  function emptyChart(msg){$('anaChart').innerHTML='<div class="ana-empty">'+escape(msg)+'</div>'}
@@ -457,6 +475,8 @@
    }
   }
   appendUtilityReport(result,type,from,to);
+  if(['balance','solar'].includes(type)){const batteries=batterySnapshot();if(batteries.length){result.extraTables=result.extraTables||[];result.extraTables.push({title:'Batteriespeicher – Momentaufnahme',note:'Aktuelle Messwerte zum Erstellungszeitpunkt, keine historischen Werte für den Berichtszeitraum.',columns:[{key:'name',label:'Speicher'},{key:'soc',label:'SOC (%)'},{key:'voltage',label:'Spannung (V)'},{key:'current',label:'Strom (A)'},{key:'power',label:'Leistung (W)'},{key:'status',label:'Zustand'}],rows:batteries});}}
+
   if(result.rows.length===0)result.notes.unshift('Für diesen Bericht wurden im gewählten Zeitraum keine passenden Messdaten gefunden.');
   return result;
  }
@@ -527,6 +547,7 @@
  function render(page){
   if(!initialized)initControls();
   if(page==='overview')renderOverviewEnergy();
+  if(page==='analytics'||page==='reports')renderBatteries();
   if(page==='analytics')renderAnalytics();
   else if(page==='reports'){if($('reportPreset').value!=='custom')setPreset();generateReport()}
  }

@@ -6,7 +6,7 @@
 <meta name="description" content="Energiemanagement für ioBroker – Viertelstundenmonitoring und Lastmanagement">
 <title>Energiemanagement</title>
 <link rel="stylesheet" href="style.css?v=0.10.2">
-<script src="/lib/js/socket.io.js" defer></script><script src="app.js?v=0.10.2" defer></script><script src="analytics.js?v=0.10.2" defer></script>
+<script src="/lib/js/socket.io.js" defer></script><script src="app.js?v=0.10.15" defer></script><script src="analytics.js?v=0.10.2" defer></script>
 <link rel="stylesheet" href="insights.css?v=0.10.2">
 <script src="insights.js?v=0.10.2" defer></script>
 <link rel="stylesheet" href="forecast.css?v=0.10.2">
@@ -34,6 +34,8 @@
 <script src="tank.js?v=0.10.2" defer></script>
 <link rel="stylesheet" href="sources-manager.css?v=0.10.2">
 <script src="sources-manager.js?v=0.10.2" defer></script>
+<link rel="stylesheet" href="batteries.css?v=0.10.3"><script src="batteries.js?v=0.10.3" defer></script>
+<link rel="stylesheet" href="free-logics.css?v=0.10.16"><script src="free-logics.js?v=0.10.17" defer></script>
 <link rel="stylesheet" href="backup-ui.css?v=0.10.2">
 <script src="backup-ui.js?v=0.10.2" defer></script>
 <link rel="stylesheet" href="about.css?v=0.10.2">
@@ -63,8 +65,7 @@
  <div class="nav-caption">KONFIGURATION</div>
  <nav>
   <button data-page="sources"><span>⌕</span> Datenquellen</button>
-  <button data-page="devices"><span>☷</span> Verbraucher & Prioritäten</button>
-  <button data-page="outputs"><span>⌁</span> Geräteausgänge</button>
+  <button data-page="regulation"><span>⚙</span> Regelungsfunktionen</button>
   <button data-page="settings"><span>⚙</span> Einstellungen</button>
   <button data-page="about"><span aria-hidden="true">ⓘ</span> Über &amp; Lizenzen</button>
  </nav>
@@ -96,7 +97,7 @@
    <div class="flow-column flow-inputs">
     <div class="flow-node flow-pv"><span class="flow-icon" aria-hidden="true">☀</span><div><small>PV-Erzeugung</small><strong id="flowPv">–</strong><em id="flowPvDetail">Alle PV-Quellen</em></div></div>
     <div class="flow-node flow-gridnode"><span class="flow-icon" aria-hidden="true">⌁</span><div><small>Stromnetz</small><strong id="flowGrid">–</strong><em id="flowGridDetail">Bezug / Einspeisung</em></div></div>
-    <div class="flow-node flow-battery"><span class="flow-icon" aria-hidden="true">▣</span><div><small>Batterie</small><strong id="flowBattery">–</strong><em id="flowBatteryDetail">Laden / Entladen</em></div></div>
+    <div class="flow-node flow-battery"><span class="flow-icon" aria-hidden="true">▣</span><div><small>Batterie</small><strong id="flowBattery">–</strong><em id="flowBatteryDetail">Laden / Entladen</em><div id="flowBatterySoc" class="battery-soc-inline"></div></div></div>
    </div>
    <div class="flow-connectors" aria-hidden="true"><span id="flowPvLine" class="flow-line"></span><span id="flowGridLine" class="flow-line"></span><span id="flowBatteryLine" class="flow-line"></span></div>
    <div class="flow-hub"><span class="flow-hub-icon" aria-hidden="true">⌂</span><small>Hausverbrauch</small><strong id="flowHouse">–</strong><span id="flowHouseQuality">Berechnet / gemessen</span></div>
@@ -390,6 +391,7 @@
     <p id="reportSubtitle">Zeitraum wird geladen</p></div>
     <div class="report-brand">Entwicklung: Stephan Ebner</div></div>
   <div id="reportSummary" class="report-summary"></div>
+  <section class="panel"><h3>Batteriespeicher – aktuelle Messwerte</h3><div id="reportBatteries"></div></section>
   <div class="table-scroll"><table class="ana-table"><thead id="reportTableHead"></thead><tbody id="reportRows"></tbody></table></div>
   <div id="reportNotes" class="report-notes"></div>
  </article>
@@ -402,18 +404,29 @@
 
 <section id="page-sources" class="page hidden">
  <div class="intro"><h2>Messdaten zuordnen</h2><p>Alle Sensoren und Zähler zentral nach Bereich zuordnen. Mindestvoraussetzung für die Stromauswertung sind Netzbezugsleistung und Bezugszählerstand.</p></div>
- <div id="sourceOverview"></div>
+<div id="sourceOverview"></div>
  <article class="panel"><div class="panel-head"><div><div class="eyebrow">MESSDATEN</div><h2>Netzanschluss, Zähler und Batterie</h2></div></div><div id="sourceRows"></div>
  <div class="advice">Beim Wechsel eines Bezugszählers wird der offene Viertelstundenblock verworfen. Bereits abgeschlossene Historien bleiben erhalten.</div></article>
  <article class="panel"><div class="panel-head"><div><div class="eyebrow">PV-QUELLEN</div><h2>Wechselrichter / PV-Erzeuger</h2><p>Beliebig viele PV-Datenpunkte ohne Vorgabe eines Herstellers.</p></div><button id="addPv" class="button ghost">+ PV-Quelle</button></div><div id="pvRows"></div></article>
- <div class="savebar"><span id="sourceDirty">Keine Änderungen</span><button id="resetSources" class="button ghost">Verwerfen</button><button id="saveSources" class="button primary">Datenquellen speichern</button></div>
+ <div class="savebar"><span id="sourceDirty">Keine Änderungen</span><button id="resetSources" class="button ghost">Verwerfen</button><button id="saveSources" class="button primary">Datenquellen speichern</button></div><div id="sourceBatteryPanel"><article class="panel"><div class="panel-head"><div><h2>Batteriespeicher</h2><p>Optional beliebig viele Speicher mit eigenen Messpunkten konfigurieren.</p></div><button id="batteryAdd" type="button" class="button ghost">+ Batteriespeicher</button></div></article><div id="batteryEditor"></div><div class="savebar"><span id="batteryDirty">Keine Änderungen</span><button id="batteryDiscard" type="button" class="button ghost">Verwerfen</button><button id="batterySave" type="button" class="button primary">Batterien speichern</button></div><dialog id="batteryPicker" class="battery-picker"><h3>Datenpunkt auswählen</h3><form id="batterySearch"><input id="batterySearchQuery" type="search" placeholder="Datenpunkt suchen" minlength="2"><button class="button primary" type="submit">Suchen</button></form><div id="batteryResults"></div><button id="batteryPickerClose" type="button" class="button ghost">Schließen</button></dialog>
+ </div>
  <div id="sourceWater"></div><div id="sourceRainwater" class="source-category"></div><div id="sourceFuel"></div><div id="sourceHeating"></div><div id="sourceConsumers"></div>
 </section>
-<section id="page-devices" class="page hidden">
+<section id="page-regulation" class="page hidden">
+ <div class="intro"><h2>Regelungsfunktionen</h2><p>Hier werden die bestehenden und künftigen Regelungsfunktionen verwaltet.</p></div>
+ <details class="source-manager-group" id="regulationConsumers" open>
+  <summary><span class="source-group-icon" aria-hidden="true">☷</span><span><strong>Verbraucher &amp; Prioritäten</strong><small>Verbraucher, Prioritätenmatrix und Freigaben verwalten.</small></span></summary>
+  <div class="source-manager-body">
  <div class="intro device-intro"><div><h2>Verbraucher & Prioritäten</h2><p>Verbraucher frei hinzufügen, Leistung festlegen und die Reihenfolge bestimmen. Die Ausgänge bleiben ohne Hardwarefreigabe virtuell.</p></div><button id="deviceIntroAdd" type="button" class="button primary">+ Neuen Verbraucher anlegen</button></div>
  <article class="panel"><div class="settings-grid"><label class="checkbox-line"><input id="virtualMaster" type="checkbox"> Prioritätenmatrix aktivieren</label><label>Maximal gleichzeitig freigeben <input id="maxParallel" type="number" min="1" max="250" value="3"></label></div></article>
  <article class="panel"><div class="panel-head"><div><div class="eyebrow">VERBRAUCHER</div><h2>Prioritätenmatrix</h2></div><button id="addDevice" type="button" class="button primary">+ Verbraucher hinzufügen</button></div><div id="consumerCards" class="consumer-list"></div></article>
  <div class="savebar"><span id="consDirty">Keine Änderungen</span><button id="resetConsumers" class="button ghost">Verwerfen</button><button id="saveConsumers" class="button primary">Verbraucher speichern</button></div>
+</div>
+ </details>
+ <details class="source-manager-group" id="regulationFreeLogics">
+  <summary><span class="source-group-icon" aria-hidden="true">◇</span><span><strong>Freie Logiken (FUP)</strong><small>Funktionsbausteine programmieren und Live-Werte prüfen</small></span></summary>
+  <div class="source-manager-body"><article class="panel"><h2>Freie Logiken</h2><div id="freeLogicEditor"></div><div class="savebar"><span id="logicStatus">Keine Änderungen</span><button id="logicReset" class="button ghost" type="button">Verwerfen</button><button id="logicSave" class="button primary" type="button">Logiken speichern</button></div></article></div>
+ </details>
 </section>
 <section id="page-outputs" class="page hidden">
  <div class="intro"><h2>Geräteausgänge</h2><p>Freigabe- und Sollwert-Datenpunkte zuordnen. Eine eigene Freigabe schützt vor unbeabsichtigtem Schalten.</p></div>
