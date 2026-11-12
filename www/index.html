@@ -35,6 +35,7 @@
 <link rel="stylesheet" href="sources-manager.css?v=0.10.2">
 <script src="sources-manager.js?v=0.10.2" defer></script>
 <link rel="stylesheet" href="batteries.css?v=0.10.3"><script src="batteries.js?v=0.10.3" defer></script>
+<script src="free-logics.js?v=0.10.4" defer></script>
 <link rel="stylesheet" href="backup-ui.css?v=0.10.2">
 <script src="backup-ui.js?v=0.10.2" defer></script>
 <link rel="stylesheet" href="about.css?v=0.10.2">
@@ -421,6 +422,10 @@
  <article class="panel"><div class="panel-head"><div><div class="eyebrow">VERBRAUCHER</div><h2>Prioritätenmatrix</h2></div><button id="addDevice" type="button" class="button primary">+ Verbraucher hinzufügen</button></div><div id="consumerCards" class="consumer-list"></div></article>
  <div class="savebar"><span id="consDirty">Keine Änderungen</span><button id="resetConsumers" class="button ghost">Verwerfen</button><button id="saveConsumers" class="button primary">Verbraucher speichern</button></div>
 </div>
+ </details>
+ <details class="source-manager-group" id="regulationFreeLogics">
+  <summary><span class="source-group-icon" aria-hidden="true">◇</span><span><strong>Freie Logiken (FUP)</strong><small>Funktionsbausteine und Datenpunkte verbinden – Simulationsmodus</small></span></summary>
+  <div class="source-manager-body"><article class="panel"><h2>Freie Logiken</h2><div id="freeLogicEditor"></div><div class="savebar"><span id="logicStatus">Keine Änderungen</span><button id="logicReset" class="button ghost" type="button">Verwerfen</button><button id="logicSave" class="button primary" type="button">Logiken speichern</button></div></article></div>
  </details>
 </section>
 <section id="page-outputs" class="page hidden">
