@@ -19,7 +19,7 @@ test('Fremdausgang bleibt ohne beide Freigaben strikt read-only',async()=>{
 test('Explizit freigegebener Boolean-Ausgang wird mit val und ack:false übergeben',async()=>{
  const c=setup({global:true,perOutput:true});await applyForeignOutputs(c.config,c.evaluated,c.io);
  assert.deepEqual(c.calls,[{id:'hm-rega.0.48501',value:true}]);
- assert.equal(c.evaluated.logics[0].outputs[0].writeStatus,'Schreibbefehl gesendet');
+ assert.match(c.evaluated.logics[0].outputs[0].writeStatus,/Schreibbefehl gesendet/);
 });
 test('Unveränderte Zielwerte werden nicht erneut geschrieben',async()=>{
  const c=setup({global:true,perOutput:true,old:true});await applyForeignOutputs(c.config,c.evaluated,c.io);
@@ -50,15 +50,14 @@ test('Zyklischer Fremdausgang schreibt denselben Wert erst nach dem Intervall er
  const lastWrites=new Map();let now=100000;
  c.io.lastWrites=lastWrites;c.io.now=()=>now;
  await applyForeignOutputs(c.config,c.evaluated,c.io);
- assert.equal(c.calls.length,1);
- assert.equal(c.calls[0].value,true);
+ assert.equal(c.calls.length,0);
  now+=30000;
  await applyForeignOutputs(c.config,c.evaluated,c.io);
  assert.equal(c.calls.length,1);
  assert.match(c.evaluated.logics[0].outputs[0].writeStatus,/nächste Ausgabe/);
  now+=30000;
  await applyForeignOutputs(c.config,c.evaluated,c.io);
- assert.equal(c.calls.length,2);
+ assert.equal(c.calls.length,1);
 });
 test('Ohne zyklisches Schreiben bleiben unveränderte Zustände unbegrenzt schreibfrei',async()=>{
  const c=setup({global:true,perOutput:true,val:true,old:true});
@@ -74,8 +73,35 @@ test('Wertänderung wird auch bei laufendem zyklischem Intervall sofort geschrie
  c.config.logics[0].blocks[1].cycleSeconds=60;
  c.io.lastWrites=new Map();let now=1000;c.io.now=()=>now;
  await applyForeignOutputs(c.config,c.evaluated,c.io);
- assert.equal(c.calls.length,1);
- now+=5000;c.io.getState=async()=>({val:false,ack:true});
+ assert.equal(c.calls.length,0);
+ now+=5000;c.evaluated.logics[0].outputs[0].value=false;
  await applyForeignOutputs(c.config,c.evaluated,c.io);
- assert.equal(c.calls.length,2);
+ assert.equal(c.calls.length,1);
+ assert.equal(c.calls[0].value,false);
+});
+
+test('NICHT zyklisch: Fremdänderung des Ziels löst bei unverändertem Logikwert keinen erneuten Schreibbefehl aus',async()=>{
+ const c=setup({global:true,perOutput:true,val:true,old:false});
+ c.io.lastValues=new Map();
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,1);
+ c.io.getState=async()=>({val:false,ack:true}); // Ein anderer Adapter setzt das Ziel wieder zurück.
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,1,'Eine fremde Änderung darf keinen Schreib-Loop erzeugen');
+ assert.match(c.evaluated.logics[0].outputs[0].writeStatus,/Logikwert unverändert/);
+ c.evaluated.logics[0].outputs[0].value=false;
+ c.io.getState=async()=>({val:true,ack:true});
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,2,'Neue Logikwert-Flanke muss sofort schreiben');
+ assert.equal(c.calls[1].value,false);
+});
+test('NICHT zyklisch: Initial passender Zieldatenpunkt, danach Fremdänderung, niemals schreiben',async()=>{
+ const c=setup({global:true,perOutput:true,val:false,old:false});
+ c.io.lastValues=new Map();
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,0);
+ c.io.getState=async()=>({val:true,ack:true});
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,0);
 });
