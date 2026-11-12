@@ -298,7 +298,16 @@
  function init(){
   document.addEventListener('click',e=>{const button=e.target.closest('[data-pick-state]');if(button&&button.closest('#freeLogicEditor')){e.preventDefault();openStatePicker(button.dataset.pickState)}});
   if(!$('freeLogicEditor'))return;
-  $('logicSave')?.addEventListener('click',async()=>{if(saving)return;try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=payload;preview.signature='';$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert – Live-Werte werden aktualisiert';diagnostics();}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
+  $('logicSave')?.addEventListener('click',async()=>{if(saving)return;
+   if(config.externalWritesEnabled===true){
+    const previous=new Set(lastKnown?.externalWritesEnabled===true?(lastKnown.logics||[]).flatMap(l=>l.enabled===true?l.blocks.filter(b=>b.op==='output'&&b.writeEnabled===true&&b.createNew!==true&&b.stateId).map(b=>b.stateId):[]):[]);
+    const targets=[...new Set(config.logics.flatMap(l=>l.enabled===true?l.blocks.filter(b=>b.op==='output'&&b.writeEnabled===true&&b.createNew!==true&&b.stateId).map(b=>b.stateId):[]))].filter(id=>!previous.has(id));
+    if(targets.length){
+     const nl=String.fromCharCode(10);
+     if(!confirm('Achtung: Folgende ioBroker-Datenpunkte dürfen nach dem Speichern beschrieben werden und möglicherweise Geräte schalten:'+nl+targets.join(nl)+nl+nl+'Wirklich freigeben?'))return;
+    }
+   }
+   try{if(!api.setVal||!api.readVal)throw Error('Keine Verbindung');saving=true;const payload=JSON.stringify(config);pendingSave=payload;$('logicStatus').textContent='Speichern und Bestätigung abwarten …';await api.setVal('config.freeLogics_JSON',payload);let confirmed=false;for(let attempt=0;attempt<12;attempt++){await new Promise(resolve=>setTimeout(resolve,500));const response=await api.readVal('config.freeLogics_JSON');const val=response?.val??response?.state?.val;let parsed;try{parsed=JSON.parse(val)}catch{continue}if(JSON.stringify(parsed)===payload&&response?.ack!==false){confirmed=true;break}}if(!confirmed)throw Error('Keine Bestätigung vom Adapter. Konfiguration nicht überschrieben; bitte Adapterstatus prüfen.');dirty=false;signature=payload;pendingSave=payload;preview.signature='';$('logicStatus').textContent='Vom Adapter bestätigt und gespeichert – Live-Werte werden aktualisiert';diagnostics();}catch(e){dirty=true;pendingSave=null;$('logicStatus').textContent='Speichern nicht bestätigt: '+e.message;}finally{saving=false}});
   $('logicReset')?.addEventListener('click',()=>{dirty=false;signature='';sync()});
   render();
   loadSaved();
