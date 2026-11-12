@@ -6,3 +6,8 @@
 .fup-stage .fup-node.fup-node-error{border-color:#dc2626}
 .fup-stage .fup-node.fup-node-error .fup-node-value{color:#dc2626}
 .fup-node .fup-pick-button{max-width:calc(100% - 18px);overflow-wrap:anywhere;white-space:normal;text-align:left}
+
+/* Lösch-Schaltfläche je Funktionsbaustein, unabhängig vom Ziehbereich. */
+.fup-node-title{padding-right:34px}
+.fup-node .fup-delete{position:absolute;top:5px;right:5px;z-index:2;width:25px;height:25px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid #fecaca;border-radius:6px;background:#fff1f2;color:#b91c1c;font-size:20px;line-height:1;cursor:pointer}
+.fup-node .fup-delete:hover,.fup-node .fup-delete:focus-visible{background:#fee2e2;outline:2px solid #f87171}
