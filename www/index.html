@@ -78,7 +78,7 @@
 <div id="connectionBanner" class="connection-banner" hidden role="status"><span id="connectionMessage"></span><button id="connectionRetry" class="button ghost" type="button">Erneut verbinden</button></div>
 <div id="notice" class="notice hidden" role="status" aria-live="polite"><span id="noticeText" class="notice-text"></span><button id="noticeDismiss" class="notice-dismiss" type="button" aria-label="Meldung schließen" title="Meldung schließen">×</button></div>
 <section id="page-overview" class="page dashboard-overview">
- <div id="batteryOverviewCards" class="battery-grid"></div><div class="dashboard-intro">
+ <div class="dashboard-intro">
   <div><div class="eyebrow">ENERGIE IM ÜBERBLICK</div><h2>Dein Haus auf einen Blick</h2><p>Aktuelle Leistung, wichtige Hinweise und dein Energieverbrauch.</p></div>
   <div class="dashboard-status" id="dashboardQuality" role="status"><i aria-hidden="true"></i><span id="dashboardQualityText">Messwerte werden geladen</span></div>
  </div>
@@ -97,7 +97,7 @@
    <div class="flow-column flow-inputs">
     <div class="flow-node flow-pv"><span class="flow-icon" aria-hidden="true">☀</span><div><small>PV-Erzeugung</small><strong id="flowPv">–</strong><em id="flowPvDetail">Alle PV-Quellen</em></div></div>
     <div class="flow-node flow-gridnode"><span class="flow-icon" aria-hidden="true">⌁</span><div><small>Stromnetz</small><strong id="flowGrid">–</strong><em id="flowGridDetail">Bezug / Einspeisung</em></div></div>
-    <div class="flow-node flow-battery"><span class="flow-icon" aria-hidden="true">▣</span><div><small>Batterie</small><strong id="flowBattery">–</strong><em id="flowBatteryDetail">Laden / Entladen</em></div></div>
+    <div class="flow-node flow-battery"><span class="flow-icon" aria-hidden="true">▣</span><div><small>Batterie</small><strong id="flowBattery">–</strong><em id="flowBatteryDetail">Laden / Entladen</em><div id="flowBatterySoc" class="battery-soc-inline"></div></div></div>
    </div>
    <div class="flow-connectors" aria-hidden="true"><span id="flowPvLine" class="flow-line"></span><span id="flowGridLine" class="flow-line"></span><span id="flowBatteryLine" class="flow-line"></span></div>
    <div class="flow-hub"><span class="flow-hub-icon" aria-hidden="true">⌂</span><small>Hausverbrauch</small><strong id="flowHouse">–</strong><span id="flowHouseQuality">Berechnet / gemessen</span></div>
@@ -282,9 +282,7 @@
   <button type="button" data-analysis-jump="analysisAdvicePanel"><span aria-hidden="true">✦</span>Empfehlungen</button>
   <button type="button" data-analysis-jump="analysisResources"><span aria-hidden="true">◉</span>Weitere Verbräuche</button>
  </nav>
- <article class="panel"><div class="panel-head"><div><h2>Batteriespeicher</h2><p>Alle aktivierten Speicher mit aktuellen Messwerten.</p></div></div><div id="analysisBatteries"></div></article>
  <div id="energySummary"></div>
- <article class="panel"><div class="panel-head"><h3>Aktueller Batterieladezustand</h3></div><div id="calendarBatterySoc" class="battery-grid" aria-live="polite"></div></article>
  <div id="utilitiesCalendar" hidden></div>
  <div id="dayComparisonContent" class="analysis-anchor" tabindex="-1" aria-label="Heutigen Energieverbrauch mit den Vortagen vergleichen"></div>
 
