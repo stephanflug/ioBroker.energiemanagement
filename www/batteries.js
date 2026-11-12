@@ -3,7 +3,7 @@
  const $=id=>document.getElementById(id);
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;',"'":'&#39;'}[c]));
  const fields={soc:['SOC','%'],voltage:['Spannung','V'],current:['Strom','A'],power:['Leistung','W'],status:['Zustand','']};
- let config={batteries:[]},signature='',dirty=false,saving=false,api={},namespace='energiemanagement.0',live=[],history=new Map(),picker=null;
+ let activeTab='general',config={batteries:[]},signature='',dirty=false,saving=false,api={},namespace='energiemanagement.0',live=[],history=new Map(),picker=null;
  const parse=(value,fallback)=>{try{return JSON.parse(value)}catch{return fallback}};
  const format=(v,unit)=>v===null||v===undefined||v===''?'–':(typeof v==='number'?new Intl.NumberFormat('de-AT',{maximumFractionDigits:2}).format(v):String(v))+(unit?' '+unit:'');
  function sync(states){
@@ -49,7 +49,18 @@
   $('batteryDirty').textContent=dirty?'Nicht gespeicherte Änderungen':'Keine Änderungen';
  }
  function mark(){dirty=true;$('batteryDirty').textContent='Nicht gespeicherte Änderungen';}
+ function showTab(tab){
+  activeTab=tab;
+  $('sourceGeneralPanel').hidden=tab!=='general';
+  $('sourceBatteryPanel').hidden=tab!=='batteries';
+  for(const [name,id] of [['general','sourceTabGeneral'],['batteries','sourceTabBatteries']]){
+   const el=$(id);el.setAttribute('aria-selected',String(tab===name));el.classList.toggle('primary',tab===name);el.classList.toggle('ghost',tab!==name);
+  }
+  if(tab==='batteries'){renderEditor();renderLive();}
+ }
  function init(){
+  $('sourceTabGeneral')?.addEventListener('click',()=>showTab('general'));
+  $('sourceTabBatteries')?.addEventListener('click',()=>showTab('batteries'));
   $('batteryAdd')?.addEventListener('click',()=>{
    const used=new Set(config.batteries.map(b=>b.id));let n=1;while(used.has('battery_'+n))n++;
    config.batteries.push({id:'battery_'+n,name:'Batterie '+n,enabled:false,sources:{soc:'',voltage:'',current:'',power:'',status:''}});mark();renderEditor();
@@ -94,7 +105,7 @@
  }
  document.addEventListener('DOMContentLoaded',init);
  window.EnergyBatteriesUI={
-  render(page){if(page==='battery'||page==='overview')renderLive();if(page==='sources'&&!dirty)renderEditor();},
+  render(page){if(page==='overview')renderLive();if(page==='sources'){showTab(activeTab);}},
   update(states,N,page,methods){namespace=N;api={...api,...methods,states};sync(states);}
  };
 })();
