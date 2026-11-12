@@ -37,7 +37,7 @@ class Energiemanagement extends utils.Adapter {
     this.versionCheck=null;this.versionTimer=null;this.versionCheckOptions=options.versionCheckOptions||{};
     this.running=false;this.timer=null;this.engine=null;this.sources=defaultSources();
     this.consumers=defaultConsumers();this.settings={targetW:9500,reserveW:500,tariffThresholdW:10000,minCoveragePct:85};
-    this.hardwareMaster=false;this.activeHardware={};this.lastOff={};this.lastSave=0;this.lastStatus={};this.freeLogicWriteTimes=new Map();
+    this.hardwareMaster=false;this.activeHardware={};this.lastOff={};this.lastSave=0;this.lastStatus={};this.freeLogicWriteTimes=new Map();this.freeLogicObservedValues=new Map();
     this.knownConsumers=new Set();this.migrationComplete=false;this.migrating=false;this.monitorGoodSince=0;this.runCount=0;
   }
   async channel(id,name){await this.setObjectNotExistsAsync(id,{type:'channel',common:{name},native:{}});}
@@ -560,7 +560,8 @@ class Energiemanagement extends utils.Adapter {
           getObject:id=>this.getForeignObjectAsync(id),
           getState:id=>this.getForeignStateAsync(id),
           setState:(id,val)=>this.setForeignStateAsync(id,{val,ack:false}),
-          lastWrites:this.freeLogicWriteTimes
+          lastWrites:this.freeLogicWriteTimes,
+          lastValues:this.freeLogicObservedValues
         });
         evaluated.ts=Date.now();
         for(const row of evaluated.logics){
