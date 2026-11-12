@@ -8,11 +8,13 @@ Es gibt keine Bindung an einen bestimmten Smart Meter, Wechselrichter oder Heizu
 
 [English](README.md) · [Installieren](docs/de/installation.md) · [Benutzerhandbuch](docs/de/benutzerhandbuch.md) · [Datenquellen](docs/de/datenquellen.md) · [Fehlerhilfe](docs/de/fehlerbehebung.md) · [Änderungen](CHANGELOG.md)
 
-**Aktuelle stabile Version 0.10.3 auf GitHub:** [Installationspaket herunterladen (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.3/iobroker.energiemanagement-0.10.3.tgz) · [SHA-256-Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.3/iobroker.energiemanagement-0.10.3.tgz.sha256) · [Vollständiges Projekt (ZIP)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.3/ioBroker.energiemanagement-v0.10.3-projekt.zip) · [Versionshinweise und Downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.3).
+**Aktuelle stabile Version 0.10.4 auf GitHub:** [Installationspaket (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.4/iobroker.energiemanagement-0.10.4.tgz) · [SHA-256-Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.4/iobroker.energiemanagement-0.10.4.tgz.sha256) · [Projekt vollständig als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.4/ioBroker.energiemanagement-v0.10.4-projekt.zip) · [Versionshinweise und Downloads](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.4).
 
-Version 0.10.3 enthält den FUP-Logikeditor mit Live-Werten, das Löschen von Bausteinen und Verbindungen sowie die getrennte Konfiguration mehrerer Batteriespeicher. Eine bestehende ioBroker-Installation wird durch die Veröffentlichung nicht automatisch aktualisiert.
+**Neu im FUP-Logikeditor:** Alle Logiken als JSON sichern, einzelne Logiken als datenschutzfreundliche Vorlage teilen und Vorlagen bzw. Sicherungen importieren. Der Import verändert keine bestehenden Logiken und deaktiviert die importierten Logiken sowie alle fremden Schreibfreigaben. An jedem Ausgang lässt sich **„Zyklisch schreiben“** mit einem Intervall von 10 bis 3.600 Sekunden einschalten (Standard: aus, Vorgabeintervall 60 Sekunden). Bei ausgeschalteter Zyklik wird ein gleichbleibender Wert nicht erneut geschrieben.
 
-**Vorherige stabile Version 0.10.2:** [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.2). Der Adapter ist bislang weder auf npm noch in der offiziellen ioBroker-Adapterliste veröffentlicht.
+[Beispielvorlagen und Anleitung](examples/fup/README.md) · [Batterie über Grenzwert als JSON](examples/fup/batterie-ueber-grenzwert.json)
+
+**Vorherige stabile Version 0.10.3:** [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.3). Der Adapter ist bislang weder auf npm noch in der offiziellen ioBroker-Adapterliste veröffentlicht. Eine GitHub-Veröffentlichung aktualisiert bestehende Installationen nicht automatisch.
 
 ![Übersicht mit Energiefluss und aktuellen Werten](docs/images/overview-desktop.png)
 
