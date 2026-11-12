@@ -115,7 +115,7 @@ class Energiemanagement extends utils.Adapter {
     }catch(e){this.log.error('Startfehler: '+e.stack);await this.set('status.running',false).catch(()=>{});}
   }
   async createStates(){
-    const channels={logicOutputs:'Ausgänge freier Logiken',config:'Einstellungen',status:'Systemstatus',live:'Livewerte',interval:'15-Minuten-Auswertung',day:'Tageswerte',month:'Monatswerte',control:'Leistungsbudget',history:'Historie',consumers:'Verbraucher',internal:'Interner Speicher',migration:'Migration',commands:'Aktionen',insights:'Dynamische Empfehlungen',analytics:'Geräte-Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',utilities:'Wasser und Brennstoff',storage:'Datenspeicherung',update:'Versionsinformationen'};
+    const channels={logicVirtual:'Virtuelle Sollwerte freier Logiken',logicOutputs:'Ausgänge freier Logiken',config:'Einstellungen',status:'Systemstatus',live:'Livewerte',interval:'15-Minuten-Auswertung',day:'Tageswerte',month:'Monatswerte',control:'Leistungsbudget',history:'Historie',consumers:'Verbraucher',internal:'Interner Speicher',migration:'Migration',commands:'Aktionen',insights:'Dynamische Empfehlungen',analytics:'Geräte-Energieauswertung',forecast:'PV-Ertragsprognose',heating:'Heizung & Gebäudepuffer',utilities:'Wasser und Brennstoff',storage:'Datenspeicherung',update:'Versionsinformationen'};
     for(const [key,label]of Object.entries(channels))await this.channel(key,label);
     const defs=[
       ['update.status_JSON','Installierte Version und öffentliche GitHub-Releases (JSON)','string','{}'],
@@ -527,6 +527,16 @@ class Energiemanagement extends utils.Adapter {
   async prepareFreeLogicOutputs(){
     for(const logic of this.freeLogics?.logics||[]){
       for(const b of logic.blocks){
+        if(b.op!=='virtual'||!/^[a-zA-Z][a-zA-Z0-9_]{0,49}$/.test(b.virtualKey||''))continue;
+        const id='logicVirtual.'+logic.id+'_'+b.virtualKey;
+        if(await this.getObjectAsync(id))continue;
+        const type=b.valueType==='boolean'?'boolean':'number';
+        const initial=typeof b.value===type?b.value:(type==='boolean'?false:0);
+        await this.state(id,logic.name+' – '+(b.name||b.virtualKey),type,initial,true);
+      }
+    }
+    for(const logic of this.freeLogics?.logics||[]){
+      for(const b of logic.blocks){
         if(b.op!=='output'||b.createNew!==true)continue;
         const key=b.outputKey;
         if(!/^[a-zA-Z][a-zA-Z0-9_]{0,49}$/.test(key||''))continue;
@@ -543,7 +553,7 @@ class Energiemanagement extends utils.Adapter {
     this.refreshForecast().catch(e=>this.log.warn('PV-Prognose: '+e.message));
     try{
       const measured=await this.readMeasures();
-      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input').map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);const evaluated=FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>inputs[id]?.val??null);await this.set('live.freeLogics_JSON',evaluated,true);
+      try{const ids=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='input'&&b.stateId).map(b=>b.stateId)))];const entries=await Promise.all(ids.map(async id=>[id,await this.getForeignStateAsync(id).catch(()=>null)]));const inputs=Object.fromEntries(entries);const virtualIds=[...new Set((this.freeLogics?.logics||[]).flatMap(l=>l.blocks.filter(b=>b.op==='virtual'&&b.virtualKey).map(b=>['virtual:'+l.id+':'+b.virtualKey,'logicVirtual.'+l.id+'_'+b.virtualKey])))];const virtualValues=Object.fromEntries(await Promise.all(virtualIds.map(async ([key,id])=>[key,(await this.getStateAsync(id).catch(()=>null))?.val??null])));const evaluated=FreeLogic.evaluate(this.freeLogics||{logics:[]},id=>id.startsWith('virtual:')?virtualValues[id]:inputs[id]?.val??null);await this.set('live.freeLogics_JSON',evaluated,true);
         for(const row of evaluated.logics){
           if(!row.enabled||row.errors.length)continue;
           for(const out of row.outputs){
