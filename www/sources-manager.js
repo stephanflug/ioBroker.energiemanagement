@@ -5,7 +5,7 @@
  const $=id=>document.getElementById(id),pageRoot=$('page-sources');if(!pageRoot)return;
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const copy=value=>JSON.parse(JSON.stringify(value));
- const meta={electric:{title:'Strom & PV',icon:'☀',description:'Netzanschluss, PV-Anlagen, Batterie und Phasenwerte.'},water:{title:'Wasser',icon:'◈',description:'Durchfluss und Wasserzähler getrennt zuordnen.'},rainwater:{title:'Regenwasser',icon:'☂',description:'Eigener Durchfluss und Zählerstand für Regenwasser.'},fuel:{title:'Brennstoff',icon:'◉',description:'Verbrauchsquelle für Pellets, Öl oder Gas.'},heating:{title:'Heizung & Gebäude',icon:'♨',description:'Raum-, Außen- und Bodenfühler sowie Heizungszuordnungen.'},consumers:{title:'Verbraucher',icon:'⌁',description:'Istleistung und Statusrückmeldung je Verbraucher.'}};
+ const meta={electric:{title:'Strom & PV',icon:'☀',description:'Netzanschluss, PV-Anlagen, Batterie und Phasenwerte.'},water:{title:'Wasser',icon:'◈',description:'Durchfluss und Wasserzähler getrennt zuordnen.'},rainwater:{title:'Regenwasser',icon:'☂',description:'Eigener Durchfluss und Zählerstand für Regenwasser.'},fuel:{title:'Brennstoff',icon:'◉',description:'Verbrauchsquelle für Pellets, Öl oder Gas.'},heating:{title:'Heizung & Gebäude',icon:'♨',description:'Raum-, Außen- und Bodenfühler sowie Heizungszuordnungen.'},consumers:{title:'Verbraucher & Geräteausgänge',icon:'⌁',description:'Istleistung, Status und Geräteausgänge einschließlich Hardwarefreigabe.'}};
  let states={},namespace='energiemanagement.0',page=location.hash.slice(1)||'overview',api={},storedConsumers={devices:[]},draft=[],dirty=false,saving=false,signature='',pickerTarget=null,pickerOpener=null,pickerResults=[],searching=false;
  const hosts={},groups={};
  function json(id,fallback){try{const value=states[namespace+'.'+id]?.val;return typeof value==='string'?JSON.parse(value):value??fallback}catch{return fallback}}
@@ -25,6 +25,8 @@
  const electricNodes=[$('sourceRows')?.closest('.panel'),$('pvRows')?.closest('.panel'),$('sourceBatteryPanel'),$('sourceDirty')?.closest('.savebar')];for(const node of new Set(electricNodes))if(node)electric.append(node);
  function attachHost(id,key){let host=$(id);if(!host){host=document.createElement('div');host.id=id;pageRoot.append(host)}return group(key,host)}
  const water=attachHost('sourceWater','water'),rainwater=attachHost('sourceRainwater','rainwater'),fuel=attachHost('sourceFuel','fuel'),heating=attachHost('sourceHeating','heating'),consumer=attachHost('sourceConsumers','consumers');
+ const outputPage=$('page-outputs');if(outputPage){for(const node of [...outputPage.children])consumer.append(node);}
+
  const waterPanel=$('waterContent')?.querySelector('.utility-config'),fuelPanel=$('fuelContent')?.querySelector('.utility-config');const rainPanel=$('rainwaterContent')?.querySelector('.utility-config');if(rainPanel)rainwater.append(rainPanel);if(waterPanel)water.append(waterPanel);if(fuelPanel)fuel.append(fuelPanel);
  sourceLink($('waterContent'),'water');sourceLink($('rainwaterContent'),'rainwater');sourceLink($('fuelContent'),'fuel');
  const roomPanel=$('heatingRooms')?.closest('.panel'),outdoorPanel=$('heatingOutdoorField')?.closest('.panel'),circuits=$('heatingCircuits')?.closest('details'),pump=$('heatingPumpLockField')?.closest('details');
