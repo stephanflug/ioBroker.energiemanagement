@@ -1,0 +1,62 @@
+{
+  "format": "ioBroker.EnergieManagement.FUP",
+  "schemaVersion": 1,
+  "type": "template",
+  "exportedAt": "2026-11-12T00:00:00.000Z",
+  "externalWritesEnabled": false,
+  "logics": [
+    {
+      "id": "template",
+      "name": "Batterie über Grenzwert",
+      "enabled": false,
+      "blocks": [
+        {
+          "id": "b1",
+          "op": "input",
+          "name": "Batterie-SOC",
+          "inputs": [],
+          "stateId": "",
+          "x": 30,
+          "y": 45
+        },
+        {
+          "id": "b2",
+          "op": "constant",
+          "name": "Grenzwert Prozent",
+          "inputs": [],
+          "value": 80,
+          "x": 30,
+          "y": 190
+        },
+        {
+          "id": "b3",
+          "op": "gt",
+          "name": "Batterie über Grenzwert",
+          "inputs": [
+            "b1",
+            "b2"
+          ],
+          "x": 345,
+          "y": 92
+        },
+        {
+          "id": "b4",
+          "op": "output",
+          "name": "Boolean-Ausgang",
+          "inputs": [
+            "b3"
+          ],
+          "stateId": "",
+          "createNew": false,
+          "outputKey": "",
+          "outputType": "boolean",
+          "writeEnabled": false,
+          "cyclicWrite": false,
+          "cycleSeconds": 60,
+          "x": 650,
+          "y": 90
+        }
+      ]
+    }
+  ]
+}
