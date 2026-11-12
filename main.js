@@ -533,7 +533,7 @@ class Energiemanagement extends utils.Adapter {
         const id='logicOutputs.'+logic.id+'_'+key;
         const existing=await this.getObjectAsync(id);
         if(existing)continue;
-        await this.state(id,logic.name+' – '+(b.name||key),'number',0,false);
+        await this.state(id,logic.name+' – '+(b.name||key),b.outputType==='boolean'?'boolean':'number',b.outputType==='boolean'?false:0,false);
       }
     }
   }
@@ -547,9 +547,9 @@ class Energiemanagement extends utils.Adapter {
         for(const row of evaluated.logics){
           if(!row.enabled||row.errors.length)continue;
           for(const out of row.outputs){
-            if(!out.createNew||!out.outputKey||typeof out.value!=='number'||!Number.isFinite(out.value))continue;
+            if(!out.createNew||!out.outputKey||!(typeof out.value==='boolean'||typeof out.value==='number'&&Number.isFinite(out.value)))continue;
             const id='logicOutputs.'+row.id+'_'+out.outputKey;
-            if(await this.getObjectAsync(id))await this.set(id,out.value);
+            const obj=await this.getObjectAsync(id);if(obj&&obj.common?.type===typeof out.value)await this.set(id,out.value);
           }
         }}catch(e){this.log.warn('Freie Logiken: '+e.message)}
        try{
