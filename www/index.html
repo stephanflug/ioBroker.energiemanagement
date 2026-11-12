@@ -64,6 +64,7 @@
  <div class="nav-caption">KONFIGURATION</div>
  <nav>
   <button data-page="sources"><span>⌕</span> Datenquellen</button>
+  <button data-page="regulation"><span>⚙</span> Regelungsfunktionen</button>
   <button data-page="devices"><span>☷</span> Verbraucher & Prioritäten</button>
   <button data-page="settings"><span>⚙</span> Einstellungen</button>
   <button data-page="about"><span aria-hidden="true">ⓘ</span> Über &amp; Lizenzen</button>
@@ -410,6 +411,10 @@
  <div class="savebar"><span id="sourceDirty">Keine Änderungen</span><button id="resetSources" class="button ghost">Verwerfen</button><button id="saveSources" class="button primary">Datenquellen speichern</button></div><div id="sourceBatteryPanel"><article class="panel"><div class="panel-head"><div><h2>Batteriespeicher</h2><p>Optional beliebig viele Speicher mit eigenen Messpunkten konfigurieren.</p></div><button id="batteryAdd" type="button" class="button ghost">+ Batteriespeicher</button></div></article><div id="batteryEditor"></div><div class="savebar"><span id="batteryDirty">Keine Änderungen</span><button id="batteryDiscard" type="button" class="button ghost">Verwerfen</button><button id="batterySave" type="button" class="button primary">Batterien speichern</button></div><dialog id="batteryPicker" class="battery-picker"><h3>Datenpunkt auswählen</h3><form id="batterySearch"><input id="batterySearchQuery" type="search" placeholder="Datenpunkt suchen" minlength="2"><button class="button primary" type="submit">Suchen</button></form><div id="batteryResults"></div><button id="batteryPickerClose" type="button" class="button ghost">Schließen</button></dialog>
  </div>
  <div id="sourceWater"></div><div id="sourceRainwater" class="source-category"></div><div id="sourceFuel"></div><div id="sourceHeating"></div><div id="sourceConsumers"></div>
+</section>
+<section id="page-regulation" class="page hidden">
+ <div class="intro"><h2>Regelungsfunktionen</h2><p>Eigener Bereich für die Konfiguration der Regelungslogik. Die bestehende Verbraucher- und Prioritätenverwaltung findest du weiterhin unter „Verbraucher &amp; Prioritäten“.</p></div>
+ <article class="panel"><div class="panel-head"><div><h2>Regelungslogik</h2><p>Die vorhandenen Regelungsfunktionen bleiben unverändert. Weitere Einstellungen werden hier erst nach ihrer Umsetzung bereitgestellt; es wird keine Regelung automatisch aktiviert.</p></div></div></article>
 </section>
 <section id="page-devices" class="page hidden">
  <div class="intro device-intro"><div><h2>Verbraucher & Prioritäten</h2><p>Verbraucher frei hinzufügen, Leistung festlegen und die Reihenfolge bestimmen. Die Ausgänge bleiben ohne Hardwarefreigabe virtuell.</p></div><button id="deviceIntroAdd" type="button" class="button primary">+ Neuen Verbraucher anlegen</button></div>
