@@ -42,3 +42,40 @@ test('Doppelt konfigurierte Schreiber werden bereits bei Validierung abgelehnt',
  const copy=JSON.parse(JSON.stringify(c.config.logics[0]));copy.id='second';copy.blocks[0].id='source2';copy.blocks[1].id='out2';copy.blocks[1].inputs=['source2'];c.config.logics.push(copy);
  assert.throws(()=>validate(c.config),/mehreren Logiken/);
 });
+
+test('Zyklischer Fremdausgang schreibt denselben Wert erst nach dem Intervall erneut',async()=>{
+ const c=setup({global:true,perOutput:true,val:true,old:true});
+ c.config.logics[0].blocks[1].cyclicWrite=true;
+ c.config.logics[0].blocks[1].cycleSeconds=60;
+ const lastWrites=new Map();let now=100000;
+ c.io.lastWrites=lastWrites;c.io.now=()=>now;
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,1);
+ assert.equal(c.calls[0].value,true);
+ now+=30000;
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,1);
+ assert.match(c.evaluated.logics[0].outputs[0].writeStatus,/nächste Ausgabe/);
+ now+=30000;
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,2);
+});
+test('Ohne zyklisches Schreiben bleiben unveränderte Zustände unbegrenzt schreibfrei',async()=>{
+ const c=setup({global:true,perOutput:true,val:true,old:true});
+ c.io.lastWrites=new Map();let now=1000;c.io.now=()=>now;
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ now+=10000000;
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,0);
+});
+test('Wertänderung wird auch bei laufendem zyklischem Intervall sofort geschrieben',async()=>{
+ const c=setup({global:true,perOutput:true,val:true,old:true});
+ c.config.logics[0].blocks[1].cyclicWrite=true;
+ c.config.logics[0].blocks[1].cycleSeconds=60;
+ c.io.lastWrites=new Map();let now=1000;c.io.now=()=>now;
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,1);
+ now+=5000;c.io.getState=async()=>({val:false,ack:true});
+ await applyForeignOutputs(c.config,c.evaluated,c.io);
+ assert.equal(c.calls.length,2);
+});
