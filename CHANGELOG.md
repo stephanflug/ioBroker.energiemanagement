@@ -1,3 +1,13 @@
+# 0.10.4 (2026-11-12)
+
+- FUP: Export all logics as a JSON backup, share one portable JSON template, and import templates or backups without replacing existing logics.
+- Sharing removes all ioBroker device IDs and disables logic and output writes. Imported logics receive new IDs, remain disabled, and cannot reactivate foreign writes without explicit reconfiguration.
+- Add a safe, ready-to-share battery threshold example under `examples/fup`.
+- Add per-output **Cyclic write: yes/no** with a 10–3600 second interval (default 60 seconds), for external and own ioBroker outputs.
+- When cyclic writing is off, values already present at the destination are not resent. When on, identical values are periodically sent only after the requested interval; changed values are sent immediately.
+- Keep foreign-state writes behind both global FUP and individual output permissions; validate the destination type and record output write status for troubleshooting.
+- Add regression tests for cyclic writing, JSON import/export, missing references, type checking and import-time permission reset.
+
 # 0.10.3 (2026-11-12)
 
 - Introduce a freely configurable FUP logic editor with ioBroker input, virtual setpoint, constant, math, comparison, boolean, limiting and output blocks.
