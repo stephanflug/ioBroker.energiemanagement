@@ -75,6 +75,11 @@ class Energiemanagement extends utils.Adapter {
       this.activeHardware=asJSON(await this.read('internal.hardware','{}'),{});
       this.sources=normalizeSources(asJSON(await this.read('config.sources','{}'),defaultSources()));
       this.batteries=normalizeBatteryConfig(asJSON(await this.read('config.batteries_JSON','{}'),{batteries:[]}));
+      // Vorhandene Batterie-Leistungsquelle einmalig als eigenen Speicher übernehmen.
+      if(!this.batteries.batteries.length&&this.sources.batteryW?.id){
+        this.batteries=normalizeBatteryConfig({batteries:[{id:'battery_1',name:'Vorhandener Batteriespeicher',enabled:true,sources:{power:this.sources.batteryW.id}}]});
+        await this.set('config.batteries_JSON',this.batteries,true);
+      }
       this.consumers=normalizeConsumers(asJSON(await this.read('config.consumers','{}'),defaultConsumers()),this.config.maxConsumers||250);
       this.settings=normalizeSettings(asJSON(await this.read('config.settings','{}'),{}),this.config);
       this.hardwareMaster=await this.read('config.hardwareMaster',false)===true;
