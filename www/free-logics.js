@@ -1,7 +1,7 @@
 'use strict';
 (() => {
  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const operations={input:'Datenpunkt',virtual:'Virtueller Sollwert',constant:'Konstante',add:'Addieren (+)',sub:'Subtrahieren (−)',mul:'Multiplizieren (×)',div:'Dividieren (÷)',min:'Minimum',max:'Maximum',gt:'Größer (>)',lt:'Kleiner (<)',gte:'Größer gleich (≥)',lte:'Kleiner gleich (≤)',eq:'Gleich (=)',neq:'Ungleich (≠)',and:'UND',or:'ODER',not:'NICHT',xor:'XOR',limit:'Begrenzen',output:'Ausgang'};
+ const operations={input:'Eingang',virtual:'Virtueller Sollwert',constant:'Konstante',add:'Addieren (+)',sub:'Subtrahieren (−)',mul:'Multiplizieren (×)',div:'Dividieren (÷)',min:'Minimum',max:'Maximum',gt:'Größer (>)',lt:'Kleiner (<)',gte:'Größer gleich (≥)',lte:'Kleiner gleich (≤)',eq:'Gleich (=)',neq:'Ungleich (≠)',and:'UND',or:'ODER',not:'NICHT',xor:'XOR',limit:'Begrenzen',output:'Ausgang'};
  const counts={input:0,virtual:0,constant:0,not:1,output:1,limit:3};
  let viewMode='programming';let config={logics:[]},signature='',dirty=false,states={},ns='energiemanagement.0',api={},active='',live={logics:[]},pendingSave=null,saving=false,pickerBlock=null,pickerResults=[],lastKnown=null,loading=false;
  const parse=(s,d)=>{try{return JSON.parse(s)}catch{return d}};
@@ -65,6 +65,7 @@
    const pick=e.target.closest('[data-pick-node]');if(pick){openStatePicker(pick.dataset.pickNode);return;}
    const out=e.target.closest('[data-wire-out]'),input=e.target.closest('[data-wire-in]');
    if(out){source=out.dataset.wireOut;$('fupWireStatus').textContent='Ausgang gewählt: '+(logic.blocks.find(b=>b.id===source)?.name||source)+' – jetzt Eingang wählen.';return;}
+   if(input&&!source){const target=logic.blocks.find(b=>b.id===input.dataset.wireIn),port=Number(input.dataset.port);if(target?.inputs?.[port]){target.inputs[port]='';mark();render();}return;}
    if(input&&source){
     const target=logic.blocks.find(b=>b.id===input.dataset.wireIn),port=Number(input.dataset.port);
     if(!target||target.id===source){$('fupWireStatus').textContent='Selbstverbindungen sind nicht erlaubt.';return;}
@@ -90,7 +91,7 @@
   host.innerHTML='<div class="logic-toolbar"><label>Logik <select id="logicSelect">'+config.logics.map(l=>'<option value="'+esc(l.id)+'" '+(l.id===active?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></label><button type="button" id="logicAdd">+ Neue Logik</button><button type="button" id="logicRemove" '+(!selected()?'disabled':'')+'>Löschen</button></div>';
   const logic=selected();
   if(!logic){host.insertAdjacentHTML('beforeend','<p>Noch keine Logik vorhanden. Erstelle deine erste Regelung.</p>');bind();return;}
-  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Logik aktiviert</label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Eigene ioBroker-Ausgänge werden bei aktiver, fehlerfreier Logik aktualisiert. Fremde Geräteausgänge werden nicht automatisch geschaltet.</p>'+canvas(logic)+'<div class="fup-details" hidden aria-hidden="true"><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></div><div id="logicDiagnostics" class="logic-diagnostics"></div>');
+  host.insertAdjacentHTML('beforeend','<div class="logic-toolbar"><label>Beschriftung <input id="logicName" maxlength="100" value="'+esc(logic.name)+'"></label><label><input type="checkbox" id="logicEnabled" '+(logic.enabled?'checked':'')+'> Logik aktiviert</label><label>Ansicht <select id="logicViewMode"><option value="programming" '+(viewMode==='programming'?'selected':'')+'>Programmierung</option><option value="live" '+(viewMode==='live'?'selected':'')+'>Live-Werte</option></select></label><label>Baustein hinzufügen <select id="logicOp">'+Object.entries(operations).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('')+'</select></label><button type="button" id="logicBlockAdd">+ Baustein</button></div><p class="footnote">Eigene ioBroker-Ausgänge werden bei aktiver, fehlerfreier Logik aktualisiert. Fremde Geräteausgänge werden nicht automatisch geschaltet.</p>'+canvas(logic)+'<div class="fup-details" hidden aria-hidden="true"><div class="logic-blocks">'+logic.blocks.map((b,i)=>blockHTML(b,i,logic)).join('')+'</div></div><div id="logicDiagnostics" class="logic-diagnostics"></div>');
   bind();bindCanvas(logic);diagnostics();
  }
  function blockHTML(b,i,logic){
