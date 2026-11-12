@@ -23,7 +23,7 @@
  const SRC_GROUPS=[
   {title:'Smart Meter / Netzanschlusspunkt',keys:[['importW','Netzbezug aktuell','W',true],['importKWh','Bezugszählerstand gesamt','kWh',true],['exportW','Netzeinspeisung aktuell','W'],['exportKWh','Einspeisezählerstand','kWh']]},
   {title:'Tages- und Monatsreferenzen',keys:[['dayBaseImport','Bezugszählerstand Tagesbeginn','kWh'],['monthBaseImport','Bezugszählerstand Monatsbeginn','kWh'],['dayBaseExport','Einspeisezählerstand Tagesbeginn','kWh'],['monthBaseExport','Einspeisezählerstand Monatsbeginn','kWh']]},
-  {title:'Speicher und Hausverbrauch',keys:[['batteryW','Batterieleistung (+ Entladen, − Laden)','W'],['houseW','Hausverbrauch direkt (optional)','W']]},
+  {title:'Hausverbrauch',keys:[['houseW','Hausverbrauch direkt (optional)','W']]},
   {title:'Phasenwerte',keys:[['phase1W','Phase L1','W'],['phase2W','Phase L2','W'],['phase3W','Phase L3','W']]}
  ];
  const FACTORS=[[1,'× 1'],[1000,'× 1000'],[.001,'× 0,001'],[-1,'× −1'],[-1000,'× −1000'],[-.001,'× −0,001']];
