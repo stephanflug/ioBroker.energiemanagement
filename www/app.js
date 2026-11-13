@@ -829,6 +829,8 @@
   $('pickerHint').textContent=(details.write?'Beschreibbaren':'Lesbaren')+' '+(details.type==='boolean'?'Boolean-':'numerischen')+'-Datenpunkt wählen. Unpassende Zustände werden auf Wunsch ebenfalls angezeigt, aber nicht zugeordnet.';
   $('pickerSearch').value='';
   $('pickerShowAll').checked=false;
+  if($('pickerError')){$('pickerError').hidden=true;$('pickerError').textContent='';}
+  if($('pickerManualId'))$('pickerManualId').value='';
   const value=details.kind==='source'?sourceFor(details.key)?.id:
    (()=>{const d=forms.outputs?.devices.find(x=>x.id===details.id);return ['measuredW','statusId'].includes(details.field)?d?.[details.field]:d?.output?.[details.field]})();
   const adapter=String(value||'').split('.').slice(0,2).join('.');
@@ -898,15 +900,41 @@
  $('pickerSearch').addEventListener('input',()=>{pickerLimit=150;renderPicker()});
  $('pickerShowAll').addEventListener('change',()=>{pickerLimit=150;renderPicker()});
  $('pickerMore').addEventListener('click',()=>{pickerLimit+=150;renderPicker()});
- $('pickerResults').addEventListener('click',async e=>{
-  const btn=e.target.closest('[data-selected]');if(!btn||btn.disabled)return;
+ function pickerError(message){
+  const node=$('pickerError');if(node){node.textContent=message;node.hidden=false;}else showNotice(message,true);
+ }
+ async function applyPickerId(id){
+  const selection=picker;
+  if(!selection)return;
+  id=String(id||'').trim();
+  if(!id||!/^[a-zA-Z0-9_][a-zA-Z0-9_.:-]{2,254}$/.test(id)){
+   pickerError('Bitte eine gültige vollständige ioBroker-Datenpunkt-ID eingeben.');return;
+  }
+  const apply=$('pickerManualApply');
+  if(apply)apply.disabled=true;
+  if($('pickerError'))$('pickerError').hidden=true;
   try{
-   const id=btn.dataset.selected,meta=await readObj(id);
+   const meta=await readObj(id);
+   if(picker!==selection)return;
    const x={id,obj:meta};
-   if(!compatiblePicker(x))throw Error('Dieser Datenpunkt ist für die Zuordnung nicht kompatibel.');
-   setPick(picker,id,meta);closePicker();
-  }catch(e){showNotice(e.message,true)}
+   if(!compatiblePicker(x)){
+    const actual=meta?.common?.type||'unbekannt';
+    throw Error('Der Datenpunkt '+id+' kann nicht übernommen werden: benötigt '+selection.type+', gefunden '+actual+'. '+(selection.write?'Schreibrecht erforderlich.':'Leserecht erforderlich.'));
+   }
+   setPick(selection,id,meta);
+   closePicker();
+   showNotice('Datenpunkt übernommen: '+id+'. Zum dauerhaften Speichern „Datenquellen speichern“ wählen.');
+  }catch(error){pickerError('Übernahme fehlgeschlagen: '+error.message);}
+  finally{if(apply)apply.disabled=false;}
+ }
+ $('pickerResults').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-selected]');if(!btn)return;
+  if(btn.disabled){pickerError('Dieser Datenpunkt hat nicht den erforderlichen Typ oder das nötige Zugriffsrecht. Bitte einen kompatiblen Datenpunkt wählen.');return;}
+  applyPickerId(btn.dataset.selected);
  });
+ $('pickerManualApply').addEventListener('click',()=>applyPickerId($('pickerManualId').value));
+ $('pickerManualId').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();applyPickerId(event.target.value)}});
+
  function closePicker(){picker=null;$('picker').classList.add('hidden')}
  $('pickerClose').addEventListener('click',closePicker);
  $('pickerClear').addEventListener('click',()=>{if(!picker)return;setPick(picker,'',null);closePicker()});
