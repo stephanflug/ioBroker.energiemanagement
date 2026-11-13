@@ -176,3 +176,6 @@
 .flow-device.stale{border-left-color:#d3a35f;background:#3c332c}
 .flow-device.stale .flow-device-main>span{color:#f5c783}
 .flow-device.stale .flow-device-meta{color:#efc78d}
+
+/* Ungültige Datenquellen beim Speichern sofort auffindbar machen. */
+.source-save-error{outline:2px solid #e98145;outline-offset:2px;border-radius:6px}
