@@ -14,7 +14,7 @@
  const hashToPage={'#overview':'overview','#history':'history','#analytics':'analytics','#forecast':'forecast','#battery':'battery','#heating':'heating','#water':'water','#rainwater':'rainwater','#fuel':'fuel','#reports':'reports','#sources':'sources','#devices':'regulation','#outputs':'outputs','#settings':'settings','#about':'about'};
  const saveJSON=val=>JSON.stringify(val);
  const copy=x=>JSON.parse(JSON.stringify(x));
- let io,connected=false,states={},page='overview',adapterNames=[],objectCache=new Map(),picker=null,pickerLimit=150,pickerLoading=false;
+ let io,connected=false,states={},page='overview',adapterNames=[],objectCache=new Map(),picker=null,pickerLimit=150,pickerLoading=false,pickerQueued=false;
  let forms={sources:null,consumers:null,settings:null,outputs:null},dirty={sources:false,consumers:false,outputs:false,settings:false},masterDraft=false;
  let installedIds=new Set(),deviceFeedback=new Map(),devicePowerCache=new Map(),feedbackReading=false;
  let autoUpdate=true,pollRunning=false,hasLoadedOnce=false,sourceReadingsRunning=false;
@@ -606,8 +606,22 @@
   const nav=e.target.closest('[data-page]');if(nav)navigate(nav.dataset.page);
  });
  for(const id of ['sourceRows','pvRows'])$(id).addEventListener('change',e=>{const key=e.target.dataset.factor;if(key){const x=sourceFor(key);if(x){x.factor=Number(e.target.value);mark('sources')}}});
- $('addPv').addEventListener('click',()=>{if(!forms.sources)return;
-  forms.sources.pv=forms.sources.pv||[];forms.sources.pv.push({id:'',factor:1,name:'PV '+(forms.sources.pv.length+1)});mark('sources');renderSources()});
+ function addPvSource(event){
+  event?.preventDefault();
+  if(!forms.sources||typeof forms.sources!=='object'){
+   showNotice('Datenquellen sind noch nicht geladen. Bitte Verbindung prüfen und erneut versuchen.',true);return;
+  }
+  if(!Array.isArray(forms.sources.pv))forms.sources.pv=[];
+  const list=forms.sources.pv;
+  const occupied=new Set(list.map(p=>String(p.name||'')));
+  let index=1;while(occupied.has('PV '+index))index++;
+  list.push({id:'',factor:1,name:'PV '+index});
+  mark('sources');renderSources();
+  const item=$('pvRows')?.lastElementChild;
+  if(item){item.classList.add('pv-new-source');item.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  showNotice('PV-Quelle hinzugefügt. Datenpunkt auswählen und anschließend „Datenquellen speichern“.');
+ }
+ document.addEventListener('click',e=>{const btn=e.target.closest('#addPv');if(btn)addPvSource(e)});
  let deviceDialogBusy=false;
  function openNewConsumerDialog(){
   if(!forms.consumers||!Array.isArray(forms.consumers.devices)){
@@ -805,7 +819,7 @@
  async function loadAdapters(){
   try{const rows=(await findObjects('instance',{startkey:'system.adapter.',endkey:'system.adapter.\u9999'}))?.rows||[];
    adapterNames=[...new Set(rows.map(x=>x.id.replace(/^system\.adapter\./,'')))].filter(x=>/^[\w-]+\.\d+$/.test(x)).sort();
-   if(!adapterNames.includes('0_userdata.0'))adapterNames.unshift('0_userdata.0');
+   for(const special of ['0_userdata.0','alias.0'])if(!adapterNames.includes(special))adapterNames.unshift(special);
    $('pickerAdapter').innerHTML=adapterNames.map(id=>'<option value="'+escape(id)+'">'+escape(id)+'</option>').join('');
   }catch(e){console.warn('Adapterliste',e)}
  }
@@ -827,7 +841,8 @@
    (picker.write?x.obj.common.write===true:x.obj.common.read!==false)&&sourceFilter(x.id);
  }
  async function loadPicker(){
-  if(!picker||pickerLoading)return;
+  if(!picker)return;
+  if(pickerLoading){pickerQueued=true;return;}
   const instance=$('pickerAdapter').value;
   pickerLoading=true;
   $('pickerCount').textContent='Lade Datenpunkte aus '+instance+' …';
@@ -838,10 +853,12 @@
     objectCache.set(instance,rows.map(x=>({id:x.id,obj:x.value})).filter(x=>x.obj?.type==='state'));
    }catch(e){
     $('pickerCount').textContent='Adapter konnte nicht gelesen werden: '+e.message;
-    pickerLoading=false;return;
+    pickerLoading=false;if(pickerQueued){pickerQueued=false;loadPicker();}return;
    }
   }
-  pickerLoading=false;renderPicker();
+  pickerLoading=false;
+  if(pickerQueued||$('pickerAdapter').value!==instance){pickerQueued=false;loadPicker();return;}
+  renderPicker();
  }
  function renderPicker(){
   if(!picker)return;
