@@ -8,13 +8,13 @@ Es gibt keine Bindung an einen bestimmten Smart Meter, Wechselrichter oder Heizu
 
 [English](README.md) · [Installieren](docs/de/installation.md) · [Benutzerhandbuch](docs/de/benutzerhandbuch.md) · [Datenquellen](docs/de/datenquellen.md) · [Fehlerhilfe](docs/de/fehlerbehebung.md) · [Änderungen](CHANGELOG.md)
 
-**Aktuelle stabile Version 0.10.5 auf GitHub:** [Installationspaket (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.5/iobroker.energiemanagement-0.10.5.tgz) · [SHA-256-Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.5/iobroker.energiemanagement-0.10.5.tgz.sha256) · [Projekt vollständig als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.5/ioBroker.energiemanagement-v0.10.5-projekt.zip) · [Versionshinweise](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.5).
+**Aktuelle stabile Version 0.10.6 auf GitHub:** [Installationspaket (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.6/iobroker.energiemanagement-0.10.6.tgz) · [SHA-256-Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.6/iobroker.energiemanagement-0.10.6.tgz.sha256) · [Projekt vollständig als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.6/ioBroker.energiemanagement-v0.10.6-projekt.zip) · [Versionshinweise](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.6).
 
-**Fehlerbehebung in 0.10.5:** Ist am FUP-Ausgang „Zyklisch schreiben“ deaktiviert, wird nur bei einer Änderung des *berechneten Logikwerts* ein neuer Schreibbefehl ausgelöst. Eine Aktualisierung oder Fremdänderung des Ziel-Datenpunkts führt nicht mehr zum wiederholten Schreiben desselben Ergebnisses. Beim ersten gültigen Auswertungslauf ist eine einmalige Synchronisierung eines abweichenden Zielwerts möglich.
+**Fehlerbehebungen in 0.10.6:** Auf der Seite **Datenquellen** erzeugt **„+ PV-Quelle“** wieder einen sichtbaren neuen Eintrag. Der Datenpunkt-Picker bietet nun auch den ioBroker-Objektbereich `alias.0` an. Datenpunkte lassen sich per Treffer oder vollständiger ID auswählen und übernehmen; ungeeignete Datentypen oder fehlende Zugriffsrechte werden mit einer konkreten Meldung zurückgewiesen. Änderungen werden erst mit **„Datenquellen speichern“** wirksam.
 
-**Funktionen aus 0.10.4:** [Logiken als JSON sichern, Vorlagen teilen und importieren](examples/fup/README.md); Ausgänge wahlweise zyklisch im Intervall von 10 bis 3.600 Sekunden schreiben.
+**Bereits enthalten:** [Logiken als JSON sichern und Vorlagen teilen](examples/fup/README.md) sowie eine abgesicherte FUP-Ausgangssteuerung, die bei deaktivierter Zyklik nur auf Änderungen des berechneten Logikwerts reagiert.
 
-**Vorherige stabile Version 0.10.4:** [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.4). Der Adapter ist nicht auf npm oder in der offiziellen ioBroker-Adapterliste veröffentlicht. Ein GitHub-Release installiert kein automatisches Update.
+**Vorherige stabile Version 0.10.5:** [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.5). Der Adapter ist nicht auf npm oder in der offiziellen ioBroker-Adapterliste veröffentlicht. Eine GitHub-Veröffentlichung installiert kein automatisches Update.
 
 ![Übersicht mit Energiefluss und aktuellen Werten](docs/images/overview-desktop.png)
 
