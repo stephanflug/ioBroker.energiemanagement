@@ -8,13 +8,11 @@ Es gibt keine Bindung an einen bestimmten Smart Meter, Wechselrichter oder Heizu
 
 [English](README.md) · [Installieren](docs/de/installation.md) · [Benutzerhandbuch](docs/de/benutzerhandbuch.md) · [Datenquellen](docs/de/datenquellen.md) · [Fehlerhilfe](docs/de/fehlerbehebung.md) · [Änderungen](CHANGELOG.md)
 
-**Aktuelle stabile Version 0.10.7 auf GitHub:** [Installationspaket (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.7/iobroker.energiemanagement-0.10.7.tgz) · [SHA-256-Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.7/iobroker.energiemanagement-0.10.7.tgz.sha256) · [Vollständiges Projekt (ZIP)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.7/ioBroker.energiemanagement-v0.10.7-projekt.zip) · [Versionshinweise](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.7).
+**Aktuelle stabile Version 0.10.8 auf GitHub:** [Installationspaket (TGZ)](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.8/iobroker.energiemanagement-0.10.8.tgz) · [SHA-256-Prüfsumme](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.8/iobroker.energiemanagement-0.10.8.tgz.sha256) · [Projekt vollständig als ZIP](https://github.com/stephanflug/ioBroker.energiemanagement/releases/download/v0.10.8/ioBroker.energiemanagement-v0.10.8-projekt.zip) · [Versionshinweise](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.8).
 
-**Fehlerbehebung in 0.10.7:** Die Übernahme von Messwert-Datenpunkten funktioniert wieder, ohne dass die Oberfläche mit `Cannot set properties of null (setting 'textContent')` abbricht. Strom/PV, Batteriespeicher, Heizung, Wasser, Regenwasser, Brennstoff und Verbraucher-Messwerte verwenden jetzt dieselbe Datenpunktauswahl mit `alias.0`, Suche, direkter ID-Eingabe und Prüfung des Datentyps sowie der Zugriffsrechte. Änderungen werden in der jeweiligen Konfigurationsseite ausdrücklich gespeichert. Die bestehende FUP-Funktion zum Anlegen neuer Logik-Ausgänge bleibt separat.
+**Fehlerbehebung in 0.10.8:** Datenquellen werden erst nach tatsächlicher Bestätigung durch ioBroker als gespeichert angezeigt. Fehlende Pflichtquellen, unvollständige PV-Zuordnungen und ungültige Datenpunkt-IDs werden mit einer konkreten Fehlermeldung angezeigt. Bei fehlgeschlagener Speicherung bleiben Änderungen im Formular erhalten. Die gemeinsame Datenpunktauswahl einschließlich `alias.0` ist weiterhin enthalten.
 
-Die Korrektur wurde mit der getrennten Testinstanz `energiemanagement.1` geprüft; die produktive Instanz wird durch die GitHub-Veröffentlichung **nicht automatisch aktualisiert**.
-
-**Vorherige stabile Version 0.10.6:** [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.6). Der Adapter ist nicht auf npm oder im offiziellen ioBroker-Repository veröffentlicht.
+**Vorherige stabile Version 0.10.7:** [GitHub-Release](https://github.com/stephanflug/ioBroker.energiemanagement/releases/tag/v0.10.7). Der Adapter ist weder auf npm noch in der offiziellen ioBroker-Adapterliste veröffentlicht. Ein GitHub-Release installiert kein automatisches Update.
 
 ![Übersicht mit Energiefluss und aktuellen Werten](docs/images/overview-desktop.png)
 
