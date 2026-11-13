@@ -1,0 +1,57 @@
+name: Publish v0.10.8
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-v0.10.8.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-v0.10.8
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'stephanflug/ioBroker.energiemanagement'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Check release version
+        run: |
+          node -e 'const p=require("./package.json"),i=require("./io-package.json");if(p.version!=="0.10.8"||i.common.version!=="0.10.8")throw Error("Expected version 0.10.8")'
+          test -f docs/releases/v0.10.8.md
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - run: npm test
+      - run: npm run test:integration
+      - name: Build GitHub release packages
+        run: |
+          mkdir -p dist
+          npm pack --pack-destination dist
+          git archive --format=zip --prefix="ioBroker.energiemanagement-v0.10.8/" --output="dist/ioBroker.energiemanagement-v0.10.8-projekt.zip" HEAD
+          cp docs/releases/v0.10.8.md dist/Energiemanagement-v0.10.8-Kurzbericht.txt
+          cd dist
+          sha256sum *.tgz *.zip *-Kurzbericht.txt > SHA256SUMS.txt
+          for file in *.tgz *.zip; do sha256sum "$file" > "$file.sha256"; done
+      - name: Publish GitHub Release v0.10.8
+        run: |
+          if gh release view v0.10.8 >/dev/null 2>&1; then
+            echo "v0.10.8 already exists; leaving the release untouched."
+            exit 0
+          fi
+          gh release create v0.10.8 \
+            --target "$GITHUB_SHA" \
+            --title "Energiemanagement v0.10.8" \
+            --notes-file docs/releases/v0.10.8.md \
+            --latest \
+            dist/*
