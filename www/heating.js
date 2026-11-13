@@ -160,6 +160,19 @@
   }catch(e){$('heatingPickerInfo').textContent='Suche fehlgeschlagen: '+e.message}finally{searching=false;$('heatingPickerSearch').disabled=false;}
  }
  function pickerOpen(button){
+  const path=button.dataset.hPick,type=button.dataset.hType,write=button.dataset.hWrite==='true';
+  if(window.EnergyStatePicker?.open){
+   window.EnergyStatePicker.open({type,write,currentId:getPath(draft,path)||'',
+    title:write?'Heizungs-Schaltausgang auswählen':'Heizungs-Messwert auswählen',
+    saveHint:'Heizungszuordnungen speichern, um die Änderung zu übernehmen.',
+    onSelect:(id)=>{
+     setPath(draft,path,id);
+     const input=[...document.querySelectorAll('[data-h-path]')].find(el=>el.dataset.hPath===path);
+     if(input)input.value=id;
+     markDirty();
+    }});
+   return;
+  }
   pickerOpener=button;pickerTarget={path:button.dataset.hPick,type:button.dataset.hType,write:button.dataset.hWrite==='true'};
   $('heatingPickerTitle').textContent=pickerTarget.write?'Beschreibbaren Datenpunkt auswählen':'Messwert-Datenpunkt auswählen';$('heatingPickerQuery').value=getPath(draft,pickerTarget.path)||'';$('heatingPickerResults').replaceChildren();$('heatingPickerInfo').textContent=pickerTarget.type==='boolean'?'Boolean-Zustand suchen. Bedeutung des Wertes am Gerät prüfen.':'Temperatur in °C beziehungsweise elektrische Leistung in W passend zum Feld auswählen.';
   $('heatingStatePicker').classList.remove('hidden');document.body.classList.add('heating-picker-open');$('heatingPickerQuery').focus();
