@@ -1,3 +1,11 @@
+# 0.10.8 (2026-11-13)
+
+- Fix source configuration saves: wait for a real `ack:true` from ioBroker after updating `config.sources`, instead of checking the value immediately.
+- Show persistent, specific validation errors for missing mandatory smart-meter readings, an empty added PV row, or an unavailable/incompatible state ID; highlight the affected source.
+- Prevent overlapping save clicks, keep unsaved edits after failures, and confirm successful persistence only after the adapter has acknowledged the new configuration.
+- Retain the unified alias-compatible picker introduced in 0.10.7 and all existing source bindings and safety gates.
+- Add regression tests for delayed adapter acknowledgment, stale values, rejected writes and input errors.
+
 # 0.10.7 (2026-11-13)
 
 - Fix the source picker failing with `Cannot set properties of null (setting 'textContent')` after accepting a measurement state: preserve the previously moved output controls in the data sources view.
