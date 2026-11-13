@@ -1,3 +1,11 @@
+# 0.10.6 (2026-11-13)
+
+- Fix the PV source add button: append a visible draft row even when the source editor is dynamically moved, provide a loading error instead of silently ignoring the click, and keep existing PV mappings untouched until saved.
+- Include the ioBroker alias namespace `alias.0` in the source picker even though alias is a meta namespace rather than an adapter instance.
+- Support queued adapter selection changes while the picker loads its objects.
+- Add explicit manual entry and validation for ioBroker state IDs when selecting measurement sources. Show in-dialog errors for incompatible data types, missing read permissions or unavailable objects.
+- Improve the "Datenpunkt übernehmen" workflow and retain the normal save process for source mappings.
+
 # 0.10.5 (2026-11-12)
 
 - Fix an unintended repeated FUP command when **Cyclic write** is disabled and another ioBroker adapter changes the target state without any change to the calculated output.
