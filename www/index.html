@@ -6,7 +6,7 @@
 <meta name="description" content="Energiemanagement für ioBroker – Viertelstundenmonitoring und Lastmanagement">
 <title>Energiemanagement</title>
 <link rel="stylesheet" href="style.css?v=0.10.2">
-<script src="/lib/js/socket.io.js" defer></script><script src="app.js?v=0.10.15" defer></script><script src="analytics.js?v=0.10.2" defer></script>
+<script src="/lib/js/socket.io.js" defer></script><script src="app.js?v=0.10.6" defer></script><script src="analytics.js?v=0.10.2" defer></script>
 <link rel="stylesheet" href="insights.css?v=0.10.2">
 <script src="insights.js?v=0.10.2" defer></script>
 <link rel="stylesheet" href="forecast.css?v=0.10.2">
@@ -468,7 +468,7 @@
  <label class="picker-showall"><input id="pickerShowAll" type="checkbox"> Alle Datenpunkte anzeigen (einschließlich anderer Datentypen und schreibgeschützter Zustände)</label>
  <p id="pickerCount" class="footnote">–</p><div id="pickerResults" class="picker-results"></div>
  <div class="picker-more"><button id="pickerMore" type="button" class="button ghost hidden">Weitere Datenpunkte anzeigen</button></div>
- <div class="savebar"><button id="pickerClear" class="button ghost">Zuordnung entfernen</button><span>Es werden nur kompatible Datenpunkte angezeigt.</span></div>
+ <div class="picker-manual"><label>Vollständige Datenpunkt-ID direkt eingeben <input id="pickerManualId" type="text" autocomplete="off" placeholder="z. B. alias.0.MeinMesswert"></label><button id="pickerManualApply" type="button" class="button primary">Datenpunkt übernehmen</button></div><p id="pickerError" role="alert" class="footnote" hidden></p><div class="savebar"><button id="pickerClear" type="button" class="button ghost">Zuordnung entfernen</button><span>Nur Datenpunkte mit passendem Datentyp und Zugriffsrecht können übernommen werden.</span></div>
 </div></div>
 
 <div id="deviceDialog" class="picker hidden" role="dialog" aria-modal="true" aria-labelledby="deviceDialogTitle">
