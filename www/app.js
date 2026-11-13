@@ -578,12 +578,17 @@
  }
  function mark(key){dirty[key]=true;renderDirtyOnly();}
  function renderDirtyOnly(){
-  $('sourceDirty').textContent=dirty.sources?'Nicht gespeicherte Änderungen':'Keine Änderungen';
-  $('consDirty').textContent=dirty.consumers?'Nicht gespeicherte Änderungen':'Keine Änderungen';
-  $('outputDirty').textContent=dirty.outputs?'Nicht gespeicherte Änderungen':'Keine Änderungen';
+  for(const [key,id] of [['sources','sourceDirty'],['consumers','consDirty'],['outputs','outputDirty']]){
+   const el=$(id);if(el)el.textContent=dirty[key]?'Nicht gespeicherte Änderungen':'Keine Änderungen';
+  }
  }
  function sourceFor(key){if(key.startsWith('pv-'))return forms.sources?.pv?.[Number(key.slice(3))];return forms.sources?.[key]}
  function setPick(target,id,meta){
+  if(target.kind==='external'){
+   if(typeof target.onSelect!=='function')throw Error('Für diese Auswahl fehlt der Übernahmepfad.');
+   target.onSelect(id,meta);
+   return;
+  }
   if(target.kind==='source'){
    const x=sourceFor(target.key);if(!x)return;
    x.id=id;
@@ -826,12 +831,13 @@
  function openPicker(details){
   picker=details;pickerLimit=150;
   $('picker').classList.remove('hidden');
-  $('pickerHint').textContent=(details.write?'Beschreibbaren':'Lesbaren')+' '+(details.type==='boolean'?'Boolean-':'numerischen')+'-Datenpunkt wählen. Unpassende Zustände werden auf Wunsch ebenfalls angezeigt, aber nicht zugeordnet.';
+  $('pickerHint').textContent=(details.title?details.title+' · ':'')+(details.write?'Beschreibbaren':'Lesbaren')+' '+(details.type==='boolean'?'Boolean-':details.type==='string'?'Text-':details.type==='any'?'Zahlen-/Boolean-':'numerischen')+'Datenpunkt wählen. Unpassende Zustände werden auf Wunsch ebenfalls angezeigt, aber nicht zugeordnet.';
   $('pickerSearch').value='';
   $('pickerShowAll').checked=false;
   if($('pickerError')){$('pickerError').hidden=true;$('pickerError').textContent='';}
-  if($('pickerManualId'))$('pickerManualId').value='';
-  const value=details.kind==='source'?sourceFor(details.key)?.id:
+  if($('pickerManualId'))$('pickerManualId').value=details.kind==='external'?String(details.currentId||''):'';
+  const value=details.kind==='external'?details.currentId:
+   details.kind==='source'?sourceFor(details.key)?.id:
    (()=>{const d=forms.outputs?.devices.find(x=>x.id===details.id);return ['measuredW','statusId'].includes(details.field)?d?.[details.field]:d?.output?.[details.field]})();
   const adapter=String(value||'').split('.').slice(0,2).join('.');
   if(adapterNames.includes(adapter))$('pickerAdapter').value=adapter;
@@ -839,8 +845,12 @@
   loadPicker();
  }
  function compatiblePicker(x){
-  return x&&x.obj?.type==='state'&&x.obj.common?.type===picker?.type&&
-   (picker.write?x.obj.common.write===true:x.obj.common.read!==false)&&sourceFilter(x.id);
+  if(!x||x.obj?.type!=='state'||!picker)return false;
+  const kind=x.obj.common?.type;
+  const matching=picker.type==='any'?['number','boolean'].includes(kind):kind===picker.type;
+  return matching&&
+   (picker.write?x.obj.common.write===true:x.obj.common.read!==false)&&
+   (picker.allowInternal===true?!x.id.startsWith('system.'):sourceFilter(x.id));
  }
  async function loadPicker(){
   if(!picker)return;
@@ -896,7 +906,17 @@
   }).join('')||'<div class="empty">Keine Datenpunkte gefunden. Adapter oder Suche ändern.</div>';
   $('pickerMore').classList.toggle('hidden',count>=entries.length);
  }
- $('pickerAdapter').addEventListener('change',()=>{pickerLimit=150;loadPicker()});
+ // Gemeinsame Auswahl für Datenquellen aller Module. Schreiben wird dabei nie ausgeführt.
+ window.EnergyStatePicker={
+  open(options={}){
+   if(typeof options.onSelect!=='function')throw Error('Datenpunkt-Auswahl benötigt einen Übernahme-Handler.');
+   const type=['number','boolean','string','any'].includes(options.type)?options.type:'number';
+   openPicker({kind:'external',type,write:options.write===true,allowInternal:options.allowInternal===true,
+    title:options.title||'',currentId:options.currentId||'',saveHint:options.saveHint||'',onSelect:options.onSelect});
+  },
+  close:()=>closePicker()
+ };
+  $('pickerAdapter').addEventListener('change',()=>{pickerLimit=150;loadPicker()});
  $('pickerSearch').addEventListener('input',()=>{pickerLimit=150;renderPicker()});
  $('pickerShowAll').addEventListener('change',()=>{pickerLimit=150;renderPicker()});
  $('pickerMore').addEventListener('click',()=>{pickerLimit+=150;renderPicker()});
@@ -923,7 +943,7 @@
    }
    setPick(selection,id,meta);
    closePicker();
-   showNotice('Datenpunkt übernommen: '+id+'. Zum dauerhaften Speichern „Datenquellen speichern“ wählen.');
+   showNotice('Datenpunkt übernommen: '+id+'. '+(selection.saveHint||'Änderungen im jeweiligen Bereich speichern.'));
   }catch(error){pickerError('Übernahme fehlgeschlagen: '+error.message);}
   finally{if(apply)apply.disabled=false;}
  }

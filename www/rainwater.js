@@ -59,7 +59,22 @@
   $('rainwaterPickerClose').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>{pickerTarget=null;pickerOpener?.focus();});$('rainwaterPickerForm').addEventListener('submit',event=>{event.preventDefault();search();});
   $('rainwaterPickerResults').addEventListener('click',event=>{const button=event.target.closest('[data-rainwater-result]');if(!button||!pickerTarget||readOnly||saving||!enabled)return;const result=results[Number(button.dataset.rainwaterResult)];if(!result)return;draft[pickerTarget+'Id']=String(result.id);aliases(draft);bind();mark();dialog.close();});
  }
- function openPicker(mode,opener){if(readOnly||saving||!initialized||!enabled)return;ensurePicker();pickerTarget=mode;pickerOpener=opener;$('rainwaterPickerTitle').textContent=mode==='flow'?'Regenwasser-Durchfluss suchen':'Regenwasserzähler suchen';$('rainwaterPickerQuery').value='';$('rainwaterPickerResults').replaceChildren();$('rainwaterPickerStatus').textContent='Lesbare Zahlen-Datenpunkte suchen.';$('rainwaterStatePicker').showModal();$('rainwaterPickerQuery').focus();}
+ function openPicker(mode,opener){
+  if(readOnly||saving||!initialized||!enabled)return;
+  if(window.EnergyStatePicker?.open){
+   window.EnergyStatePicker.open({type:'number',write:false,currentId:draft[mode+'Id']||'',
+    title:mode==='flow'?'Regenwasser-Durchfluss auswählen':'Regenwasserzähler auswählen',
+    saveHint:'Regenwasserzuordnung speichern, um die Änderung zu übernehmen.',
+    onSelect:(id)=>{draft[mode+'Id']=id;aliases(draft);bind();mark();}
+   });
+   return;
+  }
+  ensurePicker();pickerTarget=mode;pickerOpener=opener;
+  $('rainwaterPickerTitle').textContent=mode==='flow'?'Regenwasser-Durchfluss suchen':'Regenwasserzähler suchen';
+  $('rainwaterPickerQuery').value='';$('rainwaterPickerResults').replaceChildren();
+  $('rainwaterPickerStatus').textContent='Lesbare Zahlen-Datenpunkte suchen.';
+  $('rainwaterStatePicker').showModal();$('rainwaterPickerQuery').focus();
+ }
  async function search(){
   if(searching||!pickerTarget||readOnly||!enabled)return;const query=$('rainwaterPickerQuery').value.trim();if(query.length<2){$('rainwaterPickerStatus').textContent='Mindestens 2 Zeichen eingeben.';return;}const target=pickerTarget;searching=true;$('rainwaterPickerSearch').disabled=true;$('rainwaterPickerStatus').textContent='Messwerte werden gesucht …';
   try{if(!api.send)throw Error('ioBroker-Verbindung noch nicht bereit.');const response=await api.send('utilityObjects',{query});if(pickerTarget!==target)return;if(response?.ok===false)throw Error(response.error||'Suche nicht verfügbar.');results=(Array.isArray(response?.results)?response.results:[]).filter(result=>!result.type||result.type==='number');$('rainwaterPickerResults').innerHTML=results.map((result,index)=>'<button type="button" data-rainwater-result="'+index+'"><strong>'+esc(result.name||result.id)+'</strong><small>'+esc(result.id)+'</small><small>'+esc(result.unit||'Ohne Einheit')+'</small></button>').join('');$('rainwaterPickerStatus').textContent=results.length?results.length+' Treffer. Passenden Datenpunkt auswählen.':'Keine passenden Datenpunkte gefunden.';}

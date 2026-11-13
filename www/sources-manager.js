@@ -35,7 +35,7 @@
  const heatingSave=document.createElement('div');heatingSave.className='source-heating-save';heatingSave.innerHTML='<p data-heating-config-status role="status" aria-live="polite">Heizungszuordnungen werden mit den Betriebseinstellungen gemeinsam gespeichert.</p><div class="savebar"><span data-heating-dirty>Keine Änderungen</span><button id="sourceHeatingReset" type="button" class="button ghost">Verwerfen</button><button id="sourceHeatingSave" data-heating-save type="button" class="button primary">Heizungszuordnungen speichern</button></div>';heating.append(heatingSave);
  $('sourceHeatingSave').addEventListener('click',()=>window.EnergyHeatingUI?.save());$('sourceHeatingReset').addEventListener('click',()=>window.EnergyHeatingUI?.discard());
  const heatingPicker=$('heatingStatePicker');if(heatingPicker)document.body.append(heatingPicker);sourceLink($('page-heating'),'heating','Heizungs-Datenquellen konfigurieren');
- consumer.innerHTML='<article class="panel source-consumer-panel"><div class="panel-head"><div><div class="eyebrow">MESSWERTE JE VERBRAUCHER</div><h3>Leistung und Rückmeldung</h3><p>Für jeden angelegten Verbraucher lassen sich die gemessene Leistung in Watt und eine optionale EIN/AUS-Rückmeldung zuordnen. Schaltausgänge und deren Freigaben bleiben unter Geräteausgänge.</p></div></div><form id="sourceConsumersForm"><div id="sourceConsumerRows" class="source-consumer-list"></div><div class="savebar"><span id="sourceConsumersStatus" role="status" aria-live="polite">Noch keine Verbraucherdaten</span><button id="sourceConsumersDiscard" type="button" class="button ghost">Verwerfen</button><button id="sourceConsumersSave" type="submit" class="button primary">Verbrauchsquellen speichern</button></div></form></article>';
+ consumer.insertAdjacentHTML('afterbegin','<article class="panel source-consumer-panel"><div class="panel-head"><div><div class="eyebrow">MESSWERTE JE VERBRAUCHER</div><h3>Leistung und Rückmeldung</h3><p>Für jeden angelegten Verbraucher lassen sich die gemessene Leistung in Watt und eine optionale EIN/AUS-Rückmeldung zuordnen. Schaltausgänge und deren Freigaben bleiben unter Geräteausgänge.</p></div></div><form id="sourceConsumersForm"><div id="sourceConsumerRows" class="source-consumer-list"></div><div class="savebar"><span id="sourceConsumersStatus" role="status" aria-live="polite">Noch keine Verbraucherdaten</span><button id="sourceConsumersDiscard" type="button" class="button ghost">Verwerfen</button><button id="sourceConsumersSave" type="submit" class="button primary">Verbrauchsquellen speichern</button></div></form></article>');
  sourceLink($('page-outputs'),'consumers','Messwertquellen konfigurieren');
  function note(text,error=false){$('sourceConsumersStatus').textContent=text;$('sourceConsumersStatus').classList.toggle('source-manager-error',error)}
  function renderConsumers(){
@@ -60,7 +60,26 @@
   $('sourceManagerPickerClose').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>{pickerTarget=null;pickerOpener?.focus()});$('sourceManagerPickerForm').addEventListener('submit',event=>{event.preventDefault();searchPicker()});
   $('sourceManagerPickerResults').addEventListener('click',event=>{const button=event.target.closest('[data-source-result]');if(!button||!pickerTarget)return;const row=pickerResults[Number(button.dataset.sourceResult)],device=draft.find(item=>item.id===pickerTarget.id);if(!row||!device)return;device[pickerTarget.field]=String(row.id);dirty=true;renderConsumers();note('Ungespeicherte Änderungen');dialog.close();});
  }
- $('sourceConsumerRows').addEventListener('click',event=>{const button=event.target.closest('[data-source-consumer-pick]');if(!button)return;ensurePicker();pickerTarget={id:button.dataset.sourceConsumerPick,field:button.dataset.sourcePickField,type:button.dataset.sourcePickType};pickerOpener=button;$('sourceManagerPickerTitle').textContent=pickerTarget.type==='boolean'?'Statusrückmeldung auswählen':'Istleistungsmessung auswählen';$('sourceManagerPickerQuery').value='';$('sourceManagerPickerResults').replaceChildren();$('sourceManagerPickerStatus').textContent='Lesbaren '+(pickerTarget.type==='boolean'?'Boolean-':'Zahlen-')+'Datenpunkt suchen.';$('sourceManagerPicker').showModal();$('sourceManagerPickerQuery').focus();});
+ $('sourceConsumerRows').addEventListener('click',event=>{
+  const button=event.target.closest('[data-source-consumer-pick]');if(!button)return;
+  const id=button.dataset.sourceConsumerPick,field=button.dataset.sourcePickField,type=button.dataset.sourcePickType;
+  const device=draft.find(item=>item.id===id);if(!device)return;
+  if(window.EnergyStatePicker?.open){
+   window.EnergyStatePicker.open({type,write:false,currentId:device[field]||'',
+    title:type==='boolean'?'Statusrückmeldung auswählen':'Istleistungsmessung auswählen',
+    saveHint:'Verbrauchsquellen speichern, um die Zuordnung zu übernehmen.',
+    onSelect:(stateId)=>{
+     const current=draft.find(item=>item.id===id);if(!current)throw Error('Verbraucher ist nicht mehr vorhanden.');
+     current[field]=stateId;dirty=true;renderConsumers();note('Ungespeicherte Änderungen');
+    }});
+   return;
+  }
+  ensurePicker();pickerTarget={id,field,type};pickerOpener=button;
+  $('sourceManagerPickerTitle').textContent=type==='boolean'?'Statusrückmeldung auswählen':'Istleistungsmessung auswählen';
+  $('sourceManagerPickerQuery').value='';$('sourceManagerPickerResults').replaceChildren();
+  $('sourceManagerPickerStatus').textContent='Lesbaren '+(type==='boolean'?'Boolean-':'Zahlen-')+'Datenpunkt suchen.';
+  $('sourceManagerPicker').showModal();$('sourceManagerPickerQuery').focus();
+ });
  async function searchPicker(){
   if(searching||!pickerTarget)return;const query=$('sourceManagerPickerQuery').value.trim();if(query.length<2){$('sourceManagerPickerStatus').textContent='Mindestens 2 Zeichen eingeben.';return;}if(!api.send){$('sourceManagerPickerStatus').textContent='ioBroker-Verbindung noch nicht bereit.';return;}
   searching=true;$('sourceManagerPickerSearch').disabled=true;const target=pickerTarget;$('sourceManagerPickerStatus').textContent='Datenpunkte werden gesucht …';

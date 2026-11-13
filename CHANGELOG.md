@@ -1,3 +1,13 @@
+# 0.10.7 (2026-11-13)
+
+- Fix the source picker failing with `Cannot set properties of null (setting 'textContent')` after accepting a measurement state: preserve the previously moved output controls in the data sources view.
+- Unify ioBroker object selection for PV and grid measurements, batteries, heating sensors and outputs, water, rainwater, fuel and consumer measurements.
+- Use a consistent picker with `alias.0` support, manual state IDs, datatype and read/write permission checks, and explicit feedback.
+- Keep draft changes separate from persisted source mappings; each configuration section is still explicitly saved by its own action.
+- Preserve the FUP editor's dedicated logic-output creation dialog, which provides different functionality from selecting measurement sources.
+- Add regression checks for DOM preservation, shared state picker usage and PV row creation.
+- Verified source-selection behavior in the isolated `energiemanagement.1` test frontend; no automatic changes to the production adapter.
+
 # 0.10.6 (2026-11-13)
 
 - Fix the PV source add button: append a visible draft row even when the source editor is dynamically moved, provide a loading error instead of silently ignoring the click, and keep existing PV mappings untouched until saved.
