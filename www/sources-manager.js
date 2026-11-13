@@ -60,7 +60,26 @@
   $('sourceManagerPickerClose').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>{pickerTarget=null;pickerOpener?.focus()});$('sourceManagerPickerForm').addEventListener('submit',event=>{event.preventDefault();searchPicker()});
   $('sourceManagerPickerResults').addEventListener('click',event=>{const button=event.target.closest('[data-source-result]');if(!button||!pickerTarget)return;const row=pickerResults[Number(button.dataset.sourceResult)],device=draft.find(item=>item.id===pickerTarget.id);if(!row||!device)return;device[pickerTarget.field]=String(row.id);dirty=true;renderConsumers();note('Ungespeicherte Änderungen');dialog.close();});
  }
- $('sourceConsumerRows').addEventListener('click',event=>{const button=event.target.closest('[data-source-consumer-pick]');if(!button)return;ensurePicker();pickerTarget={id:button.dataset.sourceConsumerPick,field:button.dataset.sourcePickField,type:button.dataset.sourcePickType};pickerOpener=button;$('sourceManagerPickerTitle').textContent=pickerTarget.type==='boolean'?'Statusrückmeldung auswählen':'Istleistungsmessung auswählen';$('sourceManagerPickerQuery').value='';$('sourceManagerPickerResults').replaceChildren();$('sourceManagerPickerStatus').textContent='Lesbaren '+(pickerTarget.type==='boolean'?'Boolean-':'Zahlen-')+'Datenpunkt suchen.';$('sourceManagerPicker').showModal();$('sourceManagerPickerQuery').focus();});
+ $('sourceConsumerRows').addEventListener('click',event=>{
+  const button=event.target.closest('[data-source-consumer-pick]');if(!button)return;
+  const id=button.dataset.sourceConsumerPick,field=button.dataset.sourcePickField,type=button.dataset.sourcePickType;
+  const device=draft.find(item=>item.id===id);if(!device)return;
+  if(window.EnergyStatePicker?.open){
+   window.EnergyStatePicker.open({type,write:false,currentId:device[field]||'',
+    title:type==='boolean'?'Statusrückmeldung auswählen':'Istleistungsmessung auswählen',
+    saveHint:'Verbrauchsquellen speichern, um die Zuordnung zu übernehmen.',
+    onSelect:(stateId)=>{
+     const current=draft.find(item=>item.id===id);if(!current)throw Error('Verbraucher ist nicht mehr vorhanden.');
+     current[field]=stateId;dirty=true;renderConsumers();note('Ungespeicherte Änderungen');
+    }});
+   return;
+  }
+  ensurePicker();pickerTarget={id,field,type};pickerOpener=button;
+  $('sourceManagerPickerTitle').textContent=type==='boolean'?'Statusrückmeldung auswählen':'Istleistungsmessung auswählen';
+  $('sourceManagerPickerQuery').value='';$('sourceManagerPickerResults').replaceChildren();
+  $('sourceManagerPickerStatus').textContent='Lesbaren '+(type==='boolean'?'Boolean-':'Zahlen-')+'Datenpunkt suchen.';
+  $('sourceManagerPicker').showModal();$('sourceManagerPickerQuery').focus();
+ });
  async function searchPicker(){
   if(searching||!pickerTarget)return;const query=$('sourceManagerPickerQuery').value.trim();if(query.length<2){$('sourceManagerPickerStatus').textContent='Mindestens 2 Zeichen eingeben.';return;}if(!api.send){$('sourceManagerPickerStatus').textContent='ioBroker-Verbindung noch nicht bereit.';return;}
   searching=true;$('sourceManagerPickerSearch').disabled=true;const target=pickerTarget;$('sourceManagerPickerStatus').textContent='Datenpunkte werden gesucht …';
