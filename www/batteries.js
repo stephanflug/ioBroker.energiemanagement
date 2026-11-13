@@ -71,7 +71,23 @@
   $('batteryEditor')?.addEventListener('change',e=>{if(e.target.dataset.enable!==undefined){config.batteries[Number(e.target.dataset.enable)].enabled=e.target.checked;mark();renderLive();}});
   $('batteryEditor')?.addEventListener('click',e=>{
    const remove=e.target.closest('[data-remove]');if(remove){config.batteries.splice(Number(remove.dataset.remove),1);mark();renderEditor();renderLive();return;}
-   const pick=e.target.closest('[data-pick]');if(pick){picker={index:Number(pick.dataset.pick),field:pick.dataset.field};$('batteryPicker').showModal();$('batterySearchQuery').focus();}
+   const pick=e.target.closest('[data-pick]');
+   if(pick){
+    const index=Number(pick.dataset.pick),field=pick.dataset.field,battery=config.batteries[index];
+    if(!battery)return;
+    if(window.EnergyStatePicker?.open){
+     const batteryId=battery.id;
+     window.EnergyStatePicker.open({
+      type:field==='status'?'string':'number',write:false,
+      title:'Batterie '+(battery.name||batteryId)+' – '+field,
+      currentId:battery.sources[field]||'',saveHint:'Batterien speichern, um die Zuordnung zu übernehmen.',
+      onSelect:(id)=>{const current=config.batteries.find(x=>x.id===batteryId);
+       if(!current)throw Error('Batterie ist nicht mehr vorhanden.');
+       current.sources[field]=id;mark();renderEditor();}
+     });return;
+    }
+    picker={index,field};$('batteryPicker').showModal();$('batterySearchQuery').focus();
+   }
   });
   $('batteryPickerClose')?.addEventListener('click',()=>$('batteryPicker').close());
   $('batterySearch')?.addEventListener('submit',async e=>{
