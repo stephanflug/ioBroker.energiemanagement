@@ -162,7 +162,27 @@
   $('utilityPickerClose').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>{picker=null;pickerOpener?.focus()});$('utilityPickerForm').addEventListener('submit',event=>{event.preventDefault();searchPicker()});
   $('utilityPickerResults').addEventListener('click',event=>{const button=event.target.closest('[data-utility-result]');if(!button||!picker)return;const result=pickerResults[Number(button.dataset.utilityResult)];if(!result)return;const kind=picker==='fuel'?'fuel':'water';if(kind==='water'){draft.water[picker==='waterFlow'?'flowId':'counterId']=String(result.id);syncWaterAliases(draft.water);}else draft.fuel.stateId=String(result.id);dirty[kind]=true;bindForm(kind);status(kind+'UtilityStatus','Ungespeicherte Änderungen');dialog.close();});
  }
- function openPicker(kind,opener){if(readOnly)return;ensurePicker();picker=kind;pickerOpener=opener;$('utilityPickerTitle').textContent=kind==='waterFlow'?'Durchfluss-Datenpunkt suchen':kind==='waterCounter'?'Wasserzähler-Datenpunkt suchen':'Brennstoff-Datenpunkt suchen';$('utilityPickerQuery').value='';$('utilityPickerResults').replaceChildren();status('utilityPickerStatus','Es werden lesbare Zahlen-Datenpunkte angezeigt.');$('utilityStatePicker').showModal();$('utilityPickerQuery').focus();}
+ function openPicker(kind,opener){
+  if(readOnly)return;
+  if(window.EnergyStatePicker?.open){
+   const area=kind==='fuel'?'fuel':'water',field=kind==='waterFlow'?'flowId':kind==='waterCounter'?'counterId':'stateId';
+   const currentId=draft[area]?.[field]||'';
+   window.EnergyStatePicker.open({type:'number',write:false,currentId,
+    title:kind==='waterFlow'?'Durchfluss-Datenpunkt auswählen':kind==='waterCounter'?'Wasserzähler-Datenpunkt auswählen':'Brennstoff-Datenpunkt auswählen',
+    saveHint:'Den jeweiligen Verbrauchsbereich speichern, um die Änderung zu übernehmen.',
+    onSelect:(id)=>{
+     if(area==='water'){draft.water[field]=id;syncWaterAliases(draft.water);}
+     else draft.fuel.stateId=id;
+     dirty[area]=true;bindForm(area);status(area+'UtilityStatus','Ungespeicherte Änderungen');
+    }});
+   return;
+  }
+  ensurePicker();picker=kind;pickerOpener=opener;
+  $('utilityPickerTitle').textContent=kind==='waterFlow'?'Durchfluss-Datenpunkt suchen':kind==='waterCounter'?'Wasserzähler-Datenpunkt suchen':'Brennstoff-Datenpunkt suchen';
+  $('utilityPickerQuery').value='';$('utilityPickerResults').replaceChildren();
+  status('utilityPickerStatus','Es werden lesbare Zahlen-Datenpunkte angezeigt.');
+  $('utilityStatePicker').showModal();$('utilityPickerQuery').focus();
+ }
  async function searchPicker(){
   if(pickerLoading||!picker)return;const query=$('utilityPickerQuery').value.trim();if(query.length<2){status('utilityPickerStatus','Mindestens 2 Zeichen eingeben.');return;}pickerLoading=true;$('utilityPickerSearch').disabled=true;const target=picker;status('utilityPickerStatus','Messwerte werden gesucht …');
   try{if(!api.send)throw Error('Keine ioBroker-Verbindung.');const response=await api.send('utilityObjects',{query});if(picker!==target)return;if(response?.ok===false)throw Error(response.error||'Suche nicht verfügbar.');pickerResults=Array.isArray(response?.results)?response.results:[];$('utilityPickerResults').innerHTML=pickerResults.map((result,i)=>'<button type="button" data-utility-result="'+i+'"><strong>'+esc(result.name||result.id)+'</strong><small>'+esc(result.id)+'</small><small>'+esc((result.unit||'Ohne Einheit')+(finite(result.value)?' · '+fmt(result.value,3):''))+'</small></button>').join('');status('utilityPickerStatus',pickerResults.length?pickerResults.length+' Treffer. Passenden Messwert auswählen.':'Keine passenden Datenpunkte gefunden. Die ID kann auch direkt eingetragen werden.');}
