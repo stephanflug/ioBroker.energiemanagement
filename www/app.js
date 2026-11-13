@@ -578,9 +578,9 @@
  }
  function mark(key){dirty[key]=true;renderDirtyOnly();}
  function renderDirtyOnly(){
-  $('sourceDirty').textContent=dirty.sources?'Nicht gespeicherte Änderungen':'Keine Änderungen';
-  $('consDirty').textContent=dirty.consumers?'Nicht gespeicherte Änderungen':'Keine Änderungen';
-  $('outputDirty').textContent=dirty.outputs?'Nicht gespeicherte Änderungen':'Keine Änderungen';
+  for(const [key,id] of [['sources','sourceDirty'],['consumers','consDirty'],['outputs','outputDirty']]){
+   const el=$(id);if(el)el.textContent=dirty[key]?'Nicht gespeicherte Änderungen':'Keine Änderungen';
+  }
  }
  function sourceFor(key){if(key.startsWith('pv-'))return forms.sources?.pv?.[Number(key.slice(3))];return forms.sources?.[key]}
  function setPick(target,id,meta){
