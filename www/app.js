@@ -757,22 +757,69 @@
   if(new Set(doc.devices.map(x=>x.id)).size!==doc.devices.length)throw Error('Doppelte Verbraucher-IDs');
   for(const d of doc.devices){if(!/^[a-z][a-z0-9_]{1,47}$/.test(d.id))throw Error('Ungültige ID: '+d.id)}
  }
+ // ioBroker übernimmt Konfigurationsänderungen asynchron. Erst ack:true des
+ // tatsächlich gespeicherten JSON-Werts gilt als erfolgreiche Bestätigung.
+ async function waitForSavedConfig(id,payload,timeoutMs=10000){
+  const expected=JSON.stringify(payload),started=Date.now();
+  let latest=null;
+  while(Date.now()-started<timeoutMs){
+   latest=await readVal(id);
+   if(latest?.ack===true){
+    if(latest.val===expected)return latest;
+    try{
+     const stored=JSON.parse(latest.val);
+     if(JSON.stringify(stored)===expected)return latest;
+    }catch{}
+   }
+   await new Promise(resolve=>setTimeout(resolve,180));
+  }
+  let backendError='';
+  try{backendError=String((await readVal('status.lastError'))?.val||'').slice(0,300)}catch{}
+  const detail=backendError?' Adapterfehler: '+backendError:'';
+  throw Error('Der Adapter hat die Änderung nicht bestätigt (ack=true).'+detail+' Bitte Einstellungen und Verbindung prüfen.');
+ }
  async function save(id,payload,label){
   await setVal(id,JSON.stringify(payload));
-  const confirmed=await readVal(id);
-  if(confirmed?.val!==JSON.stringify(payload))throw Error('Der neue Zustand wurde nicht bestätigt');
-  dirty[label]=false;clearNotice();showNotice('Einstellungen wurden gespeichert.');await poll();
+  await waitForSavedConfig(id,payload);
+  dirty[label]=false;clearNotice();showNotice('Einstellungen wurden gespeichert und vom Adapter bestätigt.');await poll();
+ }
+ let sourcesSaveRunning=false;
+ function sourceSaveError(message,key){
+  const status=$('sourceDirty');
+  if(status){status.textContent='Speichern fehlgeschlagen: '+message;status.setAttribute('role','alert');}
+  showNotice('Datenquellen konnten nicht gespeichert werden: '+message,true);
+  if(key){
+   const row=[...document.querySelectorAll('[data-source]')].find(el=>el.dataset.source===key);
+   if(row){row.classList.add('source-save-error');row.scrollIntoView?.({block:'center',behavior:'smooth'});}
+  }
  }
  $('saveSources').addEventListener('click',async()=>{
-  try{if(!forms.sources)return;
-   for(const g of SRC_GROUPS)for(const [key,description,,required] of g.keys){const x=forms.sources[key]||{};if(required&&!x.id)throw Error('Pflichtquelle fehlt: '+description);if(x.id)await readValidSelected(x.id,'number',false)}
-   for(const pv of forms.sources.pv||[]){if(!pv.id)throw Error('Bei PV-Quellen muss ein Datenpunkt ausgewählt werden');await readValidSelected(pv.id,'number',false)}
-   const old=jsonState('config.sources',{});
-   if(JSON.stringify(old.importKWh)!==JSON.stringify(forms.sources.importKWh)||JSON.stringify(old.exportKWh)!==JSON.stringify(forms.sources.exportKWh)){
+  if(sourcesSaveRunning)return;
+  sourcesSaveRunning=true;
+  const button=$('saveSources');if(button)button.disabled=true;
+  let key='';
+  try{
+   if(!forms.sources)throw Error('Datenquellen sind noch nicht geladen.');
+   for(const group of SRC_GROUPS)for(const [id,description,,required] of group.keys){
+    key=id;const x=forms.sources[id]||{};
+    if(required&&!x.id)throw Error('Pflichtquelle fehlt: '+description+'. Bitte Datenpunkt auswählen.');
+    if(x.id){try{await readValidSelected(x.id,'number',false)}catch(e){throw Error(description+': '+e.message)}}
+   }
+   for(let i=0;i<(forms.sources.pv||[]).length;i++){
+    key='pv-'+i;const pv=forms.sources.pv[i];
+    if(!pv?.id)throw Error('PV '+(i+1)+': Bitte einen Datenpunkt auswählen oder die leere PV-Quelle entfernen.');
+    try{await readValidSelected(pv.id,'number',false)}catch(e){throw Error('PV '+(i+1)+': '+e.message)}
+   }
+   key='';
+   const previous=jsonState('config.sources',{});
+   if(JSON.stringify(previous.importKWh)!==JSON.stringify(forms.sources.importKWh)||JSON.stringify(previous.exportKWh)!==JSON.stringify(forms.sources.exportKWh)){
     if(!confirm('Der Zähler wurde verändert. Die laufende Viertelstunde wird verworfen, historische Spitzen bleiben erhalten. Fortfahren?'))return;
    }
+   if($('sourceDirty'))$('sourceDirty').textContent='Speichert … auf Bestätigung des Adapters warten';
    await save('config.sources',forms.sources,'sources');
-  }catch(e){showNotice('Datenquellen konnten nicht gespeichert werden: '+e.message,true)}
+   if($('sourceDirty')){$('sourceDirty').textContent='Datenquellen erfolgreich gespeichert';$('sourceDirty').removeAttribute('role');}
+  }catch(e){sourceSaveError(e.message,key)}
+  finally{sourcesSaveRunning=false;if(button)button.disabled=false;}
  });
  $('resetSources').addEventListener('click',()=>{dirty.sources=false;forms.sources=jsonState('config.sources',{});renderSources()});
  $('saveConsumers').addEventListener('click',async()=>{
