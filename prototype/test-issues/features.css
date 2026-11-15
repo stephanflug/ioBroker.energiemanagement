@@ -1,0 +1,16 @@
+
+/* Separater Testaufbau Issues 7-11, keine Änderung an produktiver UI. */
+.emt-banner{padding:10px 14px;background:#204263;border:1px solid #487ca0;color:#f1f8ff;border-radius:10px;margin:8px 0 17px;font-size:.85rem}
+.emt-card{background:var(--card-bg,#172b42);border:1px solid #426077;border-radius:13px;padding:18px;margin:16px 0;color:#f2f7ff;box-shadow:0 4px 14px #0002}
+.emt-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.emt-head h2{margin:0;font-size:1.22rem}.emt-muted{color:#adc1d3;font-size:.87rem;line-height:1.5}
+.emt-head p{margin:5px 0 0}.emt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:12px 0}
+.emt-field{display:flex;flex-direction:column;gap:7px;min-width:0}.emt-field input,.emt-field select{width:100%;min-height:38px;border:1px solid #65849e;border-radius:8px;background:#0e2135;color:#f4f8ff;padding:6px 9px}
+.emt-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}.emt-actions button,.emt-tabs button{border:1px solid #6488a5;background:#224969;color:white;border-radius:8px;padding:9px 13px;cursor:pointer}.emt-actions button:hover,.emt-tabs button:hover{background:#37688b}.emt-actions button:disabled{opacity:.5;cursor:default}
+.emt-mark{display:inline-flex;align-items:center;padding:5px 9px;border-radius:20px;font-size:.83rem;background:#314962;color:#fff}.emt-mark.yes{background:#216d55}.emt-mark.no{background:#725b32}.emt-mark.unknown{background:#704452}
+.emt-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:14px 0}.emt-kpi{background:#10243b;border-radius:10px;padding:13px}.emt-kpi small{display:block;color:#b0c0cf;margin-bottom:7px}.emt-kpi strong{font-size:1.3rem;display:block}
+.emt-chart{overflow-x:auto;margin-top:12px}.emt-chart svg{display:block;min-width:660px;width:100%;height:auto}.emt-chart text{font-family:system-ui,Arial,sans-serif;fill:#c4d4e4;font-size:15px}.emt-chart .gridline{stroke:#56738c;stroke-opacity:.35;stroke-width:1}.emt-chart .bar{fill:#247df3}.emt-chart .bar.secondary{fill:#5692db}.emt-chart .line{stroke:#28cf75;fill:none;stroke-width:3.5;stroke-linejoin:round}.emt-chart .dot{fill:#28cf75}
+.emt-chart .nodata{stroke:#5a6d7e;stroke-width:1}.emt-legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:.85rem;color:#bdd1e3}.emt-color{display:inline-block;width:13px;height:13px;background:#247df3;margin-right:4px;vertical-align:middle}.emt-color.line{background:#28cf75}
+.emt-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.emt-tabs button[aria-selected="true"]{background:#3280c6}.emt-hidden{display:none!important}.emt-alert{font-size:.87rem;margin:10px 0 0;color:#ffc6a7}.emt-info{font-size:.87rem;margin:10px 0 0;color:#b9e7d5}.emt-archive{margin-top:9px;color:#dcbf8c;font-size:.82rem}
+.emt-inline{display:flex;gap:9px;align-items:center}.emt-inline>*:first-child{flex:1}.emt-testflag{color:#ffd8a0;font-size:.83rem;font-weight:650}
+@media(max-width:600px){.emt-card{padding:12px}.emt-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.emt-actions button{flex:1}}
