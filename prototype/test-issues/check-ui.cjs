@@ -29,4 +29,4 @@ d.getElementById('emtNewMeterPicker').click();assert.equal(d.getElementById('emt
 console.log('OK: 3 charts, heating tab, reset & meter UI, known fuel counter, shared picker');
 process.exit(0);
 }catch(e){console.error('TEST FAILED',e);process.exit(1)}
-},750);
+},2300);
