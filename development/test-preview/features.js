@@ -123,7 +123,7 @@
   const rows=Array.from({length:12},(_,i)=>months?.[selectedYear+'-'+String(i+1).padStart(2,'0')]||null);
   if(!rows.some(Boolean))return '<p class="footnote">Für '+selectedYear+' liegen noch keine aufgezeichneten Monatswerte vor.</p>';
   const max=Math.max(0.01,...rows.map(r=>r?.value||0));
-  return '<div class="emtest-bars">'+rows.map((r,i)=>'<div class="emtest-col" title="'+esc((i+1)+'. Monat: '+(r?fmt(r.value)+' '+unit:'keine Messwerte'))+'"><div class="emtest-bar" style="height:'+Math.max(0,(r?.value||0)/max*155)+'px"></div><small>'+['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][i]+'</small></div>').join('')+'</div><p class="footnote">Blaue Balken: '+unit+'; gestrichelte Kennzeichnung bei teilweiser Erfassung.</p>';
+  return '<div class="emtest-bars">'+rows.map((r,i)=>'<div class="emtest-col" title="'+esc((i+1)+'. Monat: '+(r?fmt(r.value)+' '+unit:'keine Messwerte'))+'"><div class="emtest-bar'+(r?.partial?' emtest-partial':'')+'" style="height:'+Math.max(0,(r?.value||0)/max*155)+'px"></div><small>'+['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][i]+'</small></div>').join('')+'</div><p class="footnote">Blaue Balken: '+unit+'; gestrichelte Kennzeichnung bei teilweiser Erfassung.</p>';
  }
  function hgtChart(months,y){
   const records=Array.from({length:12},(_,i)=>months?.[y+'-'+String(i+1).padStart(2,'0')]||null);
@@ -131,6 +131,9 @@
   const max=Math.max(1,...records.map(x=>x?.hgt||0));const width=840,height=255,base=210;
   const xmin=30,dx=64;
   let svg='<svg viewBox="0 0 840 260" role="img" aria-label="Heizgradtage als blaue Monatsbalken und mittlere Außentemperatur als grüne Linie" preserveAspectRatio="xMidYMid meet">';
+  svg+='<line x1="24" y1="210" x2="800" y2="210" stroke="#8296a7" opacity=".5"/>';
+  svg+='<text x="3" y="45" font-size="13" fill="#2547ef">'+fmt(max,1)+'</text><text x="3" y="215" font-size="13" fill="#2547ef">0</text>';
+  svg+='<text x="790" y="92" font-size="13" fill="#12c95b">20 °C</text><text x="790" y="164" font-size="13" fill="#12c95b">0 °C</text><text x="790" y="200" font-size="13" fill="#12c95b">-10 °C</text>';
   for(let i=0;i<12;i++){const r=records[i],x=xmin+i*dx;const h=Math.max(0,((r?.hgt||0)/max)*170);
    if(r?.hgt!==null&&r){svg+='<rect x="'+x+'" y="'+(base-h)+'" width="34" height="'+h+'" fill="#2547ef"><title>'+esc(fmt(r.hgt)+' Grad-Tage')+'</title></rect>'}
    svg+='<text x="'+(x+17)+'" y="237" text-anchor="middle" font-size="15" fill="currentColor">'+(i+1)+'</text>';
