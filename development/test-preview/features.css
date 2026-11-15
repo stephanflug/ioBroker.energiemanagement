@@ -14,3 +14,5 @@
 #emUtilityActions .settings-grid{margin:14px 0}
 #emUtilityActions button{margin-top:10px}
 @media(max-width:640px){.emtest-col small{font-size:0.65rem}.emtest-bars{gap:1px;height:160px}}
+
+.emtest-bar.emtest-partial{outline:2px dashed #f5ad49;outline-offset:1px}
