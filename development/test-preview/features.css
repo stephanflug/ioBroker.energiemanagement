@@ -1,0 +1,18 @@
+
+/* Isolierte Features für energiemanagement.1 */
+#emTestBanner{position:fixed;bottom:12px;right:12px;z-index:5000;padding:7px 11px;background:#315e94;color:#fff;border-radius:7px;box-shadow:0 3px 10px #0006;font:12px system-ui;pointer-events:none}
+.emtest-kpis{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:14px 0}
+.emtest-kpis strong{font-size:1.1rem;padding:9px 14px;border-radius:8px;background:rgba(40,120,160,.15)}
+.emtest-kpis span{display:block;font-size:0.93rem}
+.emtest-chart{padding:18px 4px 10px;min-height:190px;overflow:hidden}
+.emtest-bars{display:flex;height:200px;gap:8px;align-items:flex-end;justify-content:space-evenly;border-bottom:1px solid #64758a}
+.emtest-col{display:flex;flex:1;height:100%;flex-direction:column;justify-content:flex-end;align-items:center;min-width:0}
+.emtest-col small{font-size:0.72rem;padding:8px 0}
+.emtest-bar{width:min(70%,48px);min-height:1px;background:#284bdf;border-radius:3px 3px 0 0}
+.emtest-chart svg{width:100%;max-width:100%;height:auto;color:var(--text,#eee)}
+.emtest-info{margin-top:14px;font-size:.9rem;opacity:.85}
+#emUtilityActions .settings-grid{margin:14px 0}
+#emUtilityActions button{margin-top:10px}
+@media(max-width:640px){.emtest-col small{font-size:0.65rem}.emtest-bars{gap:1px;height:160px}}
+
+.emtest-bar.emtest-partial{outline:2px dashed #f5ad49;outline-offset:1px}
