@@ -2,7 +2,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const j=require('/opt/iobroker/node_modules/jsdom');
 const base=process.argv[2];
-const d=j.jsdom(fs.readFileSync(base+'/index.html','utf8'),{url:'http://127.0.0.1:8082/energiemanagement/test-issues/index.html?instance=energiemanagement.1'});
+const html=fs.readFileSync(base+'/index.html','utf8').replace(/<script[^>]*src="[^"]+"[^>]*><\/script>/g,'');
+const d=j.jsdom(html,{url:'http://127.0.0.1:8082/energiemanagement/test-issues/index.html?instance=energiemanagement.1'});
 const w=d.defaultView,p=w.Element.prototype;
 if(!p.after)p.after=function(n){this.parentNode.insertBefore(n,this.nextSibling)};
 if(!p.insertAdjacentHTML)p.insertAdjacentHTML=function(where,html){const root=d.createElement('div');root.innerHTML=html;for(const n of Array.from(root.childNodes))this.appendChild(n)};
