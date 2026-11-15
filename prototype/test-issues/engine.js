@@ -101,11 +101,13 @@ function heatStats(cfg,heating){
  for(const [key,s] of Object.entries(archive.days)){
   if(!key.startsWith(year+'-')||!s?.samples)continue;
   const month=Number(key.slice(5,7))-1;if(month<0||month>=12)continue;
-  const avgTemp=s.sum/s.samples,hgt=avgTemp<cfg.heatLimitC?Math.max(0,cfg.referenceC-avgTemp):0;
-  const b=byMonth[month];b.degreeDays=(b.degreeDays??0)+hgt;
+  const avgTemp=s.sum/s.samples,coverageHours=Math.max(0,Math.min(24,(s.lastAt-s.firstAt)/3600000));
+  const hgt=avgTemp<cfg.heatLimitC?Math.max(0,cfg.referenceC-avgTemp):0;
+  const part=hgt*coverageHours/24;
+  const b=byMonth[month];if(coverageHours>0)b.degreeDays=(b.degreeDays??0)+part;
   b.averageC=(b.averageC??0)+s.sum;b.days++;
   b._samples=(b._samples||0)+s.samples;
-  b.partial ||= s.samples<200;total+=hgt;
+  b.partial ||= coverageHours<20;total+=part;
  }
  for(const b of byMonth){if(b.averageC!==null)b.averageC=Number((b.averageC/b._samples).toFixed(2));if(b.degreeDays!==null)b.degreeDays=Number(b.degreeDays.toFixed(2));delete b._samples;}
  return {outdoorId:stateId,outdoorC:current,outdoorTs:ts||null,avgC:avg===null?null:Number(avg.toFixed(2)),referenceC:cfg.referenceC,heatLimitC:cfg.heatLimitC,
@@ -182,7 +184,7 @@ on({id:BASE+'.command',change:'ne'},event=>{
  if(event?.state?.ack===true||!event?.state?.val)return;
  runCommand(event.state.val);
 });
-on({id:BASE+'.config',change:'ne'},event=>{if(event?.state?.ack===true)publish();});
+on({id:BASE+'.config',change:'ne'},()=>publish());
 publish();
 setInterval(publish,60000);
 log('Energiemanagement Test-Erweiterung für Instanz 1 gestartet (ohne Hardware-Schreibzugriffe).','info');
