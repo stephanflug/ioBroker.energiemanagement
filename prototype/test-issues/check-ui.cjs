@@ -7,6 +7,7 @@ const d=j.jsdom(html,{url:'http://127.0.0.1:8082/energiemanagement/test-issues/i
 const w=d.defaultView,p=w.Element.prototype;
 if(!p.after)p.after=function(n){this.parentNode.insertBefore(n,this.nextSibling)};
 if(!p.insertAdjacentHTML)p.insertAdjacentHTML=function(where,html){const root=d.createElement('div');root.innerHTML=html;for(const n of Array.from(root.childNodes))this.appendChild(n)};
+if(!Object.getOwnPropertyDescriptor(p,'dataset'))Object.defineProperty(p,'dataset',{get(){const n=this;return new Proxy({},{get(_,k){return n.getAttribute('data-'+String(k).replace(/[A-Z]/g,c=>'-'+c.toLowerCase()))},set(_,k,v){n.setAttribute('data-'+String(k).replace(/[A-Z]/g,c=>'-'+c.toLowerCase()),v);return true}})}});
 w.URLSearchParams=URLSearchParams;
 w.console=console;w.confirm=()=>true;
 const mock={
