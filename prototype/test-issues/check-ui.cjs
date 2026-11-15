@@ -22,6 +22,7 @@ d.dispatchEvent(new w.Event('DOMContentLoaded',{bubbles:true}));
 setTimeout(()=>{
 try{
 for(const id of ['emtOverview','emtFuelCounter','emtWaterChart','emtFuelChart','emtHddChart','emtHddSettings','emtUtilitiesSettings','emtResetApply','emtSwapMeter'])assert(d.getElementById(id),'Missing '+id);
+console.log('DEBUG',JSON.stringify({msg:d.getElementById('emtHddMessage')?.textContent,charts:['emtWaterChart','emtFuelChart','emtHddChart'].map(id=>({id,len:d.getElementById(id)?.innerHTML.length,head:d.getElementById(id)?.innerHTML.slice(0,80)})),year:d.getElementById('emtYear')?.value}));
 for(const id of ['emtWaterChart','emtFuelChart','emtHddChart'])assert(d.getElementById(id).querySelector('svg'),'Missing chart '+id);
 assert.match(d.getElementById('emtFuelCounter').textContent,/149,952/);
 d.getElementById('emtTabHdd').click();assert(!d.getElementById('emtHddSettings').classList.contains('emt-hidden'));
